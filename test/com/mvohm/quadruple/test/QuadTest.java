@@ -220,8 +220,8 @@ public class QuadTest {
    */
   @SuppressWarnings("serial")
   static private final HashMap<ArgumentKeys, Object> COMMAND_LINE_ARGS = new HashMap<ArgumentKeys, Object>() {{
-    put(ArgumentKeys.VERBOSITY, 1);
-    put(ArgumentKeys.RANDOM_COUNT, 3000);
+    put(ArgumentKeys.VERBOSITY, Verbosity.MEDIUM);
+    put(ArgumentKeys.RANDOM_COUNT, 3000L);
   }};
 
   /**

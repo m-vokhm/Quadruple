@@ -1,12 +1,5 @@
 package com.mvohm.quadruple;
 
-import static com.mvohm.quadruple.test.AuxMethods.hexStr_;
-import static com.mvohm.quadruple.test.AuxMethods.hexStr_u;
-import static com.mvohm.quadruple.test.AuxMethods.log;
-import static com.mvohm.quadruple.test.AuxMethods.log_;
-import static com.mvohm.quadruple.test.AuxMethods.say;
-import static com.mvohm.quadruple.test.AuxMethods.say_;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -17,7 +10,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.mvohm.quadruple.test.AuxMethods;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
@@ -3004,11 +2996,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
      */
     @SuppressWarnings("unused")
     private static void logExpAndMant(boolean indent, long exp2, long[] product) {
-      final String prefix = indent? "\t\t\t\t\t\t" : "";
-      log_(prefix + "exp2:\t" + hexStr((int)exp2));
-      log("\tmant:\t" + hexStr((int)product[5]) + "\t = \t" + (int)product[5]);
-      say_("exp2:\t" + hexStr((int)exp2));
-      say("\tmant:\t" + hexStr((int)product[5]) + "\t = \t" + (int)product[5]);
+//      final String prefix = indent? "\t\t\t\t\t\t" : "";
+//      log_(prefix + "exp2:\t" + hexStr((int)exp2));
+//      log("\tmant:\t" + hexStr((int)product[5]) + "\t = \t" + (int)product[5]);
+//      say_("exp2:\t" + hexStr((int)exp2));
+//      say("\tmant:\t" + hexStr((int)product[5]) + "\t = \t" + (int)product[5]);
     }
 
     /**
@@ -4901,9 +4893,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   @SuppressWarnings("unused")
   private static void dummy() { // Just to prevent removing static import of 'say' from imports
     // 20.10.02 13:18:53 TO DO The imports used for debugging, to be removed after it's finished
-    say(AuxMethods.hexStr(BUFFER_6x32_A));
-    say(hexStr_u(BUFFER_6x32_A));
-    say(hexStr_(BUFFER_6x32_A));
+//    say(AuxMethods.hexStr(BUFFER_6x32_A));
+//    say(hexStr_u(BUFFER_6x32_A));
+//    say(hexStr_(BUFFER_6x32_A));
   } // private static void dummy() { // Just to prevent removing static import of 'say' from imports
 
 }
