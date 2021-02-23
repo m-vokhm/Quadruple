@@ -33,3 +33,21 @@ in standard notation. Some special notations, such as "Quadruple.NaN", are also 
 
 The class is not thread safe. Different threads should not simultaneously perform
 operations even with different instances of the class.
+
+#### Motivation
+The main goal of the project was to provide the ability to perform calculations 
+more accurately than the standard `double` allows, and at the same time 
+to do them faster than the standard `BigDecimal` can do, that may be important 
+for some resource-intensive scientific computing and simulations.  
+
+#### Usage
+A simple example:
+
+       Quadruple radius = new Quadruple(5.5);  // Constructors accept double
+       System.out.println("Radius of the circle: " + radius); 
+       // prints "Radius of the circle: 5.500000000000000000000000000000000000000e+00"
+       radius.multiply(radius);                // r^2
+       System.out.println("Area of the circle:   " +
+                          radius.multiply(Quadruple.pi())); // pi*r^2
+       // prints "Area of the circle:   9.503317777109124546349496234420496224688e+01"
+    
