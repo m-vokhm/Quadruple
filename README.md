@@ -51,3 +51,19 @@ A simple example:
                           radius.multiply(Quadruple.pi())); // pi*r^2
        // prints "Area of the circle:   9.503317777109124546349496234420496224688e+01"
     
+#### Testing
+A simple stand-alone test utility `QuadTest.java` is included 
+in `com.mvohm.quadruple.test` package located in the `test` folder.
+
+It uses a statically defined set of test data to provide complete coverage 
+of the code under test, as well as automatically generated data sequences 
+to test the basic operations performed by `Quadruple.java`, 
+and evaluates both the correctness of the operation being tested 
+and the relative error of the resulting value. 
+Also some statistics are collected, e.g. mean error, maximum error, and MSE.
+The test results are printed to `System.out`. 
+ 
+A set of test methods, one for each tested operation, 
+intended to be used with `JUnit`, are in the `QuadJUnitTests.java` class. 
+They use the same data as the aforementioned standalone utility. 
+   
