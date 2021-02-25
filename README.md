@@ -20,7 +20,7 @@ Implements four arithmetic operations and square root calculation.
 The relative error of any of the operations does not exceed half of the least significant
 bit of the mantissa, i.e. `2^-129`, which approximately corresponds to `1.47e-39`.
 
-Instances are mutable, instance operations change the values, for example, `q1.add(q2)`
+***Instances are mutable***, instance operations change the values, for example, `q1.add(q2)`
 replaces the old value of `q1` with the sum of the old value of `q1` and the value of `q2`.
 Static methods that take two instances and create a new instance with
 the value of the operation result, such as `q3 = Quadruple.add(q1, q2)`,
@@ -31,7 +31,7 @@ by a new one. The new value can be passed in as an argument of type `Quadruple`,
 either as a value of another numeric type, or as a `String` representing a decimal number
 in standard notation. Some special notations, such as "Quadruple.NaN", are also admittable.
 
-The class is not thread safe. Different threads should not simultaneously perform
+***The class is not thread safe.*** Different threads should not simultaneously perform
 operations even with different instances of the class.
 
 #### Motivation
