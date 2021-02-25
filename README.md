@@ -34,6 +34,9 @@ in standard notation. Some special notations, such as "Quadruple.NaN", are also 
 ***The class is not thread safe.*** Different threads should not simultaneously perform
 operations even with different instances of the class.
 
+For more details, see the 
+[Quadruple class documentation](doc/index.html)
+
 #### Motivation
 The main goal of the project was to provide the ability to perform calculations 
 more accurately than the standard `double` allows, and at the same time 
