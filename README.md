@@ -69,4 +69,9 @@ The test results are printed to `System.out`.
 A set of test methods, one for each tested operation, 
 intended to be used with `JUnit`, are in the `QuadJUnitTests.java` class. 
 They use the same data as the aforementioned standalone utility. 
+
+For more details, see the 
+[Quadruple tests documentation](test/doc/index.html)
+
+
    
