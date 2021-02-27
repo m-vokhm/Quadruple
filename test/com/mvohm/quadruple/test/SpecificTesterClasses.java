@@ -210,7 +210,7 @@ public class SpecificTesterClasses {
     @Override protected List<String[]> getTestDataList()                  { return bd2qConversionDataList(); }
 
     /** Parses the input string and returns the corresponding value of type {@code BigDecimal}
-     * (<nobr>{@code new BigDecimal(s)},</nobr> actually)*/
+     * (<span class="nowrap">{@code new BigDecimal(s)},</span> actually)*/
     @Override protected BigDecimal  parseSrcType(String s)                { return new BigDecimal(s); }
 
   } // static class BdToQuadTester extends Conversion_T2Q_Tester<BigDecimal> {
@@ -227,7 +227,7 @@ public class SpecificTesterClasses {
     @Override protected List<String[]> getTestDataList()                  { return d2qConversionDataList(); }
 
     /** Parses the input string and returns the corresponding value of type {@code double}
-     * (<nobr>{@code Double.parseDouble(s)},</nobr> actually)*/
+     * (<span class="nowrap">{@code Double.parseDouble(s)},</span> actually)*/
     @Override protected Double parseSrcType(String s)                     { return Double.parseDouble(s); }
 
     /**
@@ -256,7 +256,7 @@ public class SpecificTesterClasses {
     @Override protected List<String[]> getTestDataList()                  { return l2qConversionDataList(); }
 
     /** Parses the input string and returns the corresponding value of type {@code long}
-     * (<nobr>{@code Long.parseLong(s)},</nobr> actually)*/
+     * (<span class="nowrap">{@code Long.parseLong(s)},</span> actually)*/
     @Override protected Long parseSrcType(String s)                       { return Long.parseLong(s); }
 
     /**
@@ -350,7 +350,7 @@ public class SpecificTesterClasses {
   } // static class QuadToStringToQuadTester extends UnaryQuadrupleFunctionTester {
 
   /**
-   *  A tester to test static method {@link Quadruple.sqrt(Quadruple q)}
+   *  A tester to test static method {@link Quadruple#sqrt(Quadruple q)}
    */
   static class StaticSqrtTester extends UnaryQuadrupleFunctionTester {
 
@@ -371,7 +371,7 @@ public class SpecificTesterClasses {
   } // static class StaticSqrtTester extends UnaryQuadrupleFunctionTester {
 
   /**
-   * A tester to test instance method {@link Quadruple.sqrt()}
+   * A tester to test instance method {@link Quadruple#sqrt()}
    */
   static class InstanceSqrtTester extends StaticSqrtTester  {
 
@@ -387,7 +387,7 @@ public class SpecificTesterClasses {
   //=============================================================================*/
 
   /**
-   *  A tester to test static method {@link Quadruple.add(Quadruple op1, Quadruple op2)}
+   *  A tester to test static method {@link Quadruple#add(Quadruple op1, Quadruple op2)}
    */
   static class StaticAdditionTester extends BinaryFunctionTester {
 
@@ -434,7 +434,7 @@ public class SpecificTesterClasses {
   } // static class StaticAdditionTester extends BinaryFunctionTester {
 
   /**
-   *  A tester to test instance method {@link Quadruple.add(Quadruple op2)}
+   *  A tester to test instance method {@link Quadruple#add(Quadruple)}
    */
   static class InstanceAdditionTester extends StaticAdditionTester {
 
@@ -446,7 +446,7 @@ public class SpecificTesterClasses {
   } // static class InstanceAdditionTester extends StaticAdditionTester {
 
   /**
-   *  A tester to test static method {@link Quadruple.subtract(Quadruple op1, Quadruple op2)}
+   *  A tester to test static method {@link Quadruple#subtract(Quadruple op1, Quadruple op2)}
    */
   static class StaticSubtractionTester extends BinaryFunctionTester {
 
@@ -496,7 +496,7 @@ public class SpecificTesterClasses {
   } // static class StaticSubtractionTester extends BinaryFunctionTester {
 
   /**
-   *  A tester to test instance method {@link Quadruple.subtract(Quadruple op2)}
+   *  A tester to test instance method {@link Quadruple#subtract(Quadruple op2)}
    */
   static class InstanceSubtractionTester extends StaticSubtractionTester  {
 
@@ -509,7 +509,7 @@ public class SpecificTesterClasses {
   } // static class InstanceSubtractionTester extends StaticSubtractionTester  {
 
   /**
-   *  A tester to test static method {@link Quadruple.multiply(Quadruple op1, Quadruple op2)}
+   *  A tester to test static method {@link Quadruple#multiply(Quadruple op1, Quadruple op2)}
    */
   static class StaticMultiplicationTester extends BinaryFunctionTester {
 
@@ -557,7 +557,7 @@ public class SpecificTesterClasses {
   } // static class StaticMultiplicationTester extends BinaryFunctionTester {
 
   /**
-   *  A tester to test instance method {@link Quadruple.multiply(Quadruple op2)}
+   *  A tester to test instance method {@link Quadruple#multiply(Quadruple op2)}
    */
   static class InstanceMultiplicationTester extends StaticMultiplicationTester {
 
@@ -570,7 +570,7 @@ public class SpecificTesterClasses {
   } // static class InstanceMultiplicationTester extends StaticMultiplicationTester {
 
   /**
-   *  A tester to test static method {@link Quadruple.divide(Quadruple op1, Quadruple op2)}
+   *  A tester to test static method {@link Quadruple#divide(Quadruple op1, Quadruple op2)}
    */
   static class StaticDivisionTester extends BinaryFunctionTester {
 
@@ -635,7 +635,7 @@ public class SpecificTesterClasses {
   } // static class StaticDivisionTester extends BinaryFunctionTester {
 
   /**
-   *  A tester to test instance method {@link Quadruple.divide(Quadruple op2)}
+   *  A tester to test instance method {@link Quadruple#divide(Quadruple op2)}
    */
   static class InstanceDivisionTester extends StaticDivisionTester {
 

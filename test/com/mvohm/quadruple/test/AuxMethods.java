@@ -30,6 +30,8 @@ import java.util.Map;
 
 import com.mvohm.quadruple.Quadruple;
 
+import sun.print.resources.serviceui;
+
 /**
  * A set of convenience methods to be used by other classes of the quadruple.test package.
  * Includes mainly a number of methods to convert values of various types to each other,
@@ -56,16 +58,26 @@ public class AuxMethods {
   /** == System.out.println(); */
 	public static void say() 	{ System.out.println(); }
 
-	/** == System.out.println(Object o); */
+	/** == System.out.println(Object o);
+	 * @param o {@code Object} to print */
 	public static void say(Object o) 	{ System.out.println(o); }
 
-	/** == System.out.print(Object o); */
+	/** == System.out.print(Object o);
+   * @param o {@code Object} to print */
 	public static void say_(Object o) 	{ System.out.print(o); }
 
-	/** == System.out.println(String.format(String format, Object... args) */
+	/** == System.out.println(String.format(String format, Object... args)
+	 * @param format a format string to format the {@code args}
+	 * @param args arguments to format
+	 * @see String#format(String, Object...)
+	 */
 	public static void say(String format, Object... args) { System.out.println(String.format(format, args)); }
 
-  /** == System.out.print(String.format(String format, Object... args) */
+  /** == System.out.print(String.format(String format, Object... args)
+   * @param format a format string to format the {@code args}
+   * @param args arguments to format
+   * @see String#format(String, Object...)
+   */
 	public static void say_(String format, Object... args) { System.out.print(String.format(format, args)); }
 
 	/** Terminates execution with exit code == 0 */
@@ -102,7 +114,8 @@ public class AuxMethods {
 
   /**
    * Returns a hexadecimal string representation of the given double value,
-   * that separately shows its sign, mantissa, and exponent, e.g. <nobr>"-6_a09e_667f_3bcd e 3ff"</nobr>
+   * that separately shows its sign, mantissa, and exponent, e.g.
+   * <span class="nowrap">"-6_a09e_667f_3bcd e 3ff"</span>
    * @param dValue -- the value to convert to hexadecimal string
    * @return the hexadecimal string representation of the given double value
    */
@@ -119,8 +132,8 @@ public class AuxMethods {
   /**
    * Returns a hexadecimal string representation of the given {@code Quadruple} value,
    * that separately shows its sign, mantissa, and exponent, e.g.
-   * <nobr>"+3c7e_7dc8_2aef_ddf3 ab41_94a5_1831_2fce e 10ac_83b0"</nobr>
-   * @param dValue the value to convert to hexadecimal string
+   * <span class="nowrap">"+3c7e_7dc8_2aef_ddf3 ab41_94a5_1831_2fce e 10ac_83b0"</span>
+   * @param qValue the value to convert to hexadecimal string
    * @return the hexadecimal string representation of the given {@code Quadruple} value
    */
 	public static String hexStr(Quadruple qValue) {
@@ -135,7 +148,7 @@ public class AuxMethods {
    1: ffff_ffff_742f_c7cb
    2: abcd_ef01_2345_6789</pre>
    * Had been used for debugging. Currently not used, but may still be useful in the future.<br><br>
-   * @param buff the buffer of {@code long}s to be represented as hex strings
+   * @param buffer the buffer of {@code long}s to be represented as hex strings
    * @return a string with hexadecimal representation of the contents of the buffer, as described above
 	 */
 	public static String hexStr(long[] buffer) {
@@ -160,7 +173,7 @@ public class AuxMethods {
  3: 1234_5678_fedc_ba98</pre>
  will be shown like <pre>0000_0001 2222_2222_4444_4444 2345_6789_fedc_ba98</pre>
    * Had been used for debugging. Currently not used, but may still be useful in the future.<br><br>
-   * @param buff the buffer of {@code long}s to be represented as hex strings
+   * @param buffer the buffer of {@code long}s to be represented as hex strings
    * @return a string with hexadecimal representation of the contents of the buffer, as described above
    */
   public static String hexStr_u(long[] buffer) {
@@ -191,9 +204,11 @@ public class AuxMethods {
 	} // public static String hexStr_(long[] buffer) {
 
 	/**
-	 * Returns a string representing the bits of the argument. 1 is depicted with '#', and 0 with '_', so that
-	 * <pre>0xABCD_EF01_2345_6789L</pre> will be shown as
-	 * <nobr><pre>#_#_ #_## ##__ ##_# ###_ #### ____ ___# __#_ __## _#__ _#_# _##_ _### #___ #__#.</pre></nobr><br>
+	 * Returns a string representing the bits of the argument.<br>
+	 * 1 is depicted with '#', and 0 with '_', so that
+	 * <pre>0xABCD_EF01_2345_6789L</pre>
+	 * will be shown as
+	 * <pre>#_#_ #_## ##__ ##_# ###_ #### ____ ___# __#_ __## _#__ _#_# _##_ _### #___ #__#.</pre><br>
    * Had been used for debugging. Currently not used, but may still be useful in the future.<br><br>
 	 * @param lValue the value to show
 	 * @return a string representing the bits of the argument
@@ -378,8 +393,8 @@ public class AuxMethods {
    * If the {@code result} parameter is null, creates a new {@code Quadruple} instance, otherwise
    * assigns the value of the {@code value} parameter to the given {@code Quadruple} instance.
    * @param value a string representation of the value to be assigned to the new {@code Quadruple} instance
-   * @param result
-   * @return the newly-created instance of {@code Quadruple} with the given value
+   * @param result a {@code Quadruple} instance that is assigned the new value, or {@code null} to create a new instance
+   * @return an instance passed in the {@code result} argument, or a newly-created instance of {@code Quadruple} with the given value
    * @throws NumberFormatException if {@code value} is not a valid
    *         representation of a Quadruple.
 	 */
@@ -426,7 +441,7 @@ public class AuxMethods {
 
   /**
    * Converts the value of the given {@code double} to a {@code BigDecimal}.
-   * @param number a value of type {@code double}
+   * @param value a value of type {@code double}
    * @return a {@code BigDecimal} with the value of the given argument
    * @see BigDecimal#valueOf(double)
    */
@@ -436,7 +451,7 @@ public class AuxMethods {
 
   /**
    * Converts the value of the given {@code long} to a {@code BigDecimal}.
-   * @param number a value of type {@code long}
+   * @param value a value of type {@code long}
    * @return a {@code BigDecimal} with the value of the given argument
    * @see BigDecimal#valueOf(long)
    */
@@ -446,7 +461,7 @@ public class AuxMethods {
 
   /**
    * Converts the value represented by the given {@code String} to a {@code BigDecimal}.
-   * @param number a value expressed as a {@code String}
+   * @param value a value expressed as a {@code String}
    * @return a {@code BigDecimal} with the value of the given argument
    * @throws NumberFormatException if {@code value} is not a valid representation
    *          of a {@code BigDecimal}.
@@ -570,7 +585,8 @@ public class AuxMethods {
   /**
    * Calculates and returns a {@code BigDecimal} product of the given factors,
    * with the accuracy of {@code p - n}, where p is the precision
-   * determined by the {@code mc} parameter, and n is the number the factors.
+   * determined by the {@code mc} parameter, and n is the number of the factors.
+   * @param mc a {@link MathContext} instance defining the precision and the rounding mode of the multiplication
    * @param factors an array of factors to be multiplied
    * @return the product of the given factors
    */
@@ -664,7 +680,7 @@ public class AuxMethods {
 
   /**
    * Returns the string representation of this {@code BigDecimal}, using scientific notation if an exponent is needed.
-   * Simply calls {@code BigDecimal.toString(), actually.
+   * Simply calls {@code BigDecimal.toString()}, actually.
    * @param value the value to convert to {@code String}
    * @return a {@code String} representation of the given value
    * @see BigDecimal#toString()
@@ -673,7 +689,7 @@ public class AuxMethods {
 
   /**
    * Returns the string representation of this {@code Number}, using scientific notation if an exponent is needed.
-   * Simply calls {@code BigDecimal.toString(), actually.
+   * Simply calls {@code BigDecimal.toString()}, actually.
    * @param value the value to convert to {@code String}
    * @return a {@code String} representation of the given value
    * @see BigDecimal#toString()
@@ -709,11 +725,11 @@ public class AuxMethods {
    * Returns the string representation of this {@code long} value.
    * <p>
    * The representation is exactly the one returned by the
-   * {@code Long.toString} method of one argument.
+   * {@link Long#toString(long)} method of one argument.
    *
    * @param value the value to convert to {@code String}
    * @return a {@code String} representation of the given value
-   * @see     java.lang.Long#toString(double)
+   * @see Long#toString(long)
    */
   static String str(long value) {
     return Long.toString(value);
@@ -786,24 +802,39 @@ public class AuxMethods {
   /**
    * Opens a simplest 'logger' (actually, a simple text file with the given name) to write something to, while debugging.
    * Had been used for debugging. Currently not used, but may still be useful in the future.
+   * @param filename the path to the file to open
+   * @throws FileNotFoundException If the given file object does not denote an existing,
+   *          writable regular file and a new regular file of that name cannot be created,
+   *          or if some other error occurs while opening or creating the file
+   * @see PrintStream#PrintStream(String)
    */
   public static void openLog(String filename) throws FileNotFoundException {
     logFile = new PrintStream(filename);
   }
 
-  /** logFile.println();  */
+  /** == logFile.println();  */
   public static void log()            { logFile.println(); }
 
-  /** logFile.println(o);  */
+  /** == logFile.println(o);
+   * @param o the object to write to the log
+   */
   public static void log(Object o)    { logFile.println(o); }
 
-  /** logFile.print(o);   */
+  /** == logFile.print(o);
+   * @param o the object to write to the log
+   */
   public static void log_(Object o)   { logFile.print(o); }
 
-  /** logFile.println(String.format(format, args));  */
+  /** == logFile.println(String.format(format, args));
+   * @param format a format string to format the arguments
+   * @param args the arguments to write to the log
+   */
   public static void log(String format, Object... args)   { logFile.println(String.format(format, args)); }
 
-  /** logFile.print(String.format(format, args)); */
+  /** == logFile.print(String.format(format, args));
+   * @param format a format string to format the arguments
+   * @param args the arguments to write to the log
+   */
   public static void log_(String format, Object... args)  { logFile.print(String.format(format, args)); }
 
   /** Closes the 'logger' */
@@ -897,9 +928,9 @@ public class AuxMethods {
 
   /**
    * Given a {@code BigDecimal} value and its binary exponent, finds its binary mantissa,
-   * <nobr><code>mant2 = v / 2^exp2</code></nobr>.<p>
+   * <span class="nowrap"><code>mant2 = v / 2^exp2</code></span>.<p>
    * The value of {@code exp2} is always non-negative here, for the values less in magnitude than 1 the {@code negExp} flag is true;
-   * in such cases multiplication performed instead of division, <nobr><code>mant2 = v * 2^exp2</code></nobr>.<p>
+   * in such cases multiplication performed instead of division, <span class="nowrap"><code>mant2 = v * 2^exp2</code></span>.<p>
    * Used by {@code buildQuadruple()}
    * @param value the value whose {@code Quadruple} representation is being searched for
    * @param exp2 the binary exponent of the value

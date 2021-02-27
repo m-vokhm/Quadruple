@@ -146,7 +146,7 @@ public class TestResults {
    * which corresponds to half of the least significant bit of the mantissa.
    * The test cases with an error below the threshold don't affect the number of registered errors,
    * yet do affect statistics (mean error, max error and MSE).
-   * @param threshold -- defines the threshold to distinguish an acceptable inaccuracy from an error
+   * @param errThreshold -- defines the threshold to distinguish an acceptable inaccuracy from an error
    */
 	public TestResults(double errThreshold) {
 	  verbosity = Verbosity.MEDIUM;
@@ -316,9 +316,9 @@ on 3144 samples with err threshold 1.470e-39
   Hex diff   =      0 (0.00%)
   Src errors =      0
 
-</pre
+</pre>
    * @param testName -- a name of the tested operation to include to the report (in the example above, it's "op1.add(Quadruple op2)")
-   * @return
+   * @return a string consisting of a few lines with a human-readable representation of the test results, as described above
    */
   public String getReport(String testName) {
     if (!summarized)

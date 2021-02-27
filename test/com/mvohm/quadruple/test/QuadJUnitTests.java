@@ -26,10 +26,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.mvohm.quadruple.test.SpecificTesterClasses.*;
+import com.mvohm.quadruple.test.TesterClasses.QuadTester;
 import com.mvohm.quadruple.test.TesterClasses.Verbosity;
+import com.mvohm.quadruple.Quadruple;
 
+/**
+ * A set of JUnit test methods. Each method tests a certain {@link Quadruple} operation.
+ * @author M.Vokhmentev
+ */
 public class QuadJUnitTests {
 
+  /**
+   * Prepares the environment. Sets the medium level of verbosity
+   * and sets {@link java.util.Locale#US} as the default locale, to provide formatting
+   * of numbers in such a way that they can be parsed by methods like {@link Double#valueOf(String)}
+   */
   @Before
   public void setup() {
     TesterClasses.setVerbosity(Verbosity.MEDIUM);
@@ -37,7 +48,10 @@ public class QuadJUnitTests {
   }
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#toString()} method
+   * Tests {@link Quadruple#toString()} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToStringConversion() {
@@ -51,7 +65,10 @@ public class QuadJUnitTests {
   } // public void testQuadToStringConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#doubleValue()} method
+   * Tests {@link Quadruple#doubleValue()} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToDoubleConversion() {
@@ -65,7 +82,10 @@ public class QuadJUnitTests {
   } // public void testQuadToDoubleConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#longValue()} method
+   * Tests {@link Quadruple#longValue()} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToLongConversion() {
@@ -79,7 +99,10 @@ public class QuadJUnitTests {
   } // public void testQuadToLongConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#intValue()} method
+   * Tests {@link Quadruple#intValue()} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToIntConversion() {
@@ -93,7 +116,10 @@ public class QuadJUnitTests {
   } // public void testQuadToIntConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#bigDecimalValue()} method
+   * Tests {@link Quadruple#bigDecimalValue()} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToBdConversion() {
@@ -107,7 +133,10 @@ public class QuadJUnitTests {
   } // public void testQuadToBdConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#Quadruple(String)} method
+   * Tests {@link Quadruple#Quadruple(String)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testStringToQuadConversion() {
@@ -121,7 +150,10 @@ public class QuadJUnitTests {
   } // public void testStringToQuadConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#Quadruple(BigDecimal)} method
+   * Tests {@link Quadruple#Quadruple(BigDecimal)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testBdToQuadConversion() {
@@ -135,7 +167,10 @@ public class QuadJUnitTests {
   } // public void testBdToQuadConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#Quadruple(Double)} method
+   * Tests {@link Quadruple#Quadruple(double)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testDoubleToQuadConversion() {
@@ -149,7 +184,10 @@ public class QuadJUnitTests {
   } // public void testDoubleToQuadConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#Quadruple(Long)} method
+   * Tests {@link Quadruple#Quadruple(long)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testLongToQuadConversion() {
@@ -163,7 +201,10 @@ public class QuadJUnitTests {
   } //public void testLongToQuadConversion() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#add(com.mvohm.quadruple.Quadruple)} method
+   * Tests {@link Quadruple#add(Quadruple)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceAddition() {
@@ -177,7 +218,10 @@ public class QuadJUnitTests {
   } // public void testInstanceAddition() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#subtract(com.mvohm.quadruple.Quadruple)} method
+   * Tests {@link Quadruple#subtract(Quadruple)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceSubtraction() {
@@ -191,7 +235,10 @@ public class QuadJUnitTests {
   } // public void testInstanceSubtraction() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#multiply(com.mvohm.quadruple.Quadruple)} method
+   * Tests {@link Quadruple#multiply(Quadruple)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceMultiplication() {
@@ -205,7 +252,10 @@ public class QuadJUnitTests {
   } // public void testInstanceMultiplication() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#divide(com.mvohm.quadruple.Quadruple)} method
+   * Tests {@link Quadruple#divide(Quadruple)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceDivision() {
@@ -219,7 +269,10 @@ public class QuadJUnitTests {
   } // public void testInstanceDivision() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#add(com.mvohm.quadruple.Quadruple, com.mvohm.quadruple.Quadruple)} method
+   * Tests {@link Quadruple#add(Quadruple, Quadruple)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticAddition() {
@@ -233,7 +286,10 @@ public class QuadJUnitTests {
   } // public void testStaticAddition() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#subtract(com.mvohm.quadruple.Quadruple, com.mvohm.quadruple.Quadruple)} method
+   * Tests {@link Quadruple#subtract(Quadruple, Quadruple)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticSubtraction() {
@@ -247,7 +303,10 @@ public class QuadJUnitTests {
   } // public void testStaticSubtraction() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#multiply(com.mvohm.quadruple.Quadruple, com.mvohm.quadruple.Quadruple)} method
+   * Tests {@link Quadruple#multiply(Quadruple, Quadruple)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticMultiplication() {
@@ -261,7 +320,11 @@ public class QuadJUnitTests {
   } // public void testStaticMultiplication() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#divide(com.mvohm.quadruple.Quadruple, com.mvohm.quadruple.Quadruple)} method
+   * Tests {@link Quadruple#divide(Quadruple, Quadruple)}
+   * method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticDivision() {
@@ -275,7 +338,11 @@ public class QuadJUnitTests {
   } // public void testStaticDivision() {
 
   /**
-   * Tests {@code Quadruple -> String -> Quadruple} conversion that is expected to return the exact original value
+   * Tests {@code Quadruple -> String -> Quadruple} conversion that is expected
+   * to return the exact original value.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToStringToQuad() {
@@ -289,7 +356,11 @@ public class QuadJUnitTests {
   } // public void testQuadToStringToQuad() {
 
   /**
-   * Tests {@code Quadruple -> BigDecimal -> Quadruple} conversion that is expected to return the exact original value
+   * Tests {@code Quadruple -> BigDecimal -> Quadruple} conversion
+   * that is expected to return the exact original value.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToBDToQuad() {
@@ -303,7 +374,10 @@ public class QuadJUnitTests {
   } // public void testQuadToBDToQuad() {
 
   /**
-   * Tests {@link com.mvohm.quadruple.Quadruple#sqrt(com.mvohm.quadruple.Quadruple) method }
+   * Tests {@link Quadruple#sqrt(Quadruple)} method.
+   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticSqrt() {
@@ -317,7 +391,7 @@ public class QuadJUnitTests {
   } // public void testStaticSqrt() {
 
   /**
-   * Tests instance {@link com.mvohm.quadruple.Quadruple#sqrt() method }
+   * Tests instance {@link Quadruple#sqrt() method }
    */
   @Test
   public void testInstanceSqrt() {

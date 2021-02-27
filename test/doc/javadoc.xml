@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="package" author="true" classpath="C:\Eclipse\plugins\org.junit.jupiter.params_5.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit.jupiter.engine_5.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit.platform.runner_1.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.apiguardian_1.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.opentest4j_1.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit.jupiter.migrationsupport_5.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit.platform.commons_1.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.hamcrest.core_1.3.0.v201303031735.jar;C:\Eclipse\plugins\org.junit.platform.launcher_1.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit.platform.suite.api_1.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit.vintage.engine_4.12.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit.jupiter.api_5.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit.platform.engine_1.0.0.v20170910-2246.jar;C:\Eclipse\plugins\org.junit_4.12.0.v201504281640\junit.jar" destdir="" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="com.mvohm.quadruple.test" source="1.8" sourcepath="../../src;../" splitindex="false" use="false" version="true">
+            <link href="file:/F:/git/Quadruple_GH2/doc/"/>
+            <link href="https://docs.oracle.com/javase/8/docs/api/"/>
+        </javadoc>
+    </target>
+</project>

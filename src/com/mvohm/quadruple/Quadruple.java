@@ -564,7 +564,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   } // public Quadruple assignWithNormalExponent(int exponent, long mantHi, long mantLo) {
 
   /**
-   * Builds a Quadruple from the low-level parts given as an array of {@code long}.}<br>
+   * Builds a Quadruple from the low-level parts given as an array of {@code long}.<br>
    * The elements of the array are expected to contain the following values:<pre> {@code
    * value[0] -- sign flag in bit 63 (1 means negative),
    *             biased exponent in bits 31 .. 0
@@ -2600,7 +2600,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * permissible, since it may get adjusted later.
    * @param unbiasedExp the unbiased binary exponent of the value
    * @return {@code true} if the exponent, being converted to biased form, falls within the range
-   * <nobr>{@code -129 < exp < EXP_MAX + 1},</nobr> {@code false} otherwise
+   * <span class="nowrap">{@code -129 < exp < EXP_MAX + 1},</span> {@code false} otherwise
    */
   private boolean inAcceptableRange(long unbiasedExp) {
     final long exponent = unbiasedExp + EXP_OF_ONE;           // exp2 unbiased - bias it

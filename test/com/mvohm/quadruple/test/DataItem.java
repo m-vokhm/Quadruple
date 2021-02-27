@@ -86,7 +86,7 @@ class DataItem {
 
   /**
    * Creates a new instance with the given role
-   * @param role
+   * @param role the value to display as a role designation in the output string
    */
   public DataItem(String role) {
     this.role = role;
@@ -186,7 +186,7 @@ class DataItem {
    * Assigns a {@code Quadruple} value,
    * that can differ from the exact input value by approximately 1.469e-39 (due to limited precision of {@code Quadruple}),
    * to the {@code quadValue} field.<br>
-   * Unlike #{@link DataItem#withQuadValueOfString(String))}, does not align the {@code BigDecimal}
+   * Unlike {@link DataItem#withQuadValueOfString(String)}, does not align the {@code BigDecimal}
    * value to make it exactly equal to the value of the {@code quadValue},
    * but assigns to the {@link #bdValue} field the exact value expressed with the input string.
    *  <br>
@@ -300,6 +300,7 @@ class DataItem {
 
   /**
    * returns true, if the instance contains an error message
+   * @return true, if the instance contains an error message, false otherwise
    */
   public boolean hasError() {
     return errMsg == null? false: true;

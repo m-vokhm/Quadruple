@@ -47,11 +47,12 @@ import java.math.RoundingMode;
  * In cases where the operation being tested, when applied to the given operand(s), should throw an exception,
  * the word "Error" is used instead of the expected result, to inform the testing code about the fact
  * that throwing an exception is the expected behavior of the operation.<br>
- * There are two sorts of strings that are interpreted by the testing code in special ways:<br>
+ * There are two sorts of strings that are interpreted by the testing code in special ways:<br><ul>
  * <li>If the first string of the group starts with "//", it is considered to be a comment
  * and can be printed by the testing code to the console, depending on the code and/or the execution mode,
  * the subsequent items of the group are ignored in this case.
  * <li>If the first string of the group equals "$_STOP_$", it is interpreted as an instruction to quit the test execution.
+ * </ul>
  * <br><br>
  *
  * @author M.Vokhmentsev

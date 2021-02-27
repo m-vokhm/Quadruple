@@ -139,15 +139,17 @@ public class DataGenerators {
   } // public static List<String> sequence(BigDecimal baseValue, double startDelta, double endDelta, double step, boolean addComment) {
 
   /**
-   * Returns a sequence of values from {@code (sourceValue + startDelta * 2^-128) * 2^exp}
-   * to {@code (sourceValue + endDelta * 2^-128) * 2^exp}
-   * with step = {@code step * 2^-128 * 2^exp) :<pre>
-   * (sourceValue + startDelta * 2^-128) * 2^exp,
-   * (sourceValue + (startDelta + 1 * step) * 2^-128) * 2^exp,
-   * (sourceValue + (startDelta + 2 * step) * 2^-128) * 2^exp,
+   * Returns a sequence of values from
+   * <p style="margin-left:20px;">{@code (sourceValue + startDelta * 2^-128) * 2^exp}</p>
+   * to
+   * <p style="margin-left:20px;">{@code (sourceValue + endDelta * 2^-128) * 2^exp}</p>
+   * with step = {@code step * 2^-128 * 2^exp} :<pre>
+   * {@code (sourceValue + startDelta * 2^-128) * 2^exp},
+   * {@code (sourceValue + (startDelta + 1 * step) * 2^-128) * 2^exp},
+   * {@code (sourceValue + (startDelta + 2 * step) * 2^-128) * 2^exp},
    * ...
-   * (sourceValue + (ensDelta - 1 * step) * 2^-128) * 2^exp,
-   * (sourceValue + endDelta * 2^-128) * 2^exp</pre>
+   * {@code (sourceValue + (ensDelta - 1 * step) * 2^-128) * 2^exp},
+   * {@code (sourceValue + endDelta * 2^-128) * 2^exp}</pre>
    * @param baseValue   a base value to add the growing addition to before raising to the power of two
    * @param startDelta  a delta that is to be multiplied by 2^-128 before adding to sourceValue
    *                    and raising to the power of two to form the starting value of the sequence
@@ -158,7 +160,7 @@ public class DataGenerators {
    * @param addComment  a flag signifying that comment lines with human-readable expressions should be added before each value in the sequence
    * @return a list of string representations of the values described above
    */
-  public static List<String> sequence (BigDecimal baseValue, double startDelta, double endDelta, double step,
+  public static List<String> sequence(BigDecimal baseValue, double startDelta, double endDelta, double step,
                                        int exponent, boolean addComment) {
     final List<String> result = new ArrayList<>();
     BigDecimal bdDelta;
@@ -418,40 +420,48 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
     }; // private static String[] specialValies = new String[] {
 
     /**
-     * A list of pairs of operands for the addition.
+     * Generates and returns a list of pairs of operands for testing the addition.
      * Since findExpectedResult() in the tester class returns BigDecimal, its result can't be -0.<br>
      * Thus we have to provide -0 as the expected value for the pairs of summands whose sum should be -0.
      * So, replace nulls with "-0.0" wherever the sum equals -0.
+     * @return a Cartesian square of the {@link #specialValies} with values of {@code -0}
+     * wherever the tested operation is expected to result in -0.
      * */
     static List<String> specialValuesForAddition() {
       return cartesianSquareWithMinusZeros(specialValies, (a, b) -> a + b);
     } // static List<String> specialValuesForAddition() {
 
     /**
-     * A list of pairs of operands for the addition.
+     * Generates and returns a list of pairs of operands for testing the subtraction.
      * Since findExpectedResult() in the tester class returns BigDecimal, its result can't be -0.<br>
      * Thus we have to provide -0 as the expected value for the pairs of operands whose difference should be -0.
      * So, replace nulls with "-0.0" wherever the difference equals -0.
+     * @return a Cartesian square of the {@link #specialValies} with values of {@code -0}
+     * wherever the tested operation is expected to result in -0.
      * */
     static List<String> specialValuesForSubtraction() {
       return cartesianSquareWithMinusZeros(specialValies, (a, b) -> a - b);
     } // static List<String> specialValuesForSubtraction() {
 
     /**
-     * A list of pairs of operands for the addition.
+     * Generates and returns a list of pairs of operands for testing the multiplication.
      * Since findExpectedResult() in the tester class returns BigDecimal, its result can't be -0.<br>
      * Thus we have to provide -0 as the expected value for the pairs of factors whose product should be -0.
      * So, replace nulls with "-0.0" wherever the product equals -0.
+     * @return a Cartesian square of the {@link #specialValies} with values of {@code -0}
+     * wherever the tested operation is expected to result in -0.
      * */
     static List<String> specialValuesForMultiplication() {
       return cartesianSquareWithMinusZeros(specialValies, (a, b) -> a * b);
     } //static List<String> specialValuesForMultiplication() {
 
     /**
-     * A list of pairs of operands for the addition.
+     * Generates and returns a list of pairs of operands for testing the division.
      * Since findExpectedResult() in the tester class returns BigDecimal, its result can't be -0.<br>
      * Thus we have to provide -0 as the expected value for the pairs of factors whose quotient should be -0.
      * So, replace nulls with "-0.0" wherever the quotient equals -0.
+     * @return a Cartesian square of the {@link #specialValies} with values of {@code -0}
+     * wherever the tested operation is expected to result in -0.
      * */
     static List<String> specialValuesForDivision() {
       return cartesianSquareWithMinusZeros(specialValies, (a, b) -> a / b);
@@ -534,7 +544,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * Generates and returns a list with string representations of
      * random {@code BigDecimal} values that fall within the range valid for @code double},
      * such that the mantissa of each value differs from the mantissa of the nearest {@code double} value by
-     * {@code 1^-53} (half of least significant bit of the double's mantissa) or by {@code 1^-53 - 1^-128).
+     * {@code 1^-53} (half of least significant bit of the double's mantissa) or by {@code 1^-53 - 1^-128}.
      * Used to test the correctness of the rounding performed during the conversion from {@code Quadruple} to {@code double}.
      * @param count the amount of random numbers to be generated
      * @return the generated list, with nulls inserted after each item
@@ -548,12 +558,12 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * values that fall within the range valid for {@code Quadruple}.
      * The first item of each pair is a random {@code BigDecimal} value such
      * that its mantissa differs from the mantissa of the nearest
-     * {@code Quadruple} value by <br><nobr>{@code 2^-129 - 2^(-129 + expOfDelta)},</nobr><br>
+     * {@code Quadruple} value by <br><span class="nowrap">{@code 2^-129 - 2^(-129 + expOfDelta)},</span><br>
      * and the mantissa of the second value differs from the mantissa of the same {@code Quadruple}
-     * value by <br><nobr>{@code 2^-129}.</nobr><br>
+     * value by <br><span class="nowrap">{@code 2^-129}.</span><br>
      * In other words, the first value of the pair can be written as<br>
-     * <nobr>{@code (1 + (n + 0.5 - 2^(expOfDelta-1)) * 2^-128) * 2^N},</nobr><br> and the second one can
-     * be written as <br><nobr>{@code (1 + (n + 0.5) * 2^-128) * 2^N}.</nobr> <br>
+     * <span class="nowrap">{@code (1 + (n + 0.5 - 2^(expOfDelta-1)) * 2^-128) * 2^N},</span><br> and the second one can
+     * be written as <br><span class="nowrap">{@code (1 + (n + 0.5) * 2^-128) * 2^N}.</span> <br>
      * During the conversion from {@code BigDecimal} to {@code Quadruple} the first value
      * should get rounded down to {@code (1 + n * 2^-128) * 2^N}, and the second
      * should get rounded up to {@code (1 + (n + 1) * 2^-128) * 2^N}.<br>

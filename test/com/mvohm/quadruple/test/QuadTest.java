@@ -28,19 +28,28 @@ import com.mvohm.quadruple.test.TesterClasses.Verbosity;
 
 import static com.mvohm.quadruple.test.AuxMethods.*;
 
-import java.io.IOException;
-
 /**
- * A stand-alone program for testing methods of the {@code Quadruple} class.<br>
- * Creates a set of {@code tester}s, one for each of the operations
- * of the {@link Quadruple} class that need to be tested.
- * Each {@code tester} instance is an instance of a specific descendant of the {@link QuadTest} abstract class
- * and is intended to test respective operation, like {@code a.add(b)} or {@code q.toString()}.
- * Iterating through the testers, calls their {@code test()} methods, that return instances of the
- * {@code TestResults} class containing statistics on results of the test, such as the number of errors,
- * mean error, maximum error, MSE, etc. These instances are passed to the {@code register()} method
- * of another instance of the {@code TestResults}, that collects the summary results on all performed tests.
- * After finishing the tests, the summary statistics is printed to the console as following:<pre>
+ * A stand-alone program for testing methods of the {@link com.mvohm.quadruple.Quadruple} class.
+ * <p>
+ * Creates a set of {@code tester}s, one for each of the operations of the
+ * {@link Quadruple} class that need to be tested. Each {@code tester} is an instance
+ * of a specific concrete descendant of abstract class
+ * {@link com.mvohm.quadruple.test.TesterClasses.QuadTester}
+ * and is intended to test respective operation of {@code Quadruple}, such as
+ * {@link Quadruple#add(Quadruple)} or {@link Quadruple#sqrt()}.
+ * Concrete tester classes are defined in the {@link SpecificTesterClasses} class.
+ * <p>
+ * The {@link #main(String...)} method parses the command-line arguments and sets
+ * the execution mode accordingly, then iterates through the testers and calls their
+ * {@link com.mvohm.quadruple.test.TesterClasses.QuadTester#test()} methods,
+ * which return instances of the {@link TestResults} class containing information about
+ * the results of the test, such as the number of errors, mean error, maximum error, MSE, etc.
+ * <p>
+ * These instances are then passed to the {@link TestResults#register(TestResults)} method
+ * of another instance of the {@code TestResults}, that accumulates the summary results
+ * for all performed tests. After finishing the tests, the summary statistics is printed
+ * to the console as following:<br>
+ * <hr><pre>
 Results of summary of 20 tests
 on 70209 samples with err threshold 1.470e-39
   MSE        =  1.450e-79
@@ -50,13 +59,15 @@ on 70209 samples with err threshold 1.470e-39
 -------------------------
   Err %      =      0 (0.00%)
   Hex diff   =      0 (0.00%)
-  Src errors =      0</pre>
-  * <b>Usage:</b>
+  Src errors =      0</pre><hr>
+  <b>Usage:</b>
  * <pre>
- * java QuadTest [-v:verbosity],
- *   verbosity: 0 -- silent (no output except the summary),
- *              1 -- medium (outputs the results of specific tests),
- *              2 -- talkative (outputs data and errors for each data sample)";
+  java QuadTest [-v:verbosity] [-r:randCount]
+  verbosity: 0 -- silent (no output except the summary),
+             1 -- medium (default, outputs the results of specific tests),
+             2 -- talkative (outputs data and errors for each data sample).
+  randCount: 0 -- do not include random numbers in the test data,
+             n -- generate n random samples for each test, default value is 3000
  *</pre>
  * @author M.Vokhmentsev
  *
@@ -73,8 +84,9 @@ public class QuadTest {
       + "             n -- generate n random samples for each test, default value is 3000\n"
       + "";
 
-  /** Acceptable error for all operations is a little less than
-   (0.5 * LSB == 2^-129) * 1.0005 == ~1.4693679e-39 * 1.0005 = 1.47010258395e-39 */
+  /** Acceptable relative error threshold for all operations, a little greater
+   * than half of the least significant bit of the mantissa.<br>
+   * More exactly, (2^-129) * 1.0005 == ~1.4693679e-39 * 1.0005 == 1.4701e-39 */
   static final double NORM_ERR_THRESH = 1.470e-39; // 2^-129 * 1.0005
 
   /**
@@ -120,8 +132,18 @@ public class QuadTest {
     RANDOM_COUNT      // -r:n -- n -- the number of random samples to generate for each test
   }
 
+  /**
+   * Performs the tests.<br>
+   * Parses the command line arguments and accordingly sets the execution mode,
+   * then iterates through the testers contained in a statically defined {@code testers} array
+   * and calls their {@link com.mvohm.quadruple.test.TesterClasses.QuadTester#test()} methods.
+   * The results and statistics for individual tests are accumulated in a
+   * {@link com.mvohm.quadruple.test.TestResults} instance and displayed to the console
+   * after all tests have completed.
+   * @param args -- the command line arguments
+   */
   @SuppressWarnings("unused")
-  static public void main(String...args) throws IOException {
+  static public void main(String...args) { // throws IOException { // if uses the logger
     Locale.setDefault(Locale.US);
     if (parseArgs(args)) { // returns true of args are OK
       // A simplest "logger" (actually just a PrintStream), if needed

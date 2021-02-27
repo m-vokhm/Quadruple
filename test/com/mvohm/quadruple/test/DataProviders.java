@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * A collection of static methods that build and return data sets for testing different
- * {@link Quadruple} operations.<br>
+ * {@link com.mvohm.quadruple.Quadruple} operations.<br>
  * Each data set is a list of arrays of {@code String}s. Each array consists of two
  * (for unary operations, including conversions) or three (for binary operations) strings
  * an contain string representations of input operand(s) for the tested operation
@@ -283,7 +283,7 @@ public class DataProviders {
    * </ul>
    * <br>The elements of the list are arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
-   * * @return a set of data described above
+   * @return a set of data described above
    */
   public static List<String[]> d2qConversionDataList() {
     final ArrayList<String> list = new ArrayList<>();
@@ -304,7 +304,7 @@ public class DataProviders {
    * </ul>
    * <br>The elements of the list are arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
-   * * @return a set of data described above
+   * @return a set of data described above
    */
   public static List<String[]> l2qConversionDataList() {
     final ArrayList<String> list = new ArrayList<>();
