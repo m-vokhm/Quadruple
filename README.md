@@ -35,7 +35,7 @@ in standard notation. Some special notations, such as "Quadruple.NaN", are also 
 operations even with different instances of the class.
 
 For more details, see the 
-[Quadruple class documentation](doc/index.html)
+[Quadruple class documentation](https://m-vokhm.github.io/Quadruple/doc/index.html)
 
 #### Motivation
 The main goal of the project was to provide the ability to perform calculations 
@@ -71,7 +71,7 @@ intended to be used with `JUnit`, are in the `QuadJUnitTests.java` class.
 They use the same data as the aforementioned standalone utility. 
 
 For more details, see the 
-[Quadruple tests documentation](test/doc/index.html)
+[Quadruple tests documentation](https://m-vokhm.github.io/Quadruple/test/doc/index.html)
 
 
    

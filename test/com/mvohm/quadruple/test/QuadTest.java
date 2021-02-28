@@ -84,11 +84,6 @@ public class QuadTest {
       + "             n -- generate n random samples for each test, default value is 3000\n"
       + "";
 
-  /** Acceptable relative error threshold for all operations, a little greater
-   * than half of the least significant bit of the mantissa.<br>
-   * More exactly, (2^-129) * 1.0005 == ~1.4693679e-39 * 1.0005 == 1.4701e-39 */
-  static final double NORM_ERR_THRESH = 1.470e-39; // 2^-129 * 1.0005
-
   /**
    * A static array containing the testers for all operations that need to be tested
    */
@@ -140,7 +135,7 @@ public class QuadTest {
    * The results and statistics for individual tests are accumulated in a
    * {@link com.mvohm.quadruple.test.TestResults} instance and displayed to the console
    * after all tests have completed.
-   * @param args -- the command line arguments
+   * @param args the command line arguments
    */
   @SuppressWarnings("unused")
   static public void main(String...args) { // throws IOException { // if uses the logger
@@ -158,7 +153,7 @@ public class QuadTest {
    * Parses the command-line arguments and sets accordingly variables that control the mode of the execution.
    * The only argument currently usable is '-v' that controls verbosity
    * @see #USAGE
-   * @param args -- the command-line arguments to parse
+   * @param args the command-line arguments to parse
    * @return true if all the arguments are valid, false otherwise
    */
   private static boolean parseArgs(String[] args) {
@@ -177,7 +172,7 @@ public class QuadTest {
 
   /**
    * A single argument is expected to be a pair "key:value"
-   * @param arg -- a command-line argument that's expected to be a pair "key:value"
+   * @param arg a command-line argument that's expected to be a pair "key:value"
    * @return anything except null in case of error, null if OK
    */
   private static String parseArg(String arg) {
@@ -190,7 +185,7 @@ public class QuadTest {
 
   /**
    * Processes a key-value pair extracted from a command-line argument
-   * @param keyValue -- an array of two Strings containing the key and the value extracted from an argument
+   * @param keyValue an array of two Strings containing the key and the value extracted from an argument
    * @return anything except null in case of error, null if OK
    */
   private static String parsePair(String[] keyValue) { // returns null if OK, not null otherwise
@@ -207,7 +202,7 @@ public class QuadTest {
    * Puts the value of verbosity, extracted from the command-line arguments,
    * to a hashtable containing keys and values to control the execution mode,
    * under the corresponding key.
-   * @param value -- the value to put to the hashtable for the key {@code ArgumentKeys.VERBOSITY},
+   * @param value the value to put to the hashtable for the key {@code ArgumentKeys.VERBOSITY},
    * expected to be a String representing an integer.
    * @return not null as a sign of an error, if the value is not a valid String for an int value
    */
@@ -278,7 +273,7 @@ public class QuadTest {
     TesterClasses.setVerbosity((Verbosity)COMMAND_LINE_ARGS.get(ArgumentKeys.VERBOSITY));
     DataProviders.setRandomCount(((Long)COMMAND_LINE_ARGS.get(ArgumentKeys.RANDOM_COUNT)).intValue());
 
-    final TestResults totalResults = new TestResults(TesterClasses.NORM_ERR_THRESH);
+    final TestResults totalResults = new TestResults(Consts.NORM_ERR_THRESH);
     for (final QuadTester t: testers) {
       final TestResults results = t.test();
       totalResults.register(results);

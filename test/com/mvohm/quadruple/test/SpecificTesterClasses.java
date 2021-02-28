@@ -29,58 +29,67 @@ import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.test.TesterClasses.*;
 
 /**
- * Contains static classes that implement concrete descendants of abstract tester classes
- * intended to test specific {@code Quadruple} operations
+ * Contains concrete descendants of the abstract tester classes defined in {@link TesterClasses}.
+ * These concrete classes are intended to test specific {@code Quadruple} operations.
  * @author M.Vokhmentev
  */
 
 public class SpecificTesterClasses {
 
-  /*===============================================================================
-  // Testers for conversions from Quadruple to other types
-  //=============================================================================*/
+  /* *******************************************************************************
+   **** Testers for conversions from Quadruple to other types **********************
+   *********************************************************************************/
 
-  /** A tester to test {@code Quadruple.toString()} */
+  /** A tester class to test {@link Quadruple#toString()}.<br>
+   * Obtains the test data from {@link DataProviders#q2sConversionDataList()}
+   * and performs {@link Quadruple#toString()} as the tested operation.
+   */
   static class QuadToStringTester extends Conversion_Q2T_Tester<String> {
 
-    /** Returns the name of the tested operation -- "Quadruple.toString()" */
+    /** Returns the name of the tested operation, namely "{@code Quadruple.toString()}". */
     @Override protected String getName()                                  { return "Quadruple.toString()"; }
 
-    /** Obtains and returns a data set intended to test {@code Quadruple#toString()} */
+    /** Obtains and returns a data set intended to test {@link Quadruple#toString()}.<br>
+     * Uses {@link DataProviders#q2sConversionDataList()} to obtain the data. */
     @Override protected List<String[]> getTestDataList()                  { return q2sConversionDataList(); }
 
-    /** Performs the tested operation ({@code Quadruple#toString()}) with the given operand ad returns the result */
+    /** Performs the tested operation, namely {@link Quadruple#toString()},
+     * with the given operand, and returns its result. */
     @Override protected String performOp(Quadruple operand)               { return operand.toString(); }
 
   } // private static class QuadToStringTester extends Conversion_Q2T_Tester<Quadruple, String> {
 
-  /**
-   * A tester to test {@code Quadruple#doubleValue()}
-   * {@inheritDoc}
+  /** A tester class to test {@link Quadruple#doubleValue()}.<br>
+   * Obtains the test data from {@link DataProviders#q2dConversionDataList()}
+   * and performs {@link Quadruple#doubleValue()} as the tested operation.
    */
   static class QuadToDoubleTester extends Conversion_Q2T_Tester<Double> {
 
-    /** Returns the name of the tested operation -- "Quadruple.doubleValue()" */
+    /** Returns the name of the tested operation, namely "{@code Quadruple.doubleValue()}". */
     @Override protected String getName()                                  { return "Quadruple.doubleValue()"; }
 
-    /** Obtains and returns a data set intended to test {@code Quadruple#doubleValue()} */
+    /** Obtains and returns a data set intended to test {@link Quadruple#doubleValue()}.<br>
+     * Uses {@link DataProviders#q2dConversionDataList()} to obtain the data. */
     @Override protected List<String[]> getTestDataList()                  { return q2dConversionDataList(); }
 
-    /** Performs the tested operation ({@code Quadruple#doubleValue()}) with the given operand ad returns the result */
+    /** Performs the tested operation, namely {@link Quadruple#doubleValue()},
+     * with the given operand, and returns its result. */
     @Override protected Double performOp(Quadruple operand)               { return operand.doubleValue(); }
 
-    /** Returns a string representations ("Infinity" or "-Infinity") for values that don't
-     fall within the range of values allowed for Double */
+    /** Returns string representations ("Infinity" or "-Infinity") for values that don't
+     fall within the range allowed for Double. */
     @Override
     protected String findExpectedString(Quadruple operand) {
       return String.valueOf(bigDecimalValueOf(operand).doubleValue());
     }
 
     /**
-     * Calculates a {@code BigDecimal} value of the expected result of conversion from {@code Quadruple} to {@code double}
-     * (the input value rounded to the nearest double as a BigDecimal)
-     * Throws {@code NumberFormatException} for values that can't be represented as {@code BigDecimal}
-     * (NaN, Infinity, -Infinity)
+     * Calculates a {@code BigDecimal} value of the expected result
+     * of the conversion from {@link Quadruple} to {@code double}.<br>
+     * The expected result is the input value rounded to the exact value
+     * of the nearest {@code double}, expressed as a {@link BigDecimal}.
+     * Throws {@code NumberFormatException} for values that can't be represented as {@code BigDecimal}:
+     * {@code NaN}, {@code Infinity}, and {@code -Infinity}.
      */
     @Override
     protected BigDecimal findExpectedResult(Quadruple operand) {
@@ -90,36 +99,41 @@ public class SpecificTesterClasses {
 
   } // private static class QuadToDoubleTester extends Conversion_Q2T_Tester<Quadruple, Double> {
 
-  /**
-   * A tester to test {@code Quadruple#longValue()}
+  /** A tester class to test {@link Quadruple#longValue()}.<br>
+   * Obtains the test data from {@link DataProviders#q2lConversionDataList()}
+   * and performs {@link Quadruple#longValue()} as the tested operation.
    */
   static class QuadToLongTester extends Conversion_Q2T_Tester<Long> {
 
-    /** Returns the name of the tested operation -- "Quadruple.longValue()" */
+    /** Returns the name of the tested operation, namely "{@code Quadruple.longValue()}". */
     @Override protected String getName()                                  { return "Quadruple.longValue()"; }
 
-    /** Obtains and returns a data set intended to test {@code Quadruple#longValue()} */
+    /** Obtains and returns a data set intended to test {@link Quadruple#longValue()}.<br>
+     * Uses {@link DataProviders#q2lConversionDataList()} to obtain the data. */
     @Override protected List<String[]> getTestDataList()                  { return q2lConversionDataList(); }
 
-    /** Performs the tested operation ({@code Quadruple#longValue()}) with the given operand ad returns the result */
+    /** Performs the tested operation, namely {@link Quadruple#longValue()},
+     * with the given operand, and returns its result. */
     @Override protected Long performOp(Quadruple operand)                 { return operand.longValue(); }
 
     private static final BigDecimal MAX_LONG_VALUE = new BigDecimal(Long.MAX_VALUE);
     private static final BigDecimal MIN_LONG_VALUE = new BigDecimal(Long.MIN_VALUE);
 
     /**
-     * Calculates a {@code BigDecimal} value of the expected result of conversion from {@code Quadruple} to {@code long}.
-     * The expected result is the the result of the narrowing conversion analogous to {@code Double.longValue()}
+     * Calculates a {@code BigDecimal} value of the expected result
+     * of the conversion from {@link Quadruple} to {@code long}.<br>
+     * The expected result is the exact result of the narrowing conversion
+     * from {@code Quadruple} to {@code long}, expressed as a {@link BigDecimal}.<br>
+     * {@code NaN}, {@code Infinity}, and {@code -Infinity} are translated
+     * to {@code BigDecimal}s with values of 0, {@code Long.MAX_VALUE},
+     * and {@code Long.MIN_VALUE}, respectively.
      */
     @Override
     protected BigDecimal findExpectedResult(Quadruple operand) {
       // Quadruple -> BigDecimal -> long -> BigDecimal
-
-      if (isNaN(operand))
-        return BigDecimal.ZERO;
+      if (isNaN(operand)) return BigDecimal.ZERO;
       if (isInfinite(operand))
         return isNegative(operand)? MIN_LONG_VALUE : MAX_LONG_VALUE;
-
       final BigDecimal bd = bigDecimalValueOf(operand);
       if (bd.compareTo(MAX_LONG_VALUE) > 0) return MAX_LONG_VALUE;
       if (bd.compareTo(MIN_LONG_VALUE) < 0) return MIN_LONG_VALUE;
@@ -128,26 +142,34 @@ public class SpecificTesterClasses {
 
   } // private static class QuadToLongTester extends Conversion_Q2T_Tester<Quadruple, Long> {
 
-  /**
-   * A tester to test {@code Quadruple#intValue()}
+  /** A tester class to test {@link Quadruple#intValue()}.<br>
+   * Obtains the test data from {@link DataProviders#q2iConversionDataList()}
+   * and performs {@link Quadruple#intValue()} as the tested operation.
    */
   static class QuadToIntTester extends Conversion_Q2T_Tester<Integer> {
 
-    /** Returns the name of the tested operation -- "Quadruple.intValue()" */
+    /** Returns the name of the tested operation, namely "{@code Quadruple.intValue()}". */
     @Override protected String getName()                                  { return "Quadruple.intValue()"; }
 
-    /** Obtains and returns a data set intended to test {@code Quadruple#intValue()} */
+    /** Obtains and returns a data set intended to test {@link Quadruple#intValue()}.<br>
+     * Uses {@link DataProviders#q2iConversionDataList()} to obtain the data. */
     @Override protected List<String[]> getTestDataList()                  { return q2iConversionDataList(); }
 
-    /** Performs the tested operation ({@code Quadruple#intValue()}) with the given operand ad returns the result */
+    /** Performs the tested operation, namely {@link Quadruple#intValue()},
+     * with the given operand, and returns its result. */
     @Override protected Integer performOp(Quadruple operand)              { return  operand.intValue(); }
 
     private static final BigDecimal MAX_INT_VALUE = new BigDecimal(Integer.MAX_VALUE);
     private static final BigDecimal MIN_INT_VALUE = new BigDecimal(Integer.MIN_VALUE);
 
     /**
-     * Calculates a {@code BigDecimal} with the value of the expected result of conversion from {@code Quadruple} to {@code int}.
-     * The expected result is the the result of the narrowing conversion analogous to {@code Double.intValue()}
+     * Calculates a {@code BigDecimal} value of the expected result
+     * of the conversion from {@link Quadruple} to {@code int}.<br>
+     * The expected result is the exact result of the narrowing conversion
+     * from {@code Quadruple} to {@code int}, expressed as a {@link BigDecimal}.<br>
+     * {@code NaN}, {@code Infinity}, and {@code -Infinity} are translated
+     * to {@code BigDecimal}s with values of 0, {@code Integer.MAX_VALUE},
+     * and {@code Integer.MIN_VALUE}, respectively.
      */
     @Override
     protected BigDecimal findExpectedResult(Quadruple operand) {
@@ -163,34 +185,41 @@ public class SpecificTesterClasses {
 
   } // static class QuadToIntTester extends Conversion_Q2T_Tester<Integer> {
 
-  /**
-   * A tester to test {@code Quadruple#bigDecimalValue()}
+  /** A tester class to test {@link Quadruple#bigDecimalValue()}.<br>
+   * Obtains the test data from {@link DataProviders#q2bdConversionDataList()}
+   * and performs {@link Quadruple#bigDecimalValue()} as the tested operation.
    */
   static class QuadToBdTester extends Conversion_Q2T_Tester<BigDecimal> {
 
-    /** Returns the name of the tested operation -- "Quadruple.bigDecimalValue()" */
+    /** Returns the name of the tested operation, namely "{@code Quadruple.bigDecimalValue()}". */
     @Override protected String getName()                                  { return "Quadruple.bigDecimalValue()"; }
 
-    /** Obtains and returns a data set intended to test {@code Quadruple#bigDecimalValue()} */
+    /** Obtains and returns a data set intended to test {@link Quadruple#bigDecimalValue()}.<br>
+     * Uses {@link DataProviders#q2bdConversionDataList()} to obtain the data. */
     @Override protected List<String[]> getTestDataList()                  { return q2bdConversionDataList(); }
 
-    /** Performs the tested operation ({@code Quadruple#bigDecimalValue()}) with the given operand ad returns the result */
+    /** Performs the tested operation, namely {@link Quadruple#bigDecimalValue()},
+     * with the given operand, and returns its result. */
     @Override protected BigDecimal  performOp(Quadruple operand)          { return operand.bigDecimalValue(); }
   } // static class QuadToBdTester extends Conversion_Q2T_Tester<BigDecimal> {
 
-  /*===============================================================================
-  // Testers for conversions from other types to Quadruple
-  //=============================================================================*/
+  /* *******************************************************************************
+   **** Testers for conversions from other types to Quadruple **********************
+   *********************************************************************************/
 
-  /**
-   * A tester to test conversion from {@code String} to {@code Quadruple} (namely, {@code new Quadruple(String s)})
+  /** A tester class to test the conversion from {@code String} to {@link Quadruple},
+   * namely the {@link Quadruple#Quadruple(String)} constructor.<br>
+   * Obtains the test data from {@link DataProviders#s2qConversionDataList()}
+   * and performs {@link Quadruple#Quadruple(String)} as the tested operation.
    */
   static class StringToQuadTester extends Conversion_T2Q_Tester<String> {
 
-    /** Returns the name of the tested operation -- "new Quadruple(String s)" */
+    /** Returns the name of the tested operation, namely "{@code new Quadruple(String s)}". */
     @Override protected String getName()                                  { return "new Quadruple(String s)";  }
 
-    /** Obtains and returns a data set intended to test {@code new Quadruple(String s)} */
+    /** Obtains and returns a data set intended to test the
+     * {@code String} to {@code Quadruple} conversion.<br>
+     * Uses {@link DataProviders#s2qConversionDataList()} to obtain the data. */
     @Override protected List<String[]> getTestDataList()                  { return s2qConversionDataList(); }
 
     /** Parses the input string and returns the corresponding value of type {@code String}
@@ -198,19 +227,23 @@ public class SpecificTesterClasses {
     @Override protected String      parseSrcType(String s)                { return s; }
   } // static class StringToQuadTester extends Conversion_T2Q_Tester<String> {
 
-  /**
-   * A tester to test conversion from {@code BigDecimal} to {@code Quadruple} (namely, {@code new Quadruple(BigDecimal bd)})
+  /** A tester class to test the conversion from {@link BigDecimal} to {@link Quadruple},
+   * namely the {@link Quadruple#Quadruple(BigDecimal)} constructor.<br>
+   * Obtains the test data from {@link DataProviders#bd2qConversionDataList()}
+   * and performs {@link Quadruple#Quadruple(BigDecimal)} as the tested operation.
    */
   static class BdToQuadTester extends Conversion_T2Q_Tester<BigDecimal> {
 
-    /** Returns the name of the tested operation -- "new Quadruple(BigDecimal bd)" */
+    /** Returns the name of the tested operation, namely "{@code new Quadruple(BigDecimal bd)}". */
     @Override protected String getName()                                  { return "new Quadruple(BigDecimal bd)";  }
 
-    /** Obtains and returns a data set intended to test {@code new Quadruple(BigDecimal bd)} */
+    /** Obtains and returns a data set intended to test the
+     * {@link BigDecimal} to {@code Quadruple} conversion.<br>
+     * Uses {@link DataProviders#bd2qConversionDataList()} to obtain the data. */
     @Override protected List<String[]> getTestDataList()                  { return bd2qConversionDataList(); }
 
-    /** Parses the input string and returns the corresponding value of type {@code BigDecimal}
-     * (<span class="nowrap">{@code new BigDecimal(s)},</span> actually)*/
+    /** Parses the input string and returns the corresponding value of type {@link BigDecimal}.
+     * Uses {@link BigDecimal#BigDecimal(String)}. */
     @Override protected BigDecimal  parseSrcType(String s)                { return new BigDecimal(s); }
 
   } // static class BdToQuadTester extends Conversion_T2Q_Tester<BigDecimal> {
@@ -218,22 +251,31 @@ public class SpecificTesterClasses {
   /**
    * A tester to test conversion from {@code double} to {@code Quadruple} (namely, {@code new Quadruple(double d)})
    */
+  /** A tester class to test the conversion from {@code double} to {@link Quadruple},
+   * namely the {@link Quadruple#Quadruple(double)} constructor.<br>
+   * Obtains the test data from {@link DataProviders#d2qConversionDataList()}
+   * and performs {@link Quadruple#Quadruple(double)} as the tested operation.
+   */
   static class DoubleToQuadTester extends Conversion_T2Q_Tester<Double> {
 
-    /** Returns the name of the tested operation -- "new Quadruple(double d)" */
+    /** Returns the name of the tested operation, namely "{@code new Quadruple(double d)}". */
     @Override protected String getName()                                  { return "new Quadruple(double d)";  }
 
-    /** Obtains and returns a data set intended to test {@code new Quadruple(double d)} */
+    /** Obtains and returns a data set intended to test the
+     * {@link double} to {@code Quadruple} conversion.<br>
+     * Uses {@link DataProviders#d2qConversionDataList()} to obtain the data. */
     @Override protected List<String[]> getTestDataList()                  { return d2qConversionDataList(); }
 
-    /** Parses the input string and returns the corresponding value of type {@code double}
-     * (<span class="nowrap">{@code Double.parseDouble(s)},</span> actually)*/
-    @Override protected Double parseSrcType(String s)                     { return Double.parseDouble(s); }
+    /** Parses the input string and returns the corresponding value of type {@code double}.
+     * Uses {@link Double#valueOf(String)}. */
+    @Override protected Double parseSrcType(String s)                     { return Double.valueOf(s); }
 
     /**
-     * Calculates a {@code BigDecimal} with the value of the expected result of conversion from {@code double} to {@code Quadruple}.
-     * The expected result is the exact value of the {@code double} whose value is passed in as a {@code Quadruple} parameter.
-     * In the cases of {@code NaN} and {@code Infinity} throws a {@code NumberFormatException}
+     * Calculates a {@code BigDecimal} value equal to the expected result
+     * of the conversion from {@code double} to {@code Quadruple}.
+     * The expected result is the exact value of the {@code double}
+     * whose value is passed in as a {@code Quadruple} parameter.
+     * In cases of {@code NaN}, {@code Infinity}, and {@code -Infinity}, throws a {@code NumberFormatException}
      * and further processing is performed by the parent class.
      */
     @Override
@@ -243,6 +285,8 @@ public class SpecificTesterClasses {
     }
 
   } // static class DoubleToQuadTester extends Conversion_T2Q_Tester<Double> {
+
+  // TODO HERE 21.02.28 16:31:16
 
   /**
    * A tester to test conversion from {@code long} to {@code Quadruple} (namely, {@code new Quadruple(long v)})
@@ -260,7 +304,7 @@ public class SpecificTesterClasses {
     @Override protected Long parseSrcType(String s)                       { return Long.parseLong(s); }
 
     /**
-     * Calculates a {@code BigDecimal} with the value of the expected result of conversion from {@code long} to {@code Quadruple}.
+     * Calculates a {@code BigDecimal} with the value of the expected result of the conversion from {@code long} to {@code Quadruple}.
      * The expected result is the exact value of the {@code long} whose value is passed in as a {@code Quadruple} parameter.
      */
     @Override
@@ -271,9 +315,9 @@ public class SpecificTesterClasses {
 
   } // static class LongToQuadTester extends Conversion_T2Q_Tester<Long>
 
-  /*===============================================================================
-  // Testers for unary functions
-  //=============================================================================*/
+  /* *******************************************************************************
+   **** Testers for unary functions ************************************************
+   *********************************************************************************/
 
   /**
    * A tester to test conversion from {@code Quadruple} to {@code String} and back to {@code Quadruple}.
@@ -382,9 +426,9 @@ public class SpecificTesterClasses {
     @Override protected Quadruple performOp(Quadruple operand)            { return new Quadruple(operand).sqrt(); }
   } // static class InstanceSqrtTester extends StaticSqrtTester  {
 
-  /*===============================================================================
-  // Testers for binary functions
-  //=============================================================================*/
+  /* *******************************************************************************
+   **** Testers for binary functions ***********************************************
+   *********************************************************************************/
 
   /**
    *  A tester to test static method {@link Quadruple#add(Quadruple op1, Quadruple op2)}

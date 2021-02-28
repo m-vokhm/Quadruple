@@ -116,7 +116,7 @@ public class AuxMethods {
    * Returns a hexadecimal string representation of the given double value,
    * that separately shows its sign, mantissa, and exponent, e.g.
    * <span class="nowrap">"-6_a09e_667f_3bcd e 3ff"</span>
-   * @param dValue -- the value to convert to hexadecimal string
+   * @param dValue the value to convert to hexadecimal string
    * @return the hexadecimal string representation of the given double value
    */
   public static  String hexStr(double dValue) {
@@ -773,7 +773,7 @@ public class AuxMethods {
   /**
    * Calculates {@code 2^exp} with the accuracy of 140 decimal digits.
    *
-   * @param exp -- the power to raise 2 to
+   * @param exp the power to raise 2 to
    * @return the value of two raised to the given power
    */
   public static BigDecimal powerOfTwo(int exp) {

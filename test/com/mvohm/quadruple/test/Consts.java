@@ -36,6 +36,11 @@ import static java.math.RoundingMode.*;
  */
 public class Consts {
 
+  /** Acceptable relative error threshold for all operations, a little greater
+   * than half of the least significant bit of the mantissa.<br>
+   * More exactly, (2^-129) * 1.0005 == ~1.4693679e-39 * 1.0005 == 1.4701e-39 */
+  static final double NORM_ERR_THRESH = 1.470e-39; // 2^-129 * 1.0005
+
   // started JavaDoc 21.02.19 10:43:13
   /** The bits of the mantissa of a {@code double}'s bits represented as a {@code long} */
   public static final long DOUBLE_MANT_MASK   = 0x000f_ffff_ffff_ffffL;

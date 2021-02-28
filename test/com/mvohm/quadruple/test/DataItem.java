@@ -112,7 +112,7 @@ class DataItem {
    * To be usable for DataItems with expected values, distinguish word "error" as an indication of the fact
    * that the operation being tested, when applied to the given input data, was expected to cause an error
    * (like for a priori illegal source strings when testing String to Quadruple conversion)
-   * @param strValue -- the {@code String} that's expected to signify the numeric value to be assigned
+   * @param strValue the {@code String} that's expected to signify the numeric value to be assigned
    * @return this instance with the fields modified as described above
    * @see DataItem#withValueOfString(String)
    */
@@ -134,7 +134,7 @@ class DataItem {
    * {@code strValue} field. If the parameter is a {@code String} and it can't be parsed as a numeric value,
    * the {@code quadValue} and {@code bdValue} remains empty and the {@code errMsg} field is assigned with
    * a relevant error message. In this case, {@code strValue} field takes the value of the input string
-   * @param rawData -- the data whose value is to be assigned
+   * @param rawData the data whose value is to be assigned
    * @return this instance with the fields modified as described above
    */
   public DataItem withValueOf(Object rawData) {
@@ -150,7 +150,7 @@ class DataItem {
   /** Assigns the given value, that may be of any type, to the {@code rawData} field of the instance.
    * Used to hold and display source values of various types that are to be converted to
    * {@code Quadruple} and results of converting {@code Quadruple} values to various other types.
-   * @param rawData -- the value to assign
+   * @param rawData the value to assign
    * @return the same instance with the given value assigned to the {@code rawData} field
    */
   public DataItem withRawValue(Object rawData) {
@@ -162,7 +162,7 @@ class DataItem {
    * Assigns the given value to the {@code quadValue} field; if the value may be represented as a {@code BigDecimal},
    * additionally assigns the corresponding {@code BigDecimal} value to the {@code bdValue} field, otherwise (in case of NaN or Infinity)
    * sets a {@code String} string representation of the given value in the {@code strValue} field.
-   * @param value -- the {@code Quadruple} whose value is to be assigned to the fields of the instance
+   * @param value the {@code Quadruple} whose value is to be assigned to the fields of the instance
    * @return this instance with the fields modified as described above
    */
   public DataItem withQuadruple(Quadruple value) {
@@ -196,7 +196,7 @@ class DataItem {
    * To be usable for DataItems with expected values, distinguish word "error" as an indication of the fact
    * that the operation being tested, when applied to the given input data, was expected to cause an error
    * (like for a priori illegal source strings when testing String to Quadruple conversion)
-   * @param strValue -- the {@code String} that's expected to signify the numeric value to be assigned
+   * @param strValue the {@code String} that's expected to signify the numeric value to be assigned
    * @return this instance with the fields modified as described above
    * @see DataItem#withQuadValueOfString(String)
    */
@@ -241,7 +241,7 @@ class DataItem {
   } // public DataItem withValueOfString(String strValue) {
 
   /** Sets the given error message, after prepending it with "Error: ", in the {@code errMsg} field.
-   * @param errMsg -- the message to set
+   * @param errMsg the message to set
    * @return this instance with the {@code errMsg} field containing the error message
    */
   public DataItem withError(String errMsg) {
@@ -251,8 +251,8 @@ class DataItem {
 
   /** Sets the given error message, after prepending it with "Error: ", in the {@code errMsg} field.
    * Additionally, sets the value of the {@code sourceStr} parameter in the {@code strValue} field
-   * @param errMsg -- the message to set in the {@code errMsg} field
-   * @param sourceStr -- the string to set in the {@code strValue} field
+   * @param errMsg the message to set in the {@code errMsg} field
+   * @param sourceStr the string to set in the {@code strValue} field
    * @return this instance with the {@code errMsg} field containing the error message
    * and the {@code strValue} field containing the value of the {@code sourceStr} parameter
    */
@@ -362,7 +362,7 @@ class DataItem {
    * Parses an input string expected to represent a {@code Quadruple} value. In case of error
    * sets the appropriate error message in the the {@code errMsg} field and the puts the input string
    * in the {@code strValue} field.
-   * @param strValue -- a string expected to represent a Quadruple value
+   * @param strValue a string expected to represent a Quadruple value
    * @return a new {@code Quadruple} instance with the value obtained from the string, or null in case of error
    */
   private Quadruple parseQuadruple(String strValue) {
@@ -393,7 +393,7 @@ class DataItem {
   /**
    * Sets the input value in the {@code bdValue} field, and finds and sets in the {@code quadValue} field
    * the nearest possible approximation of that value.
-   * @param bdValue -- the value to set
+   * @param bdValue the value to set
    * @return this instance with the fields modified as described above
    */
   private DataItem setBDValue(BigDecimal bdValue) { // 19.11.15 17:24:47
@@ -410,7 +410,7 @@ class DataItem {
 
   /**
    * Sets the fields of the instance so that they represent the exact value of the input value
-   * @param d -- the value to set
+   * @param d the value to set
    * @return this instance with the fields modified as described above
    */
   private DataItem setDoubleValue(Double d) {

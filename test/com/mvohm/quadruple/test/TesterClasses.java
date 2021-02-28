@@ -46,10 +46,6 @@ import com.mvohm.quadruple.Quadruple;
  */
 public class TesterClasses {
 
-  /** Acceptable inaccuracy for Quadruples, a little less than 2^-129 * 1.01  ==
-  ~1.469e-39 * 1.01 =  1.4840616179131379788105298782431e-39 */
-  static final double NORM_ERR_THRESH = 1.470e-39; // 1.484e-39; // 2^-129 * 1.01
-
   /**
    * Some records in the data sets are actually just comments to be displayed
    * and there may be a special record that is a command to quit testing.
@@ -73,7 +69,7 @@ public class TesterClasses {
 
   /**
    * The setter to set the verbosity mode
-   * @param verbosityValue -- the value to set
+   * @param verbosityValue the value to set
    */
   public static void setVerbosity(Verbosity verbosityValue) {
     if (verbosityValue == null)
@@ -105,7 +101,7 @@ public class TesterClasses {
      * the expected value of the tested operation is evaluated by the concrete descendant class
      * based on the arguments.
      * Overridden by the {@link QuadTester} to initialize in each concrete tester to
-     * @param testData -- the data to run the test on
+     * @param testData the data to run the test on
      * @return an instance of {@link TestResults} containing the statistics on the test results
      */
     TestResults test(List<String[]> testData);
@@ -209,7 +205,7 @@ public class TesterClasses {
      * If the item is a comment (i.e. the first string starts with "//") and the mode is talkative,
      * prints the comment on the console. Returns a value that indicates the kind of the sample.
      * Used by the {@code #doTest()} method to find out what to do with the given data sample.
-     * @param dataSample -- a data item (an array of strings) to be processed
+     * @param dataSample a data item (an array of strings) to be processed
      * @return one of the {@link DataKinds} values indicating the kind of the data item
      */
     private DataKinds checkDataKind(String[] dataSample) {
@@ -236,7 +232,7 @@ public class TesterClasses {
      * An implementation provided by a specific descendant tests a specific operation on the given data sample
      * and registers the results in the instance of {@link TestResults} class
      * held in the {@link #results} variable of {@code this} instance of the tester
-     * @param dataSample -- an array containing {@code String} representations of the input argument(s)
+     * @param dataSample an array containing {@code String} representations of the input argument(s)
      * of the tested operation and for the expected result.
      * The element meant to contain the expected result may be {@code null} or an empty string, in such a case
      * the expected value of the result is evaluated by a descendant tester programmatically
@@ -246,7 +242,7 @@ public class TesterClasses {
     abstract protected void testOp(String[] dataSample);
 
     /** Returns the value of the error threshold set for this instance.
-     * The default implementation returns the default value, {@link #NORM_ERR_THRESH}.
+     * The default implementation returns the default value, {@link Consts#NORM_ERR_THRESH}.
      * Error values that are below this value are considered acceptable.
      * Testers that deal with data types with a lower precision
      * may have to override this method to return another value.
@@ -276,8 +272,8 @@ public class TesterClasses {
    *  <li>{@link #findExpectedString(Quadruple)} --  to finds the string representing a value that can't be
    *                                        expressed as a {@code BigDecimal}
    * </ul>
-   * @param <S> -- Source type for the tested operation
-   * @param <R> -- Result type for the tested operation
+   * @param <S> Source type for the tested operation
+   * @param <R> Result type for the tested operation
    */
   static abstract class UnaryFunctionTester<S, R> extends QuadTester {
 
@@ -286,7 +282,7 @@ public class TesterClasses {
     /**
      * A concrete descendant should provide an implementation of this method that performs
      * the tested operation with the given operand.
-     * @param operand -- the argument for the operation being tested
+     * @param operand the argument for the operation being tested
      * @return the result of the operation
      */
     abstract protected R performOp(S operand);
@@ -307,8 +303,8 @@ public class TesterClasses {
      * If the expected value is provided within the data sample, uses it, otherwise
      * calculates the expected value using the {@link #findExpectedResult} and {@link #findExpectedString(Quadruple)}
      * methods that can be overridden by descendants.
-     * @param srcValue -- a {@code DataItem} containing the source value for the conversion being tested
-     * @param expextedString -- the value of the string of the data sample that's intended to hold the expected value
+     * @param srcValue a {@code DataItem} containing the source value for the conversion being tested
+     * @param expextedString the value of the string of the data sample that's intended to hold the expected value
      * @return a {@code DataItem} containing the expected value of the conversion for the given source value
      */
     protected DataItem makeExpectedItem(DataItem srcValue, String expextedString) {
@@ -324,8 +320,8 @@ public class TesterClasses {
      * If the value can't be represented as {@code BigDecimal} ({@code NaN} or {@code Infinity}), throws {@code NumberFormatException}.
      * In cases of narrowing conversions, such as {@link Quadruple#doubleValue()}, descendants should override this method to provide
      * the value that equals the corresponding value of the target type.
-     * @param operand -- the value to be converted
-     * @return -- the expected result of the tested operation as a {@code BigDecimal}
+     * @param operand the value to be converted
+     * @return the expected result of the tested operation as a {@code BigDecimal}
      */
     protected BigDecimal findExpectedResult(Quadruple operand) { return bigDecimalValueOf(operand); };
 
@@ -333,7 +329,7 @@ public class TesterClasses {
      * Returns a string representation of the calculated expected value.
      * Specific testers, that has to return "NaN" or "Infinity" for some specific operands or operand combinations,
      * ought to override this method. The default implementation returns null and does not use the parameter
-     * @param operand -- not used in the default implementation
+     * @param operand not used in the default implementation
      * @return the default implementation returns null. Specific descendants that require this method should provide a proper value.
      */
     protected String findExpectedString(Quadruple operand) { return null; };
@@ -341,7 +337,7 @@ public class TesterClasses {
     /**
      * Creates a {@code DataItem} with the expected result of the operation
      * in cases when the expected value of the result is not provided within the data sample
-     * @param srcData -- a {@code DataItem} containing the source value for the operation
+     * @param srcData a {@code DataItem} containing the source value for the operation
      * @return a {@code DataItem} containing the value of the expected result or an error message in case of failure.
      */
     private DataItem deduceExpected(DataItem srcData) {
@@ -389,7 +385,7 @@ public class TesterClasses {
    *      the implementation of the {@link UnaryFunctionTester#performOp(Object)} method provided by a concrete descendant.
    *      </ul>
    *
-   * @param <R> -- the target type of the tested conversion (the type of the result of the conversion)
+   * @param <R> the target type of the tested conversion (the type of the result of the conversion)
    */
   static abstract class Conversion_Q2T_Tester<R> extends UnaryFunctionTester<Quadruple, R> {
 
@@ -414,7 +410,7 @@ public class TesterClasses {
     /**
      * Performs the tested operation and creates a {@code DataItem} with its result,
      * or with an error message in case of failure
-     * @param srcData -- a data item containing the source value for the tested operation
+     * @param srcData a data item containing the source value for the tested operation
      * @return a data item containing the result of the tested operation or an error message in case of failure
      */
     private DataItem makeResultItem(DataItem srcData) {
@@ -460,7 +456,7 @@ public class TesterClasses {
    * Defines abstract {@link #parseSrcType(String)} method whose implementations provided by the descendants
    * should return a value of the source type expressed by the input string from the data sample.<br><br>
    *
-   * @param <S> -- the type of the input value of the tested conversion
+   * @param <S> the type of the input value of the tested conversion
    */
   static abstract class Conversion_T2Q_Tester<S> extends UnaryFunctionTester<S, Quadruple> {
 
@@ -513,7 +509,7 @@ public class TesterClasses {
      * and returns the corresponding value of type <b>S</b>.
      * An implementation should be provided by a concrete descendant.
      * Indirectly used by {@link #testOp(String[])}
-     * @param s -- a string representing the input value of type S
+     * @param s a string representing the input value of type S
      * @return the value of type <b>S</b>, expressed by the input string
      */
     protected abstract S parseSrcType(String s);
@@ -521,7 +517,7 @@ public class TesterClasses {
     /**
      * Creates a new {@code DataItem} that contains a 'raw' value of type <b>S</b>
      * to be converted by the tested method, or an error message in case of error during parsing the input string.
-     * @param s -- a {@code String} containing a representation of the the value to be converted to {@code Quadruple}
+     * @param s a {@code String} containing a representation of the the value to be converted to {@code Quadruple}
      * @return a {@code DataItem} containing the corresponding value of type <b>S</b> or an error message
      */
     private DataItem makeSrcItem(String s) {
@@ -538,7 +534,7 @@ public class TesterClasses {
      * Performs the tested operation with the value of type <b>S</b> extracted
      * from the given {@code DataItem} and creates another {@code DataItem} with the result of the operation
      * or with an error message in case of failure
-     * @param srcData -- a {@code DataItem} with the source value
+     * @param srcData a {@code DataItem} with the source value
      * @return a {@code DataItem} with the result or with an error message
      */
     @SuppressWarnings("unchecked")
@@ -585,7 +581,7 @@ public class TesterClasses {
      * Performs the tested operation with the {@code Quadruple} value extracted
      * from the given {@code DataItem} and creates another {@code DataItem} with the result of the operation
      * or with an error message in case of failure.
-     * @param srcData -- a {@code DataItem} with the source value
+     * @param srcData a {@code DataItem} with the source value
      * @return a {@code DataItem} with the result or with an error message
      */
     private DataItem makeResultItem(DataItem srcData) {
@@ -646,8 +642,8 @@ public class TesterClasses {
     /**
      * An implementation provided by a descendant should perform the tested operation with the given
      * operands and return the result
-     * @param operand1 -- the first operand of the tested function,
-     * @param operand2 -- the second operand of the tested function,
+     * @param operand1 the first operand of the tested function,
+     * @param operand2 the second operand of the tested function,
      * @return the result of the operation
      */
     abstract protected Quadruple performOp(Quadruple  operand1, Quadruple  operand2);
@@ -655,8 +651,8 @@ public class TesterClasses {
     /**
      * An implementation provided by a descendant should calculate the expected result of the tested operation
      * applied to the given operands and return its value as {@code BigDecimal}.
-     * @param operand1 -- the first operand of the tested function,
-     * @param operand2 -- the second operand of the tested function,
+     * @param operand1 the first operand of the tested function,
+     * @param operand2 the second operand of the tested function,
      * @return an expected value of the result of the operation
      */
     abstract protected BigDecimal findExpectedResult(Quadruple operand1, Quadruple operand2);
@@ -665,8 +661,8 @@ public class TesterClasses {
      * An implementation provided by a descendant should return a string representation
      * of the expected result in case when the result can't be expressed as a BigDecimal,
      * for instance if the result should be NaN or Infinity.
-     * @param operand1 -- the first operand of the tested function,
-     * @param operand2 -- the second operand of the tested function,
+     * @param operand1 the first operand of the tested function,
+     * @param operand2 the second operand of the tested function,
      * @return a string expressing a value of the expected result
      */
     abstract protected String findExpectedString(Quadruple operand1, Quadruple operand2);
@@ -674,8 +670,8 @@ public class TesterClasses {
     /**
      * Performs the tested operation with the given operands
      * and creates and returns a {@code DataItem} instance with the value of the result
-     * @param operand1 -- the first operand of the tested function,
-     * @param operand2 -- the second operand of the tested function,
+     * @param operand1 the first operand of the tested function,
+     * @param operand2 the second operand of the tested function,
      * @return a new {@code DataItem} with the value of the result of the operation
      */
     private DataItem makeResultItem(Quadruple operand1, Quadruple operans2) { // 19.11.26 15:50:53
@@ -689,8 +685,8 @@ public class TesterClasses {
      * If the expString value is provided, uses it, otherwise calculates the expected result
      * based on the values of the given operands, using {@link #findExpectedResult(Quadruple, Quadruple)}
      * or {@link #findExpectedString(Quadruple, Quadruple)}.
-     * @param operand1 -- the first operand of the tested function,
-     * @param operand2 -- the second operand of the tested function,
+     * @param operand1 the first operand of the tested function,
+     * @param operand2 the second operand of the tested function,
      * @param expString
      * @return
      */

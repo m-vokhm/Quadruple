@@ -130,8 +130,8 @@ public class TestResults {
 	 * yet do affect statistics (mean error, max error and MSE).
 	 * The value of the {@code verbosity} parameter controls whether the test data will be output to the console
 	 * during testing. The only value that enables the output is {@code Verbosity.TALKATIVE}.
-	 * @param threshold -- defines the threshold to distinguish an acceptable inaccuracy from an error
-	 * @param verbosity -- controls the ability of the created instance to print data to the console. {@code Verbosity.TALKATIVE} enables the output.
+	 * @param threshold defines the threshold to distinguish an acceptable inaccuracy from an error
+	 * @param verbosity controls the ability of the created instance to print data to the console. {@code Verbosity.TALKATIVE} enables the output.
 	 */
 	public TestResults(double threshold, Verbosity verbosity) {
 	  this.verbosity = verbosity;
@@ -146,7 +146,7 @@ public class TestResults {
    * which corresponds to half of the least significant bit of the mantissa.
    * The test cases with an error below the threshold don't affect the number of registered errors,
    * yet do affect statistics (mean error, max error and MSE).
-   * @param errThreshold -- defines the threshold to distinguish an acceptable inaccuracy from an error
+   * @param errThreshold defines the threshold to distinguish an acceptable inaccuracy from an error
    */
 	public TestResults(double errThreshold) {
 	  verbosity = Verbosity.MEDIUM;
@@ -173,9 +173,9 @@ public class TestResults {
    * If the output is enabled, prints corresponding error messages indicating the error magnitude
    * and the positions of characters that differ in the string representations of the {@code result} and {@code expected} parameters.
    *
-   * @param srcData -- the source data that was used for the test (the argument of the operation)
-   * @param result -- the actual result of the tested operation
-   * @param expected -- the expected result of the tested operation
+   * @param srcData the source data that was used for the test (the argument of the operation)
+   * @param result the actual result of the tested operation
+   * @param expected the expected result of the tested operation
    * @see DataItem
    */
   public void record(DataItem srcData, DataItem result, DataItem expected) {
@@ -222,10 +222,10 @@ public class TestResults {
    * If the output is enabled, prints corresponding error messages indicating the error magnitude
    * and the positions of characters that differ in the string representations of the {@code result} and {@code expected} parameters.
    *
-   * @param srcData -- the source data that was used for the test or the first argument of the operation
-   * @param result -- the actual result of the tested operation or the second argument of the operation
-   * @param resultValue -- the numeric value of the actual result of the tested operation
-   * @param expected -- the expected result of the tested operation
+   * @param srcData the source data that was used for the test or the first argument of the operation
+   * @param result the actual result of the tested operation or the second argument of the operation
+   * @param resultValue the numeric value of the actual result of the tested operation
+   * @param expected the expected result of the tested operation
    * @see DataItem
    */
   public void record(DataItem srcData, DataItem result, DataItem resultValue, DataItem expected) {
@@ -245,7 +245,7 @@ public class TestResults {
    * accumulated by the passed instance of the {@code TestResults},
    * to the summary results being accumulated by {@code this} instance,
    * in order to evaluate summarized results for all tests performed.
-   * @param testResults -- an instance of the {@code TestResults} containing the results of testing a specific operation
+   * @param testResults an instance of the {@code TestResults} containing the results of testing a specific operation
    */
   public void register(TestResults testResults) {
     if (summarized)
@@ -317,7 +317,7 @@ on 3144 samples with err threshold 1.470e-39
   Src errors =      0
 
 </pre>
-   * @param testName -- a name of the tested operation to include to the report (in the example above, it's "op1.add(Quadruple op2)")
+   * @param testName a name of the tested operation to include to the report (in the example above, it's "op1.add(Quadruple op2)")
    * @return a string consisting of a few lines with a human-readable representation of the test results, as described above
    */
   public String getReport(String testName) {
@@ -399,9 +399,8 @@ on 3144 samples with err threshold 1.470e-39
    * If an error is found and the output is enabled, additionally prints one or two lines,
    * indicating the type, magnitude and the position of the error.
    * The format of these lines is shown in the description of the class.
-   * @param expected -- a {@code DataItem} instance containing the expected result of the operation under the test
-   * @param resultValue -- a {@code DataItem} instance containing the actual result of the operation under the test
-   * @param diffCahrs TODO
+   * @param expected a {@code DataItem} instance containing the expected result of the operation under the test
+   * @param resultValue a {@code DataItem} instance containing the actual result of the operation under the test
    */
   private void checkError(DataItem expected, DataItem resultValue) {
     if (!expected.getQuadValue().equals(resultValue.getQuadValue())) { // The Quadruple values differ
@@ -428,8 +427,8 @@ on 3144 samples with err threshold 1.470e-39
    * Finds and registers the relative error using {@code BigDecimal} values of {@code result} and {@code expected}.
    * Accordingly modifies the error statistics -- fields {@code errCount}, {@code meanError},
    * {@code mse}, and {@code maxError}.
-   * @param result -- the result of the operation being tested
-   * @param expected -- the expected (correct) result of the operation being tested
+   * @param result the result of the operation being tested
+   * @param expected the expected (correct) result of the operation being tested
    * @return the value found of the relative error
    */
   private double findError(DataItem result, DataItem expected) {
@@ -462,8 +461,8 @@ on 3144 samples with err threshold 1.470e-39
   /**
    * Returns a string indicating the difference in hexadecimal representations of the values.
    * The string starts with "$$$" and contains chars '^' in the positions where hexadecimal digits of the two values differ.
-   * @param str1 -- the first string to compare
-   * @param str2 -- the second string to compare
+   * @param str1 the first string to compare
+   * @param str2 the second string to compare
    * @return
    */
   private Object findHexDiff(String str1, String str2) {
@@ -496,8 +495,8 @@ on 3144 samples with err threshold 1.470e-39
 
   /**
    * Finds the difference between decimal representations of the values and fills DIFF_CHARS with appropriate markers
-   * @param str1 -- a string containing the first value to compare
-   * @param str2 -- a string containing the second value to compare
+   * @param str1 a string containing the first value to compare
+   * @param str2 a string containing the second value to compare
    * @return the position of the first difference found, or Integer.MAX_VALUE, if no differences found
    */
   private int findBdDiff(String str1, String str2) {
@@ -518,7 +517,7 @@ on 3144 samples with err threshold 1.470e-39
   /**
    * Generates a report consisting of a number of strings including the values accumulated in the fields of the instance
    * and appends it to the given {@code StringBuilder}.
-   * @param sb -- a {@code StringBuilder} instance to append the report to
+   * @param sb a {@code StringBuilder} instance to append the report to
    * @return a {@code String} containing the concatenation of the initial contents
    * of the given {@code StringBuilder} and the generated report
    */

@@ -80,7 +80,7 @@ public class DataProviders {
    *      of two don't spoil the overall precision;<br>
    * <li>A number of random numbers
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -106,7 +106,7 @@ public class DataProviders {
    *      to ascertain that the rounding works right
    * <li>A number of random numbers
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -127,7 +127,7 @@ public class DataProviders {
    *      and a few values between them;<br>
    * <li>basic data to test the conversion that covers all execution paths;<br>
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -146,7 +146,7 @@ public class DataProviders {
    *      and a few values between them;<br>
    * <li>basic data to test the conversion that covers all execution paths;<br>
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -164,7 +164,7 @@ public class DataProviders {
    * <li>basic data to test the conversion that covers all execution paths;<br>
    * <li>A number of random numbers
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -193,7 +193,7 @@ public class DataProviders {
    * <li>A series of values of {@code (1 + Quadruple.MIN_VALUE * (N + 0.5 +/- 3e-17)) * 2^M},
    *      i.e close vicinities of normal values + 0.5 LSB, with various exponents, to test rounding down/up after multiplying the mantissa by diverse powers of 2;,
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -245,7 +245,7 @@ public class DataProviders {
    * <li>A series of values of {@code (1 + Quadruple.MIN_VALUE * (N + 0.5 +/- 3e-40)) * 2^M},
    *      i.e close vicinities of normal values + 0.5 LSB, with various exponents, to test rounding down/up after multiplying the mantissa by diverse powers of 2;,
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -281,7 +281,7 @@ public class DataProviders {
    * <li>basic data to test the conversion that covers all execution paths;<br>
    * <li>A number of random doubles;
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -302,7 +302,7 @@ public class DataProviders {
    * <li>basic data to test the conversion that covers all execution paths;<br>
    * <li>A number of random longs;
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an input value
+   * <br>The returned data set is a list of arrays, each containing two strings -- an input value
    * for the tested operation and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -326,7 +326,7 @@ public class DataProviders {
    * <li>basic data to test the addition that covers all execution paths;<br>
    * <li>A number of pairs of random numbers.
    * </ul>
-   * <br>The elements of the list are arrays, each containing three strings -- two operands
+   * <br>The returned data set is a list of arrays, each containing three strings -- two operands
    * and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -366,7 +366,7 @@ public class DataProviders {
    * <li>basic data to test the multiplication that covers all execution paths;<br>
    * <li>A number of pairs of random numbers.
    * </ul>
-   * <br>The elements of the list are arrays, each containing three strings -- two operands
+   * <br>The returned data set is a list of arrays, each containing three strings -- two operands
    * and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -386,7 +386,7 @@ public class DataProviders {
    * <li>basic data to test the division that covers all execution paths;<br>
    * <li>A number of pairs of random numbers.
    * </ul>
-   * <br>The elements of the list are arrays, each containing three strings -- two operands
+   * <br>The returned data set is a list of arrays, each containing three strings -- two operands
    * and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -410,7 +410,7 @@ public class DataProviders {
    * by the least significant bit in the mantissa of the argument;
    * <li>A number of random values;
    * </ul>
-   * <br>The elements of the list are arrays, each containing two strings -- an operand to apply the operation to
+   * <br>The returned data set is a list of arrays, each containing two strings -- an operand to apply the operation to
    * and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -430,8 +430,9 @@ public class DataProviders {
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code String} and back to {@code Quadruple},
    * to ascertain that the conversion from {@code Quadruple} to {@code String} is reversible.
    * Consists of the data returned by {@link #q2sConversionDataList()} and the data returned by {@link #s2qConversionDataList()}.
-   * <br>The elements of the list are arrays, each containing two strings -- an operand to apply the operation to
-   * and the expected result, that can be null or an empty string.
+   * <br>The returned data set is a list of arrays, each containing two strings  
+   * an operand to apply the operation to and the expected result, 
+   * that can be null or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> q2s2qConversionDataList() {
@@ -444,7 +445,8 @@ public class DataProviders {
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code BigDecimal} and back to {@code Quadruple},
    * to ascertain that the conversion from {@code Quadruple} to {@code BigDecimal} is reversible.
    * Consists of the data returned by {@link #q2bdConversionDataList()} and the data returned by {@link #bd2qConversionDataList()}.
-   * <br>The elements of the list are arrays, each containing two strings -- an operand to apply the operation to
+   * <br>The returned data set is a list of arrays, each containing two strings 
+   * -- an operand to apply the operation to
    * and the expected result, that can be null or an empty string.
    * @return a set of data described above
    */
@@ -461,9 +463,9 @@ public class DataProviders {
 
 
   /**
-   * A helper method to convert a list of {@code String}s to a list of {@code String[]},
+   * A helper method to convert a list of {@code String}s to a list of arrays, 
    * where each array contains two adjacent elements of the input list.
-   * @param inpList -- a list of {@code String}s to convert;
+   * @param inpList a list of {@code String}s to convert;
    * @return a list of arrays of {@code String}s where each array contains two adjacent elements of the input list
    */
   private static ArrayList<String[]> convertToListOfArraysNx2(List<String> inpList) {
@@ -476,7 +478,7 @@ public class DataProviders {
   /**
    * A helper method to convert a list of {@code String}s to a list of {@code String[]},
    * where each array contains three adjacent elements of the input list.
-   * @param inpList -- a list of {@code String}s to convert;
+   * @param inpList a list of {@code String}s to convert;
    * @return a list of arrays of {@code String}s where each array contains three adjacent elements of the input list
    */
   private static ArrayList<String[]> convertToListOfArraysNx3(List<String> inpList) {

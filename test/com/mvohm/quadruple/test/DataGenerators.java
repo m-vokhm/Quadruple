@@ -46,7 +46,7 @@ public class DataGenerators {
   /**
    * Takes a list where each item contains a value and insert nulls in even positions,
    * so that the result looks like v1, null, v2, null, etc. The input list remains unchanged.
-   * @param inpList -- a dense list with values
+   * @param inpList a dense list with values
    * @return a list where the values from the input list are supplemented with null items
    */
   public static List<String> insertNulls(List<String> inpList) {
@@ -60,8 +60,8 @@ public class DataGenerators {
 
   /**
    * Adds the given strings to the end of the list
-   * @param list -- the list to add the comments to
-   * @param comments -- the comment lines to add to the list
+   * @param list the list to add the comments to
+   * @param comments the comment lines to add to the list
    * @return the input list with the given strings added to the end of it
    */
   public static List<String> addComment(List<String> list, String...comments) {
@@ -299,8 +299,8 @@ public class DataGenerators {
    * which is performed by {@code String} to {@code Quadruple} and {@code String} to {@code Quadruple} conversions.
    * @param mantissas a number of mantissas to form the base values for the subsequences
    * @param addition a constant to be added to the mantissa to form the base value of the subsequence
-   * @param maxDelta -- maximum magnitude of the delta to be added or subtracted to the base value before multiplying it by MIN_VALUE;
-   * @param minDelta -- minimum magnitude of the delta to be added or subtracted to the base value before multiplying it by MIN_VALUE;
+   * @param maxDelta maximum magnitude of the delta to be added or subtracted to the base value before multiplying it by MIN_VALUE;
+   * @param minDelta minimum magnitude of the delta to be added or subtracted to the base value before multiplying it by MIN_VALUE;
    * @return a list of strings expressing the values described
    */
   public static List<String> subnormalVicinities(String[] mantissas, double addition, double maxDelta, double minDelta) {
@@ -489,9 +489,9 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
     /**
      * Checks whether the given operation applied to the given operands results in -0
-     * @param op1str -- 1st operand as a String
-     * @param op2str -- 2nd operand as a String
-     * @param operation -- the operation to perform on the operands
+     * @param op1str 1st operand as a String
+     * @param op2str 2nd operand as a String
+     * @param operation the operation to perform on the operands
      * @return true, if the result of the operation is -0, false otherwise
      */
     private static boolean isMinusZero(String op1str, String op2str, BinaryOperator<Double> operation) {
@@ -607,7 +607,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * Returns a list of pairs of random values, with null after each pair.
      * The values of the items in each pair are concerted so that their addition makes sense in most cases
      * (i.e. the expected result does not equal to one of the operands and is not Infinity)
-     * @param count -- the number of pairs to generate
+     * @param count the number of pairs to generate
      * @return a list of strings, containing string representations of the generated pairs of values,
      * with nulls inserted after each pair
      */
@@ -619,7 +619,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * Returns a list of pairs of random values, with null after each pair.
      * The values of the items in each pair are concerted so that their multiplication makes sense in most cases
      * (i.e. the expected result is rarely equal to 0 or Infinity).
-     * @param count -- the number of pairs to generate
+     * @param count the number of pairs to generate
      * @return a list of strings, containing string representations of the generated pairs of values,
      * with nulls inserted after each pair
      */
@@ -631,7 +631,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * Returns a list of pairs of random values, with null after each pair.
      * The values of the items in each pair are concerted so that division makes sense in most cases
      * (i.e. the expected result is rarely equal to 0 or Infinity)
-     * @param count -- the number of pairs to generate
+     * @param count the number of pairs to generate
      * @return a list of strings, containing string representations of the generated pairs of values,
      * with nulls inserted after each pair
      */
@@ -788,7 +788,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * A function to get a random exponent of the the second value of a pair
      * based on the exponent of the first value such that multiplication of the two values
      * make sense in most cases
-     * @param exp -- the exponent of the first value of the pair
+     * @param exp the exponent of the first value of the pair
      * @return the generated value of the exponent for the second value of the pair
      */
     private static int otherExpForMult(int exp) {
@@ -801,7 +801,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * A function to get a random exponent of the the second value of a pair
      * based on the exponent of the first value such that division of the first value
      * by the second would make sense in most cases
-     * @param exp -- the exponent of the first value of the pair
+     * @param exp the exponent of the first value of the pair
      * @return the generated value of the exponent for the second value of the pair
      */
     private static int otherExpForDiv(int exp) {
@@ -1119,8 +1119,8 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /** Returns a string representation of the value represented by the {@code value} parameter
    * multiplied by two raised to power {@code exp}: {@code value * 2^exp}
-   * @param value -- the value to multiply by the power of two
-   * @param exp -- the power to raise two to to get the factor
+   * @param value the value to multiply by the power of two
+   * @param exp the power to raise two to to get the factor
    * @return a string representation of the resulting value
    */
   private static String multByPowerOfTwo(String value, int exp) {

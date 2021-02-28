@@ -51,7 +51,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#toString()} method.<br>
    * Creates an instance of {@link QuadToStringTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToStringConversion() {
@@ -68,7 +68,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#doubleValue()} method.<br>
    * Creates an instance of {@link QuadToDoubleTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToDoubleConversion() {
@@ -85,7 +85,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#longValue()} method.<br>
    * Creates an instance of {@link QuadToLongTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToLongConversion() {
@@ -102,7 +102,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#intValue()} method.<br>
    * Creates an instance of {@link QuadToIntTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToIntConversion() {
@@ -119,7 +119,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#bigDecimalValue()} method.<br>
    * Creates an instance of {@link QuadToBdTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToBdConversion() {
@@ -136,7 +136,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#Quadruple(String)} method.<br>
    * Creates an instance of {@link StringToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testStringToQuadConversion() {
@@ -153,7 +153,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#Quadruple(BigDecimal)} method.<br>
    * Creates an instance of {@link BdToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testBdToQuadConversion() {
@@ -170,7 +170,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#Quadruple(double)} method.<br>
    * Creates an instance of {@link DoubleToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testDoubleToQuadConversion() {
@@ -187,7 +187,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#Quadruple(long)} method.<br>
    * Creates an instance of {@link LongToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testLongToQuadConversion() {
@@ -204,7 +204,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#add(Quadruple)} method.<br>
    * Creates an instance of {@link InstanceAdditionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceAddition() {
@@ -221,7 +221,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#subtract(Quadruple)} method.<br>
    * Creates an instance of {@link InstanceSubtractionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceSubtraction() {
@@ -238,7 +238,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#multiply(Quadruple)} method.<br>
    * Creates an instance of {@link InstanceMultiplicationTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceMultiplication() {
@@ -255,7 +255,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#divide(Quadruple)} method.<br>
    * Creates an instance of {@link InstanceDivisionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceDivision() {
@@ -272,7 +272,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#add(Quadruple, Quadruple)} method.<br>
    * Creates an instance of {@link StaticAdditionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticAddition() {
@@ -289,7 +289,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#subtract(Quadruple, Quadruple)} method.<br>
    * Creates an instance of {@link StaticSubtractionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticSubtraction() {
@@ -306,7 +306,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#multiply(Quadruple, Quadruple)} method.<br>
    * Creates an instance of {@link StaticMultiplicationTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticMultiplication() {
@@ -323,7 +323,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#divide(Quadruple, Quadruple)}method.<br>
    * Creates an instance of {@link StaticDivisionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticDivision() {
@@ -341,7 +341,7 @@ public class QuadJUnitTests {
    * to return the exact original value.<br>
    * Creates an instance of {@link QuadToStringToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToStringToQuad() {
@@ -359,7 +359,7 @@ public class QuadJUnitTests {
    * that is expected to return the exact original value.<br>
    * Creates an instance of {@link QuadToBDToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testQuadToBDToQuad() {
@@ -376,7 +376,7 @@ public class QuadJUnitTests {
    * Tests {@link Quadruple#sqrt(Quadruple)} method.<br>
    * Creates an instance of {@link StaticSqrtTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticSqrt() {
@@ -393,7 +393,7 @@ public class QuadJUnitTests {
    * Tests instance {@link Quadruple#sqrt()} method.<br>
    * Creates an instance of {@link InstanceSqrtTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
-   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceSqrt() {
