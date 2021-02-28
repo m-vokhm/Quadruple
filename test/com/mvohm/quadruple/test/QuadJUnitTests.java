@@ -37,8 +37,8 @@ import com.mvohm.quadruple.Quadruple;
 public class QuadJUnitTests {
 
   /**
-   * Prepares the environment. Sets the medium level of verbosity
-   * and sets {@link java.util.Locale#US} as the default locale, to provide formatting
+   * Prepares the testing environment.<br>
+   * Sets the medium level of verbosity and sets {@link java.util.Locale#US} as the default locale, to provide formatting
    * of numbers in such a way that they can be parsed by methods like {@link Double#valueOf(String)}
    */
   @Before
@@ -48,8 +48,8 @@ public class QuadJUnitTests {
   }
 
   /**
-   * Tests {@link Quadruple#toString()} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#toString()} method.<br>
+   * Creates an instance of {@link QuadToStringTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -65,8 +65,8 @@ public class QuadJUnitTests {
   } // public void testQuadToStringConversion() {
 
   /**
-   * Tests {@link Quadruple#doubleValue()} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#doubleValue()} method.<br>
+   * Creates an instance of {@link QuadToDoubleTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -82,8 +82,8 @@ public class QuadJUnitTests {
   } // public void testQuadToDoubleConversion() {
 
   /**
-   * Tests {@link Quadruple#longValue()} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#longValue()} method.<br>
+   * Creates an instance of {@link QuadToLongTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -99,8 +99,8 @@ public class QuadJUnitTests {
   } // public void testQuadToLongConversion() {
 
   /**
-   * Tests {@link Quadruple#intValue()} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#intValue()} method.<br>
+   * Creates an instance of {@link QuadToIntTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -116,8 +116,8 @@ public class QuadJUnitTests {
   } // public void testQuadToIntConversion() {
 
   /**
-   * Tests {@link Quadruple#bigDecimalValue()} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#bigDecimalValue()} method.<br>
+   * Creates an instance of {@link QuadToBdTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -133,8 +133,8 @@ public class QuadJUnitTests {
   } // public void testQuadToBdConversion() {
 
   /**
-   * Tests {@link Quadruple#Quadruple(String)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#Quadruple(String)} method.<br>
+   * Creates an instance of {@link StringToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -150,8 +150,8 @@ public class QuadJUnitTests {
   } // public void testStringToQuadConversion() {
 
   /**
-   * Tests {@link Quadruple#Quadruple(BigDecimal)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#Quadruple(BigDecimal)} method.<br>
+   * Creates an instance of {@link BdToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -167,8 +167,8 @@ public class QuadJUnitTests {
   } // public void testBdToQuadConversion() {
 
   /**
-   * Tests {@link Quadruple#Quadruple(double)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#Quadruple(double)} method.<br>
+   * Creates an instance of {@link DoubleToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -184,8 +184,8 @@ public class QuadJUnitTests {
   } // public void testDoubleToQuadConversion() {
 
   /**
-   * Tests {@link Quadruple#Quadruple(long)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#Quadruple(long)} method.<br>
+   * Creates an instance of {@link LongToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -201,8 +201,8 @@ public class QuadJUnitTests {
   } //public void testLongToQuadConversion() {
 
   /**
-   * Tests {@link Quadruple#add(Quadruple)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#add(Quadruple)} method.<br>
+   * Creates an instance of {@link InstanceAdditionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -218,8 +218,8 @@ public class QuadJUnitTests {
   } // public void testInstanceAddition() {
 
   /**
-   * Tests {@link Quadruple#subtract(Quadruple)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#subtract(Quadruple)} method.<br>
+   * Creates an instance of {@link InstanceSubtractionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -235,8 +235,8 @@ public class QuadJUnitTests {
   } // public void testInstanceSubtraction() {
 
   /**
-   * Tests {@link Quadruple#multiply(Quadruple)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#multiply(Quadruple)} method.<br>
+   * Creates an instance of {@link InstanceMultiplicationTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -252,8 +252,8 @@ public class QuadJUnitTests {
   } // public void testInstanceMultiplication() {
 
   /**
-   * Tests {@link Quadruple#divide(Quadruple)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#divide(Quadruple)} method.<br>
+   * Creates an instance of {@link InstanceDivisionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -269,8 +269,8 @@ public class QuadJUnitTests {
   } // public void testInstanceDivision() {
 
   /**
-   * Tests {@link Quadruple#add(Quadruple, Quadruple)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#add(Quadruple, Quadruple)} method.<br>
+   * Creates an instance of {@link StaticAdditionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -286,8 +286,8 @@ public class QuadJUnitTests {
   } // public void testStaticAddition() {
 
   /**
-   * Tests {@link Quadruple#subtract(Quadruple, Quadruple)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#subtract(Quadruple, Quadruple)} method.<br>
+   * Creates an instance of {@link StaticSubtractionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -303,8 +303,8 @@ public class QuadJUnitTests {
   } // public void testStaticSubtraction() {
 
   /**
-   * Tests {@link Quadruple#multiply(Quadruple, Quadruple)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#multiply(Quadruple, Quadruple)} method.<br>
+   * Creates an instance of {@link StaticMultiplicationTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -320,9 +320,8 @@ public class QuadJUnitTests {
   } // public void testStaticMultiplication() {
 
   /**
-   * Tests {@link Quadruple#divide(Quadruple, Quadruple)}
-   * method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#divide(Quadruple, Quadruple)}method.<br>
+   * Creates an instance of {@link StaticDivisionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -339,8 +338,8 @@ public class QuadJUnitTests {
 
   /**
    * Tests {@code Quadruple -> String -> Quadruple} conversion that is expected
-   * to return the exact original value.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * to return the exact original value.<br>
+   * Creates an instance of {@link QuadToStringToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -357,8 +356,8 @@ public class QuadJUnitTests {
 
   /**
    * Tests {@code Quadruple -> BigDecimal -> Quadruple} conversion
-   * that is expected to return the exact original value.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * that is expected to return the exact original value.<br>
+   * Creates an instance of {@link QuadToBDToQuadTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -374,8 +373,8 @@ public class QuadJUnitTests {
   } // public void testQuadToBDToQuad() {
 
   /**
-   * Tests {@link Quadruple#sqrt(Quadruple)} method.
-   * Creates the appropriate tester, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#sqrt(Quadruple)} method.<br>
+   * Creates an instance of {@link StaticSqrtTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
@@ -391,7 +390,10 @@ public class QuadJUnitTests {
   } // public void testStaticSqrt() {
 
   /**
-   * Tests instance {@link Quadruple#sqrt() method }
+   * Tests instance {@link Quadruple#sqrt()} method.<br>
+   * Creates an instance of {@link InstanceSqrtTester}, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link QuadTest#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceSqrt() {
