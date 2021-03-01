@@ -128,7 +128,20 @@ public class TesterClasses {
    */
   static abstract class QuadTester implements QuadOpTester {
 
+    /**
+     * A list of test data samples. Each sample is a {@code String} array of two (for unary functions)
+     * or three (for binary functions) strings.<br>
+     * Get initialized by {@link #test()} or {@link #test(List)} methods.
+     * The data items of this list are used during the test execution by {@link #doTest()}
+     * as test data samples to test the operation under test.
+     * @see DataProviders
+     */
     private List<String[]> testDataList;
+
+    /**
+     * An instance of the {@link TestResults} class that accumulates the results of testing
+     * the operation on individual data samples.
+     */
     protected TestResults results;
 
     /** An implementation provided by a specific descendant should return the name of the specific test
@@ -351,7 +364,7 @@ public class TesterClasses {
         if (quadValue.isNegative() && bdValue.signum() == 0
             && !otherTypeName().equals("Long")         // ++ 20.12.24 18:30:02 for longs and ints, there does not exist -0
             && !otherTypeName().equals("Integer")
-            && !otherTypeName().equals("NoMinusZero")  // ++ 21.02.19 16:11:33 For Q -> BD -> Q
+            && !otherTypeName().equals("QuadToBigDecimalToQuad")  // ++ 21.02.19 16:11:33 For Q -> BD -> Q, BigDecimal can't be -0
             )
           return di.withQuadruple(new Quadruple(true, 0,0,0));  // Respect -0.0
         else
