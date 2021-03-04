@@ -30,7 +30,11 @@ import com.mvohm.quadruple.test.TesterClasses.*;
 
 /**
  * Contains concrete descendants of the abstract tester classes defined in {@link TesterClasses}.
- * These concrete classes are intended to test specific {@code Quadruple} operations.
+ * These concrete classes are intended to test specific {@code Quadruple} operations,
+ * e.g. {@link Quadruple#toString()} is tested by an instance of {@link QuadToStringTester}.
+ * The general logic of these classes is described in more detail in the descriptions
+ * of their respective ancestors such as {@link Conversion_Q2T_Tester},
+ * {@link Conversion_T2Q_Tester} and others, nested in {@link TesterClasses}.
  * @author M.Vokhmentev
  */
 

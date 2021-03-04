@@ -28,19 +28,19 @@ import com.mvohm.quadruple.Quadruple;
 
 /**
  * The "Tester classes" are the classes that perform testing of individual
- * types of operations on {@code Quadruple}, such as addition, division or conversion
- * from Quadruple to another numeric type.
- * For each type of operation that should be tested, exists a certain concrete tester class,
- * e.g. method {@link Quadruple#add(Quadruple, Quadruple)} is tested by class
- * {@code StaticAdditionTester}.
- * Each tester class gets a list of data samples, performs the operation being tested
- * on each sample, and passes the result along with the expected value,
+ * types of operations on {@code Quadruple}, such as addition, division, or conversion
+ * from Quadruple to another numeric type.<br>
+ * For each type of operation that should be tested, there exists a corresponding
+ * concrete tester class, e.g. method {@link Quadruple#add(Quadruple, Quadruple)}
+ * is tested by class {@code StaticAdditionTester}.<br>
+ * Each tester class gets a list of data samples, for each sample performs
+ * the operation being tested and passes the result along with the expected value,
  * that can be provided with the test data or calculated based on it,
- * to an instance {@code TestResults} class, which registers the results
+ * to an instance of {@code TestResults} class, which registers the results
  * and calculates the necessary statistics (mean error, MSE, etc.) when the testing is done.
- *
- * This file contains the abstract classes that are inherited from by concrete
- * tester classes for specific operations that are located in {@link SpecificTesterClasses} class
+ *<p>
+ * This file contains the abstract classes that are ancestors of concrete
+ * tester classes for specific operations, that are nested in {@link SpecificTesterClasses} class.
  *
  * @author M.Vokhmentsev
  */
@@ -56,10 +56,15 @@ public class TesterClasses {
   };
 
   /**
-   * Possible levels of the verbosity of the output
+   * An enumeration of possible levels of the verbosity of the output.<br>
    */
   public static enum Verbosity {
-    SILENT, MEDIUM, TALKATIVE
+    /** Only the summary results for all performed tests are printed */
+    SILENT,
+    /** Intermediate results for each tested operation are printed */
+    MEDIUM,
+    /** The results of the test for each data sample are printed */
+    TALKATIVE
   };
 
   /**
@@ -68,8 +73,10 @@ public class TesterClasses {
   private static Verbosity verbosity = Verbosity.TALKATIVE;
 
   /**
-   * The setter to set the verbosity mode
+   * A setter to set the verbosity mode that controls how verbose
+   * is the output to the console during the execution of the tests.
    * @param verbosityValue the value to set
+   * @see Verbosity
    */
   public static void setVerbosity(Verbosity verbosityValue) {
     if (verbosityValue == null)
@@ -84,23 +91,21 @@ public class TesterClasses {
   interface QuadOpTester {
 
     /**
-     * Tests the corresponding operation using data from the default provider that is specified in
-     * each concrete descendant class.
-     * Overridden by the {@link QuadTester}
+     * Tests the corresponding operation using data from the default provider
+     * that is specified in each concrete descendant class.
      * @return an instance of {@link TestResults} containing the statistics on the test results
      */
     TestResults test();
 
     /**
      * Tests the corresponding operation using the given test data.
-     * Each element of the list is a data sample in a form of an array of 2
+     * Each element of the list is expected to be a data sample in a form of an array of 2
      * (for unary operations including conversions) or 3
-     * (for binary operations) strings that represent numeric values of respectively one or two
+     * (for binary operations) strings, which represent numeric values of respectively one or two
      * input arguments for the operation being tested and the expected result of the operation.
-     * The expected value in the data can be null or an empty string, in this case
+     * The expected value in a data sample can be null or an empty string, in this case
      * the expected value of the tested operation is evaluated by the concrete descendant class
      * based on the arguments.
-     * Overridden by the {@link QuadTester} to initialize in each concrete tester to
      * @param testData the data to run the test on
      * @return an instance of {@link TestResults} containing the statistics on the test results
      */
@@ -111,32 +116,22 @@ public class TesterClasses {
    * Common ancestor for all tester classes.<br><br>
    * Implements public methods:<ul style="list-style-position: outside">
    * <li>{@link #test()}     -- tests the operation with the default data set obtained via
-   *                            {@code getTestDataList()}
+   *                            {@link #getTestDataList()}
    * <li>{@link #test(List)} -- tests the operation with the given data set
-   * </ul>
+   * </ul><br>
    * Defines abstract methods to be implemented by descendants:<ul style="list-style-position: outside">
    * <li>{@link #getName()} -- to return the tested operation name to be used in the report;
    * <li>{@link #getTestDataList()} -- to return the data set to be used in the test;
    * <li>{@link #testOp(String[])} -- to test the operation on the given individual data sample.
-   * </ul>
+   * </ul><br>
    * Implements protected methods to be used by descendants:<ul style="list-style-position: outside">
    * <li>{@link #getThreshold()} -- returns the default value of the tolerable error threshold for the test,
    *                                <span class="nowrap">1.470e-39</span>.
    *                                May be overridden by descendants
-   * </ul>
+   * </ul><br>
    *
    */
   static abstract class QuadTester implements QuadOpTester {
-
-    /**
-     * A list of test data samples. Each sample is a {@code String} array of two (for unary functions)
-     * or three (for binary functions) strings.<br>
-     * Get initialized by {@link #test()} or {@link #test(List)} methods.
-     * The data items of this list are used during the test execution by {@link #doTest()}
-     * as test data samples to test the operation under test.
-     * @see DataProviders
-     */
-    private List<String[]> testDataList;
 
     /**
      * An instance of the {@link TestResults} class that accumulates the results of testing
@@ -145,52 +140,68 @@ public class TesterClasses {
     protected TestResults results;
 
     /** An implementation provided by a specific descendant should return the name of the specific test
-     * to be used in the report and in error messages
+     * to be used in the report and in error messages.
      * @return the name of the tested operation */
     abstract protected String getName();
 
-    /** An implementation provided by a specific descendant should obtain a specific default dataset
-     * to test the specific operation being tested
-     * @return a list of data samples to test the the operataion with */
+    /** An implementation provided by a specific descendant should obtain and return
+     * a specific default dataset to test the specific operation being tested.
+     * @return a list of data samples to test the operation
+     * @see DataProviders */
     abstract protected List<String[]> getTestDataList();
 
     /**
      * Tests the operation using the data from the default dataset provided by
-     * {@code getTestData()} method of a specific descendant
+     * {@link #getTestDataList()} method of a specific descendant.<br>
+     * First creates an instance of {@link TestResults} to keep the results,
+     * then for each data sample from the default test data list calls
+     * the {@link #testOp(String[])} method, which performs the test on the data sample
+     * and registers its result in the {@code TestResults},
+     * then forms and prints the report (if in talkative mode)
+     * and returns the {@code TestResults} instance.
+     * <p>
      * @return an instance of {@link TestResults} with the results of the test
      */
     @Override
     public TestResults test() {
-      testDataList = getTestDataList();
-      return doTest();
+      return doTest(getTestDataList());
     };
 
     /**
-     * Tests the operation using the data from a specific dataset passed in as a parameter
+     * Tests the operation using the data from a specific dataset passed in as a parameter.<br>
+     * First creates an instance of {@link TestResults} to keep the results,
+     * then for each data sample from the {@code testData} list calls
+     * the {@link #testOp(String[])} method, which performs the test on the data sample
+     * and registers its result in the {@code TestResults},
+     * then forms and prints the report (if in talkative mode)
+     * and returns the {@code TestResults} instance.
+     * <p>
+     * Can be called instead of the {@link #test()} method from an external code to test the operation
+     * on a specific custom data set.<br>
      * @return an instance of {@link TestResults} with the results of the test
      */
     @Override
     public TestResults test(List<String[]> testData) {
-      testDataList = testData;
-      return doTest();
+      return doTest(testData);
     };
 
     /**
+     * Performs the test.<br>
      * Creates an instance of {@link TestResults} to keep the results,
-     * then for each data sample from the data set stored in the {@link #testDataList} list calls
+     * then for each data sample from the {@code #testData} list calls
      * the {@link #testOp(String[])} method, that performs the test on the data sample
      * and registers its result in {@code TestResults},
      * then forms and prints the report (if in talkative mode)
      * and returns the {@code TestResults} instance.
      * @return the newly-created instance of {@link TestResults} with the results of the performed test
      */
-    private TestResults doTest() {
+    private TestResults doTest(List<String[]> testData) {
       // if (TesterClasses.verbosity != Verbosity.SILENT)
         say(getHeader());
 
       results = new TestResults(getThreshold(), verbosity);
 
-      for (final String[] sample: testDataList) {
+      for (final String[] sample: testData) {
         final DataKinds dataKind = checkDataKind(sample);
         if (dataKind == DataKinds.SIGNAL_TO_QUIT) break;
         if (dataKind != DataKinds.COMMENT)
@@ -206,7 +217,7 @@ public class TesterClasses {
     }
 
     /** Builds and returns a header for the report including the specific test name,
-     * provided by {@code getName()}, and the error threshold value */
+     * provided by {@link #getName()}, and the error threshold value. */
     private String getHeader() {
       return String.format("Testing %s\nwith err threshold = %.3e\n", getName(), getThreshold());
     }
@@ -242,22 +253,26 @@ public class TesterClasses {
     }
 
     /**
-     * An implementation provided by a specific descendant tests a specific operation on the given data sample
-     * and registers the results in the instance of {@link TestResults} class
-     * held in the {@link #results} variable of {@code this} instance of the tester
+     * An implementation provided by a specific descendant tests a specific operation
+     * on the given data sample and registers the results in the instance of {@link TestResults} class
+     * held in the {@link #results} variable of {@code this} instance of the tester.<br>
+     * The data sample is expected to be an array of {@code String}s where the first string
+     * or the first two strings contain string representations of the operands
+     * for the tested operation and the second (or the third) string contains
+     * the expected result of the tested operation. In most cases the expected result
+     * can be calculated by the instance of the tester class based on the value(s) of the argument(s).
+     * In such cases the element intended to hold the expected value can be {@code null} or an empty string.
      * @param dataSample an array containing {@code String} representations of the input argument(s)
-     * of the tested operation and for the expected result.
-     * The element meant to contain the expected result may be {@code null} or an empty string, in such a case
-     * the expected value of the result is evaluated by a descendant tester programmatically
-     * based on the input value(s) and the nature of the tested operation.
-     *
+     * of the tested operation and a string representation of the expected result
      */
     abstract protected void testOp(String[] dataSample);
 
-    /** Returns the value of the error threshold set for this instance.
-     * The default implementation returns the default value, {@link Consts#NORM_ERR_THRESH}.
-     * Error values that are below this value are considered acceptable.
-     * Testers that deal with data types with a lower precision
+    /** Returns the value of the threshold of acceptable relative errors set for this instance.<br>
+     * The default implementation returns the default value of the threshold,
+     * {@link Consts#NORM_ERR_THRESH}.
+     * Relative errors whose values don't exceed the threshold are inevitable for most operations
+     * and considered acceptable.
+     * Testers which deal with data types or operations that may produce greater relative errors
      * may have to override this method to return another value.
      * @return the value of the error threshold set for this instance
      */
@@ -268,16 +283,16 @@ public class TesterClasses {
   } // static abstract class QuadTester implements QuadOpTester {
 
   /**
-   * A common ancestor of the testers that test conversions, like {@link Quadruple#toString()}
-   *  or {@link Quadruple#assign(double)}, and unary operations.<br><br>
+   * A common ancestor of the tester classes that test conversions and unary operations, like {@link Quadruple#toString()}
+   *  or {@link Quadruple#sqrt(Quadruple)}.<br><br>
    *
    * Defines abstract methods to be implemented by descendants:<ul style="list-style-position: outside">
    *  <li>{@link #performOp(Object)} whose concrete implementations are to perform the tested operation,
-   * </ul>
-   *
+   * </ul><br>
    * Implements protected methods (that can be overridden) to be used by descendants:<br><ul style="list-style-position: outside">
    *  <li>{@link #otherTypeName()}      --  to return the name of the type the conversion from which
-   *                                        or to which is tested, or "Quadruple" for unary operations
+   *                                        or to which is tested. The default implementation returns "Quadruple"
+   *                                        required for unary operations on {@code Quadruple}s.
    *  <li>{@link #makeExpectedItem(DataItem, String)}   --  to create a {@link DataItem} with the (provided or evaluated)
    *                                        expected value of the conversion,
    *  <li>{@link #findExpectedResult(Quadruple)} --  to find the value that is expected to be the correct result
@@ -285,8 +300,8 @@ public class TesterClasses {
    *  <li>{@link #findExpectedString(Quadruple)} --  to finds the string representing a value that can't be
    *                                        expressed as a {@code BigDecimal}
    * </ul>
-   * @param <S> Source type for the tested operation
-   * @param <R> Result type for the tested operation
+   * @param <S> The type of the operand of the tested operation
+   * @param <R> The type of the result of the tested operation
    */
   static abstract class UnaryFunctionTester<S, R> extends QuadTester {
 
@@ -312,12 +327,12 @@ public class TesterClasses {
     }
 
     /**
-     * Creates a {@code DataItem} with the expected value of the conversion.
+     * Creates a {@link DataItem} with the the value of the expected result of the tested operation.
      * If the expected value is provided within the data sample, uses it, otherwise
      * calculates the expected value using the {@link #findExpectedResult} and {@link #findExpectedString(Quadruple)}
      * methods that can be overridden by descendants.
      * @param srcValue a {@code DataItem} containing the source value for the conversion being tested
-     * @param expextedString the value of the string of the data sample that's intended to hold the expected value
+     * @param expextedString the element of the data sample that's intended to hold the expected value
      * @return a {@code DataItem} containing the expected value of the conversion for the given source value
      */
     protected DataItem makeExpectedItem(DataItem srcValue, String expextedString) {
@@ -329,9 +344,10 @@ public class TesterClasses {
     } // protected DataItem makeExpectedItem(DataItem srcValue, String expextedString) {
 
     /**
+     * Calculates the value of the expected result of the tested operation.<br>
      * The default implementation returns the {@link BigDecimal} value of the given {@link Quadruple} operand.
      * If the value can't be represented as {@code BigDecimal} ({@code NaN} or {@code Infinity}), throws {@code NumberFormatException}.
-     * In cases of narrowing conversions, such as {@link Quadruple#doubleValue()}, descendants should override this method to provide
+     * In cases of functions or narrowing conversions, such as {@link Quadruple#doubleValue()}, descendants should override this method to provide
      * the value that equals the corresponding value of the target type.
      * @param operand the value to be converted
      * @return the expected result of the tested operation as a {@code BigDecimal}
@@ -339,17 +355,19 @@ public class TesterClasses {
     protected BigDecimal findExpectedResult(Quadruple operand) { return bigDecimalValueOf(operand); };
 
     /**
-     * Returns a string representation of the calculated expected value.
-     * Specific testers, that has to return "NaN" or "Infinity" for some specific operands or operand combinations,
-     * ought to override this method. The default implementation returns null and does not use the parameter
+     * Returns a string representation of the calculated expected value
+     * in cases when it can't be represented as a {@code BigInteger}.
+     * Specific testers, that has to return "NaN" or "Infinity" for some
+     * specific operands or operand combinations, ought to override
+     * this method. The default implementation returns null and does not use the parameter.
      * @param operand not used in the default implementation
      * @return the default implementation returns null. Specific descendants that require this method should provide a proper value.
      */
     protected String findExpectedString(Quadruple operand) { return null; };
 
     /**
-     * Creates a {@code DataItem} with the expected result of the operation
-     * in cases when the expected value of the result is not provided within the data sample
+     * Creates a {@code DataItem} with the expected result of the tested operation
+     * in cases when the expected value is not provided within the data sample.
      * @param srcData a {@code DataItem} containing the source value for the operation
      * @return a {@code DataItem} containing the value of the expected result or an error message in case of failure.
      */
@@ -398,16 +416,16 @@ public class TesterClasses {
    *      the implementation of the {@link UnaryFunctionTester#performOp(Object)} method provided by a concrete descendant.
    *      </ul>
    *
-   * @param <R> the target type of the tested conversion (the type of the result of the conversion)
+   * @param <R> The target type, i.e. the type of the result of the conversion
    */
   static abstract class Conversion_Q2T_Tester<R> extends UnaryFunctionTester<Quadruple, R> {
 
     /**
      * Tests a conversion from {@code Quadruple} to type R.<br>
-     * Creates {@link DataItem} instances for the source input value from the data sample,
-     * for the actual result of the tested operation applied to the source value,
+     * Creates {@link DataItem} instances for the source input value taken from the data sample,
+     * for the actual result (of type {@code R}) of the tested operation applied to the source value,
      * for the {@code Quadruple} and {@code BigDecimal} values of the result,
-     * and for the expected value of the result, all with corresponding data, and registers
+     * and for the expected value of the result, all with the corresponding data, and registers
      * the result in the {@link TestResults} instance stored in the corresponding instance
      * variable using its {@link TestResults#record(DataItem, DataItem, DataItem, DataItem)} method.
      */
@@ -422,7 +440,7 @@ public class TesterClasses {
 
     /**
      * Performs the tested operation and creates a {@code DataItem} with its result,
-     * or with an error message in case of failure
+     * or with an error message in case of failure.
      * @param srcData a data item containing the source value for the tested operation
      * @return a data item containing the result of the tested operation or an error message in case of failure
      */
@@ -439,8 +457,10 @@ public class TesterClasses {
     }
 
     /**
-     * Returns the simple name of the actual type of the tested operation. Uses an implementation of the
-     * {@link UnaryFunctionTester#performOp(Object)} method provided by a concrete descendant.
+     * Returns the simple name of the actual type of the result of the tested operation.<br>
+     * Uses an implementation of the
+     * {@link UnaryFunctionTester#performOp(Object)} method provided by a concrete descendant,
+     * to obtain an instance of the result type.
      */
     @Override
     protected String otherTypeName() {
@@ -453,18 +473,18 @@ public class TesterClasses {
 
   /**
    * An abstract tester class whose descendants perform testing of conversions from
-   * other types to {@code Quadruple}, like {@link Quadruple#Quadruple(String)} or {@link Quadruple#Quadruple(double)}.<br><br>
-   *
+   * other types to {@code Quadruple}, like {@link Quadruple#Quadruple(String)}
+   * or {@link Quadruple#Quadruple(double)}.<br>
+   * <br>
    * Implements protected methods:<ul style="list-style-position: outside">
-   * <li>{@link UnaryFunctionTester#testOp(String[])} -- performs the tested operation,
-   *      creates {@link DataItem} instances with the data involved with the test,
-   *      and passes them to the {@link TestResults} instance stored in the corresponding field,
-   *      to register the result.
-   * <li>{@link UnaryFunctionTester#otherTypeName()} -- returns the simple name of the actual
+   * <li>{@link UnaryFunctionTester#testOp(String[])} -- performs the tested operation
+   *      and registers the result in the {@link TestResults} instance stored in the corresponding field.
+   * <li>{@link UnaryFunctionTester#otherTypeName()} -- returns the simple name of the
    *      input type of the tested conversion.<br>
-   * <li>{@link UnaryFunctionTester#performOp(Object)} -- performs the conversion by creating a new instance
-   *      of {@code Quadruple} via call to a corresponding constructor, depending on the source type.
-   * </ul>
+   * <li>{@link UnaryFunctionTester#performOp(Object)} -- performs the tested conversion
+   *      by creating a new instance of {@code Quadruple} via call to a constructor
+   *      with appropriate type of the argument, depending on the source type.
+   * </ul><br>
    *
    * Defines abstract {@link #parseSrcType(String)} method whose implementations provided by the descendants
    * should return a value of the source type expressed by the input string from the data sample.<br><br>
@@ -492,8 +512,9 @@ public class TesterClasses {
     } // protected void testOp(String[] dataSample) {
 
     /**
-     * Returns the simple name of the type of the source values being converted to {@code Quadruple}.
-     * Uses {@link #parseSrcType(String)} abstract method whose implementation is up to the descendants.
+     * Returns the simple name of the input type of the tested conversion.<br>
+     * Uses the {@link #parseSrcType(String)} method of a concrete
+     * descendant to obtain an instance of the concrete input type.
      */
     @Override
     protected String otherTypeName() {
@@ -503,8 +524,8 @@ public class TesterClasses {
     };
 
     /**
-     * Performs the conversion by creating a new instance of {@code Quadruple} via call to a corresponding
-     * constructor of {@code Quadruple}, depending on the source type.
+     * Performs the tested conversion by creating a new instance of {@code Quadruple}
+     * via call to a constructor with appropriate type of the argument, depending on the source type.
      */
     @Override
     protected Quadruple performOp(S operand) {
@@ -519,8 +540,8 @@ public class TesterClasses {
 
     /**
      * Parses a string expressing an input value for the tested conversion
-     * and returns the corresponding value of type <b>S</b>.
-     * An implementation should be provided by a concrete descendant.
+     * and returns the corresponding value of type <b>S</b>.<br>
+     * A concrete implementation should be provided by a concrete descendant.
      * Indirectly used by {@link #testOp(String[])}
      * @param s a string representing the input value of type S
      * @return the value of type <b>S</b>, expressed by the input string
@@ -564,12 +585,10 @@ public class TesterClasses {
 
   /**
    * An abstract tester class whose descendants perform testing of unary operations with {@code Quadruple}.<br>
-   *
+   * <br>
    * Implements protected methods:<ul style="list-style-position: outside">
-   * <li>{@link UnaryFunctionTester#testOp(String[])} -- performs the tested operation,
-   *      creates {@link DataItem} instances with the data involved with the test,
-   *      and passes them to the {@link TestResults} instance stored in the corresponding field,
-   *      to register the result.
+   * <li>{@link UnaryFunctionTester#testOp(String[])} -- performs the tested operation
+   *      and register the result in the {@link TestResults} instance stored in the corresponding field.
    *      </ul>
    */
   static abstract class UnaryQuadrupleFunctionTester extends UnaryFunctionTester<Quadruple, Quadruple> {
@@ -615,31 +634,29 @@ public class TesterClasses {
 
   /**
    * An abstract tester class whose descendants perform testing of binary operations with {@code Quadruple}s,
-   * like {@link Quadruple#add(Quadruple, Quadruple)} or {@link Quadruple#divide(Quadruple, Quadruple)}.<br>
-   *
+   * such as {@link Quadruple#add(Quadruple, Quadruple)} or {@link Quadruple#divide(Quadruple, Quadruple)}.<br>
+   * <br>
    * Implements protected methods:<ul style="list-style-position: outside">
-   * <li>{@link UnaryFunctionTester#testOp(String[])} -- performs the tested operation,
-   *      creates {@link DataItem} instances with the data involved with the test,
-   *      and passes them to the {@link TestResults} instance stored in the corresponding field,
-   *      to register the result.
-   *      </ul>
-   *
+   * <li>{@link UnaryFunctionTester#testOp(String[])} -- tests the operation with the given arguments
+   *      and registers its result in the {@link TestResults} instance stored in the corresponding field.
+   *      </ul><br>
    * Defines abstract methods to be implemented by descendants:<ul style="list-style-position: outside">
    *  <li>{@link #performOp(Quadruple, Quadruple)} -- to perform the tested operation,
-   *  <li>{@link #findExpectedResult(Quadruple, Quadruple)} --  to find the value that is expected to be the correct result
-   *                                        of the tested operation,
-   *  <li>{@link #findExpectedString(Quadruple, Quadruple)} --  to finds the string representing a value that can't be
-   *                                        expressed as a {@code BigDecimal}
+   *  <li>{@link #findExpectedResult(Quadruple, Quadruple)} --  to find the value that is expected to be
+   *      the correct result of the tested operation,
+   *  <li>{@link #findExpectedString(Quadruple, Quadruple)} --  to find the string representing a value
+   *      that can't be expressed as a {@code BigDecimal}
    * </ul>
    */
   static abstract class BinaryFunctionTester extends QuadTester {
 
     /**
      * Tests a binary function on Quadruple.<br>
-     * Creates two {@link DataItem} instances with the values of the operands, each expressed as {@code Quadruple} and {@code BigDecimal} values,
-     * performs the tested operation with the operands and creates a {@link DataItem} with the result,
-     * creates a {@link DataItem} with the expected value of the result, then registers
-     * the result in the {@link TestResults} instance stored in the corresponding field
+     * Creates two {@link DataItem} instances with the values of the operands,
+     * each containing {@code Quadruple} and {@code BigDecimal} equivalents of the corresponding
+     * operand, performs the tested operation with the operands and creates a {@link DataItem}
+     * with the result, creates a {@link DataItem} with the expected value of the result,
+     * then registers the result in the {@link TestResults} instance stored in the corresponding field
      * using its {@link TestResults#record(DataItem, DataItem, DataItem, DataItem)} method.
      */
     @Override
@@ -654,7 +671,7 @@ public class TesterClasses {
 
     /**
      * An implementation provided by a descendant should perform the tested operation with the given
-     * operands and return the result
+     * operands and return its result.
      * @param operand1 the first operand of the tested function,
      * @param operand2 the second operand of the tested function,
      * @return the result of the operation
@@ -663,7 +680,7 @@ public class TesterClasses {
 
     /**
      * An implementation provided by a descendant should calculate the expected result of the tested operation
-     * applied to the given operands and return its value as {@code BigDecimal}.
+     * applied to the given operands and return its value as a {@code BigDecimal}.
      * @param operand1 the first operand of the tested function,
      * @param operand2 the second operand of the tested function,
      * @return an expected value of the result of the operation
@@ -672,8 +689,8 @@ public class TesterClasses {
 
     /**
      * An implementation provided by a descendant should return a string representation
-     * of the expected result in case when the result can't be expressed as a BigDecimal,
-     * for instance if the result should be NaN or Infinity.
+     * of the expected result in case when the result can't be expressed as a {@code BigDecimal},
+     * for instance if the result should be {@code NaN} or {@code Infinity}.
      * @param operand1 the first operand of the tested function,
      * @param operand2 the second operand of the tested function,
      * @return a string expressing a value of the expected result

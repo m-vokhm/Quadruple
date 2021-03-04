@@ -27,13 +27,14 @@ import com.mvohm.quadruple.Quadruple;
 
 /**
  * A {@code DataItem} is a container for a value that is used or generated when
- * It may be the value of an input parameter, or the actual result of an operation,
+ * testing an operation with a data sample.
+ * The contained value may be the value of an input parameter, or the actual result of an operation,
  * or an expected result to compare with the actual result, etc.<br>
  * In most cases, it holds a {@code BigDecimal} value and the corresponding {@code Quadruple}
  * value that is the best possible approximation of the BigDecimal value.
  * It also may hold a value of a 'raw' type, that may be String, BigDecimal, Double, Integer or Long.
  * This capability is used when testing conversions from Quadruple to other types and
- * from other types to Quadruple to store the results or input values, respectively.<br>
+ * from other types to Quadruple, to store the results or input values, respectively.<br>
  * The value to store may be set using
  * {@link #withQuadValueOfString(String)},
  * {@link #withValueOf(Object)},
@@ -46,7 +47,7 @@ import com.mvohm.quadruple.Quadruple;
  * A string representation of the data item or an error message can be obtained with {@link #toString()} method,
  * the values of specific fields can be obtained with
  * {@link #getBDValue()}, {@link #getQuadValue()}, {@link #getRawData()}, {@link #getStrValue()} methods.
- * The {@link #hasError()} methods shows if the {@code DataItem} contains an error message.
+ * The {@link #hasError()} methods indicates if the {@code DataItem} contains an error message.
  *
  * <br>
  * {@code DataItem}s with values or errors messages are used to collect statistics on test results

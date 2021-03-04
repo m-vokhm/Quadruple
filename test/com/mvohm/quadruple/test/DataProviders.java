@@ -34,7 +34,7 @@ import java.util.List;
  * {@link com.mvohm.quadruple.Quadruple} operations.<br>
  * Each data set is a list of arrays of {@code String}s. Each array consists of two
  * (for unary operations, including conversions) or three (for binary operations) strings
- * an contain string representations of input operand(s) for the tested operation
+ * and contains string representations of input operand(s) for the tested operation
  * and the expected result of the operation being applied to the given operand(s).
  * In most cases the expected result can be computed by the corresponding tester class,
  * that uses the data returned by a provider.
@@ -430,8 +430,8 @@ public class DataProviders {
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code String} and back to {@code Quadruple},
    * to ascertain that the conversion from {@code Quadruple} to {@code String} is reversible.
    * Consists of the data returned by {@link #q2sConversionDataList()} and the data returned by {@link #s2qConversionDataList()}.
-   * <br>The returned data set is a list of arrays, each containing two strings  
-   * an operand to apply the operation to and the expected result, 
+   * <br>The returned data set is a list of arrays, each containing two strings
+   * an operand to apply the operation to and the expected result,
    * that can be null or an empty string.
    * @return a set of data described above
    */
@@ -445,7 +445,7 @@ public class DataProviders {
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code BigDecimal} and back to {@code Quadruple},
    * to ascertain that the conversion from {@code Quadruple} to {@code BigDecimal} is reversible.
    * Consists of the data returned by {@link #q2bdConversionDataList()} and the data returned by {@link #bd2qConversionDataList()}.
-   * <br>The returned data set is a list of arrays, each containing two strings 
+   * <br>The returned data set is a list of arrays, each containing two strings
    * -- an operand to apply the operation to
    * and the expected result, that can be null or an empty string.
    * @return a set of data described above
@@ -463,7 +463,7 @@ public class DataProviders {
 
 
   /**
-   * A helper method to convert a list of {@code String}s to a list of arrays, 
+   * A helper method to convert a list of {@code String}s to a list of arrays,
    * where each array contains two adjacent elements of the input list.
    * @param inpList a list of {@code String}s to convert;
    * @return a list of arrays of {@code String}s where each array contains two adjacent elements of the input list

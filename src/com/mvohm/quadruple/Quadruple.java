@@ -28,9 +28,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
-
 /**
  * A floating-point number with a 128-bit fractional part of the mantissa and 32-bit
  * exponent. Normal values range from approximately {@code 2.271e-646456993}
@@ -2867,7 +2864,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
        * @param fractPartString the fractional part of the mantissa, may be empty for e.g. "33.e5"
        * @return the exponent correction to be added to the explicitely expressed number's exponent
        */
-      private int uniteMantString(@Nullable String intPartString, @NotNull String fractPartString) {
+      private int uniteMantString(String intPartString, String fractPartString) {
         if (intPartString == null) {
           intPartString = fractPartString;
           fractPartString = "";
@@ -2879,7 +2876,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
         mantStr = intPartString + fractPartString;      // mantissa as a string
         return intPartString.length() - 1;              // 10.0 = 1e1, 1.0 = 1e0, 0.1 = 1e-1 etc;
-      } // private int NumberParts.uniteMantString(@Nullable String intPartString, @NotNull String fractPartString) {
+      } // private int NumberParts.uniteMantString( String intPartString, String fractPartString) {
 
       private static final Pattern EXP_STR_PTRN = Pattern.compile("e(\\+|-)?(\\d+)");
 
@@ -2908,7 +2905,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
        * @param longString string representation of a number
        * @return a long value represented by the longString
        */
-      private static long parseLong(@NotNull String longString) {
+      private static long parseLong(String longString) {
         if (longString.length() > 18) return Long.MAX_VALUE;
         return Long.parseLong(longString);
       }
