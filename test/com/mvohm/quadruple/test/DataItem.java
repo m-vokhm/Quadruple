@@ -202,10 +202,11 @@ class DataItem {
    * @see DataItem#withQuadValueOfString(String)
    */
   public DataItem withValueOfString(String strValue) {
-    this.strValue = strValue;
     final String lowerCased = strValue.toLowerCase().trim();
-    if (lowerCased.equals("error"))
-      return withError(": Error was expected.");
+    if (lowerCased.contains("error"))
+      return withError(strValue.replace("Error: ", ""));
+
+    this.strValue = strValue;
     final String s = lowerCased.replaceAll("_", "");
 
     try {
@@ -233,10 +234,7 @@ class DataItem {
             }
         } catch (final Exception x1) {} // Not convertible to Double. quadValue remains null
       if (quadValue == null)
-        if ("#Error was expected#".equals(strValue))
-          errMsg = strValue;
-        else
-          errMsg = String.format("Error %s converting %s to a numeric value", x.toString(), strValue);
+        errMsg = String.format("Error %s converting %s to a numeric value", x.toString(), strValue);
     }
     return this;
   } // public DataItem withValueOfString(String strValue) {

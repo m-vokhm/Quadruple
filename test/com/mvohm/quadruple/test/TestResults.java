@@ -382,11 +382,14 @@ on 3144 samples with err threshold 1.470e-39
   private boolean srcErrorDetected(DataItem srcData, DataItem srcValue, DataItem result, DataItem expected) {
     if (    srcData.hasError()      // For binary operations, these two may hold the two operands
         ||  srcValue.hasError()     // An error in either of them should result to source error
-//        ||  (expected.hasError() && !result.hasError()) ) {
-        ||  expected.hasError()) {
+        ||  result.hasError()
+        ||  (expected.hasError() && !result.hasError()) ) { // e.g. parser did not throw exception where it should
       sayIfVerbose("    === Source data error! ===\n");
-      if (expected.getErrMsg() == null || !expected.getErrMsg().contains("expected"))
-        srcErrCount++;              // Count it unless the error was foreseen
+      if (   expected.getErrMsg() == null
+          || !expected.getErrMsg().contains("expected")     // Count it unless the error was foreseen
+          || (expected.hasError() &&
+              !(srcData.hasError() || srcValue.hasError() || result.hasError())))  // Or error was expected but not encountered
+        srcErrCount++;
       return true;
     }
     return false;
@@ -403,7 +406,8 @@ on 3144 samples with err threshold 1.470e-39
    * @param resultValue a {@code DataItem} instance containing the actual result of the operation under the test
    */
   private void checkError(DataItem expected, DataItem resultValue) {
-    if (!expected.getQuadValue().equals(resultValue.getQuadValue())) { // The Quadruple values differ
+    if (expected.getQuadValue() != null
+        && !expected.getQuadValue().equals(resultValue.getQuadValue())) { // The Quadruple values differ
       sayIfVerbose_(findHexDiff(expStr, resStr));           // Print "$$$" and underline the difference in hex representations
       bitDiffCount++;
     }

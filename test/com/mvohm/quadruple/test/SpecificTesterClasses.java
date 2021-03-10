@@ -393,7 +393,7 @@ public class SpecificTesterClasses {
     @Override
     protected String findExpectedString(Quadruple operand) {
       if (isInfinite(operand))
-        return("#Error was expected#");
+        return("Error: can't express Infinity as BigDecimal (as expected)");
       return null;
     };
 
