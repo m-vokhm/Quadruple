@@ -595,7 +595,6 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
     /**
      * Generates and returns a list of strings representing random {@code Long} values.
-     * random {@code BigDecimal} values falling into the range, permissible for {@code double},
      * @param count the amount of random numbers to be generated
      * @return the generated list, with nulls inserted after each item
      */

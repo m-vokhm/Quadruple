@@ -41,10 +41,10 @@ import com.mvohm.quadruple.Quadruple; // How else can I mention Quadruple in Jav
  * or three (for binary operations) strings that contain string representations of input operand(s)
  * for the tested operation, and the expected result of the operation being applied to the given operand(s).
  * String representations of numeric values generally may be of any form valid for parsing by
- * {@link BigDecimal#BigDecimal(String)}, e.g. "3", "-4.5", "3.5e-10" etc, and may include
+ * {@link BigDecimal#BigDecimal(String)}, e.g. "3", "-4.5", "3.5e-10" etc, and additionally may include
  * "NaN", "Infinity", and "-Infinity". The dataset for testing {@link Quadruple#Quadruple(String)}
  * contains also a number of knowingly invalid values to check that the parser recognizes such cases
- * and throws exceptions as expected. The
+ * and throws exceptions as expected.<br><br> 
  * For example, a data sample to test the addition may look like <pre>
  * {"2", "3", "5"}</pre>
  * In most cases the expected result can be computed by the corresponding tester class,
@@ -97,19 +97,19 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code String}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, containing such values as
+   * <li>A number of values for rough testing of the corner cases, containing such values as
    *      {@code NaN}, {@code Infinity}, {@code Double.MAX_VALUE}, {@code Long.MAX_VALUE}, etc,
    *      and a few values between them;<br>
-   * <li>Statically defined data set from {@link TestData#basic_Q2S_conversionData}
+   * <li>A statically defined data set from {@link TestData#basic_Q2S_conversionData}
    *      that covers all execution paths of the tested method;<br>
-   * <li>a sequence of a few adjacent values to see how the result changes
+   * <li>A sequence of a few adjacent values to see how the result changes
    *      when the input data changes by the least significant bit of the mantissa;<br>
    * <li>A series of sequences of adjacent values with various exponents to ascertain that multiplying by powers
    *      of two don't spoil the overall precision;<br>
    * <li>A number of random numbers.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> q2sConversionDataList() {
@@ -126,18 +126,18 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code double}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, containing such values as
+   * <li>A number of values for rough testing of the corner cases, containing such values as
    *      {@code NaN}, {@code Infinity}, {@code Double.MAX_VALUE}, {@code Long.MAX_VALUE}, etc,
    *      and a few values between them;<br>
-   * <li>Statically defined data set from {@link TestData#basic_Q2D_conversionData}
+   * <li>A statically defined data set from {@link TestData#basic_Q2D_conversionData}
    *      that covers all execution paths of the tested method;<br>
    * <li>A number of random values each of which is equal to an exact value of a {@code double},
    *      with added or subtracted half of the LSB of the {@code double}'s mantissa,
    *      to ascertain that the rounding works right;
-   * <li>A number of random numbers.
+   * <li>A number of random numbers falling within the range valid for {@code double}s.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> q2dConversionDataList() {
@@ -152,13 +152,14 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code long}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, containing such values as
+   * <li>A number of values for rough testing of the corner cases, containing such values as
    *      {@code NaN}, {@code Infinity}, {@code Double.MAX_VALUE}, {@code Long.MAX_VALUE}, etc,
    *      and a few values between them;<br>
-   * <li>basic data to test the conversion that covers all execution paths;<br>
+   * <li>A statically defined data set from {@link TestData#basic_Q2L_conversionData}
+   *      that covers all execution paths of the tested method;<br>
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> q2lConversionDataList() {
@@ -171,13 +172,14 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code int}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, containing such values as
+   * <li>A number of values for rough testing of the corner cases, containing such values as
    *      {@code NaN}, {@code Infinity}, {@code Double.MAX_VALUE}, {@code Long.MAX_VALUE}, etc,
    *      and a few values between them;<br>
-   * <li>basic data to test the conversion that covers all execution paths;<br>
+   * <li>A statically defined data set from {@link TestData#basic_Q2I_conversionData}
+   *      that covers all execution paths of the tested method.<br>
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> q2iConversionDataList() {
@@ -190,12 +192,13 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code BigDecimal}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, excluding the values that are not representable as {@code BifDecimal}<br>
-   * <li>basic data to test the conversion that covers all execution paths;<br>
-   * <li>A number of random numbers
+   * <li>A number of values for rough testing of the corner cases, excluding the values that are not representable as {@code BifDecimal}<br>
+   * <li>A statically defined data set from {@link TestData#basic_Q2BD_conversionData}
+   *      that covers all execution paths of the tested method;<br>
+   * <li>A number of random numbers.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> q2bdConversionDataList() {
@@ -209,22 +212,28 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code String} to {@code Quadruple}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, containing such values as
+   * <li>A number of values for rough testing of the corner cases, containing such values as
    *      {@code NaN}, {@code Infinity}, {@code Double.MAX_VALUE}, {@code Long.MAX_VALUE}, etc,
    *      and a few values between them;<br>
-   * <li>basic data to test the conversion that covers all execution paths;<br>
+   * <li>A statically defined data set from {@link TestData#basic_S2Q_conversionData}
+   *      that covers all execution paths of the tested method;<br>
    * <li>A number of random numbers;
    * <li>A number of random values that differ from the corresponding Quadruple values by 0.5 LSB or 0.5 LSB * (1 - 2^-55),
-   *      to ascertain that the rounding works right
-   * <li>A series of values near {@code Quadruple.MIN_NORMAL} : {@code Quadruple.MIN_NORMAL + (Quadruple.MIN_VALUE * delta)}, where delta = -1.0 ... 1.0, with step 0.1;
-   * <li>A series of subnormal values, {@code Quadruple.MIN_VALUE * (2^98 + delta)}, where delta = 9.0 ... 25.0, with step 0.5;,
+   *      to ascertain that the rounding works right;
+   * <li>A series of values near {@code Quadruple.MIN_NORMAL} : 
+   *      {@code Quadruple.MIN_NORMAL + (Quadruple.MIN_VALUE * delta)}, where delta changes from -1.0 to 1.0, 
+   *      with step 0.1;
+   * <li>A series of subnormal values, {@code Quadruple.MIN_VALUE * (2^98 + delta)}, 
+   *      where delta changes from 9.0 to 25.0, with step 0.5;
    * <li>A series of values of {@code Quadruple.MIN_VALUE * (N + 0.5 +/- 3e-17)},
-   *      i.e close vicinities of subnormal values + 0.5 LSB, to test rounding down/up after computing subnormal values with diverse powers of 2;,
+   *      i.e in close vicinities of subnormal values + 0.5 LSB, to test rounding down/up after computing 
+   *      subnormal values with diverse powers of 2;
    * <li>A series of values of {@code (1 + Quadruple.MIN_VALUE * (N + 0.5 +/- 3e-17)) * 2^M},
-   *      i.e close vicinities of normal values + 0.5 LSB, with various exponents, to test rounding down/up after multiplying the mantissa by diverse powers of 2;,
+   *      i.e in close vicinities of normal values + 0.5 LSB, with various exponents, to test rounding down/up 
+   *      after multiplying the mantissa by diverse powers of 2.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> s2qConversionDataList() {
@@ -266,18 +275,22 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code BigDecimal} to {@code Quadruple}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, excluding the values that are not representable as {@code BifDecimal}<br>
-   * <li>basic data to test the conversion that covers all execution paths;<br>
+   * <li>A number of values for rough testing of the corner cases, excluding the values that are not 
+   *    representable as {@code BifDecimal};<br>
+   * <li>A statically defined data set from {@link TestData#basic_BD2Q_conversionData}
+   *      that covers all execution paths of the tested method;
    * <li>A number of random numbers;
-   * <li>A number of random values that differ from the corresponding Quadruple values by 0.5 LSB or 0.5 LSB * (1 - 2^-128),
-   *      to ascertain that the rounding works right
+   * <li>A number of random values that differ from the corresponding Quadruple values by 
+   *      {@code 0.5 * LSB} or {@code 0.5 * LSB * (1 - 2^-128)}, to ascertain that the rounding works right;
    * <li>A series of values of {@code Quadruple.MIN_VALUE * (N + 0.5) +/- 3e-40)},
-   *      i.e close vicinities of subnormal values + 0.5 LSB, to test rounding down/up after computing subnormal values with diverse powers of 2;,
+   *      i.e in close vicinities of subnormal values + 0.5 LSB, to test rounding down/up 
+   *      after computing subnormal values with diverse powers of 2;
    * <li>A series of values of {@code (1 + Quadruple.MIN_VALUE * (N + 0.5 +/- 3e-40)) * 2^M},
-   *      i.e close vicinities of normal values + 0.5 LSB, with various exponents, to test rounding down/up after multiplying the mantissa by diverse powers of 2;,
+   *      i.e in close vicinities of normal values + 0.5 LSB, with various exponents, to test rounding 
+   *      down/up after multiplying the mantissa by diverse powers of 2.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> bd2qConversionDataList() {
@@ -306,14 +319,15 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code double} to {@code Quadruple}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, containing such values as
+   * <li>A number of values for rough testing of the corner cases, containing such values as
    *      {@code NaN}, {@code Infinity}, {@code Double.MAX_VALUE}, {@code Long.MAX_VALUE}, etc,
    *      and a few values between them;<br>
-   * <li>basic data to test the conversion that covers all execution paths;<br>
-   * <li>A number of random doubles;
+   * <li>A statically defined data set from {@link TestData#basic_d2Q_conversionData}
+   *      that covers all execution paths of the tested method;
+   * <li>A number of random values falling within the range valid for {@code double}s.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> d2qConversionDataList() {
@@ -327,14 +341,15 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing the conversion from {@code long} to {@code Quadruple}.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of values for rough testing of the corner cases, containing such values as
-   *      {@code Long.MAX_VALUE}, {@code Long.MIN_VALUE}etc,
+   * <li>A number of values for rough testing of the corner cases, containing such values as
+   *      {@code Long.MAX_VALUE}, {@code Long.MIN_VALUE}, etc,
    *      and a few values between them;<br>
-   * <li>basic data to test the conversion that covers all execution paths;<br>
-   * <li>A number of random longs;
+   * <li>A statically defined data set from {@link TestData#basic_L2Q_conversionData}
+   *      that covers all execution paths of the tested method;
+   * <li>A number of random {@code long} values.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing two strings -- an input value
-   * for the tested operation and the expected result, that can be null or an empty string.
+   * for the tested operation and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> l2qConversionDataList() {
@@ -352,13 +367,16 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing addition.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of pairs including all possible combinations of special values like -0, "NaN" and "Infinity"
-   *      with each other and with some normal numeric values, to ascertain that initial checks in {@code Quadruple.add()} work right;
-   * <li>basic data to test the addition that covers all execution paths;<br>
-   * <li>A number of pairs of random numbers.
+   * <li>A number of pairs including all possible combinations of special values 
+   *      like -0, "NaN", and "Infinity" with each other and with some normal numeric values, 
+   *      to ascertain that the initial checks in {@link Quadruple#add(Quadruple)} work properly;
+   * <li>A statically defined data set from {@link TestData#basicAdditionData}
+   *      that covers all execution paths of the tested method;
+   * <li>A number of pairs of random numbers such that the members of a pair 
+   *      are concerted so that their addition makes sense in most cases.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing three strings -- two operands
-   * and the expected result, that can be null or an empty string.
+   * and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> additionDataList() {
@@ -372,13 +390,16 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing subtraction.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of pairs including all possible combinations of special values like -0, "NaN" and "Infinity"
-   *      with each other and with some normal numeric values, to ascertain that initial checks in {@code Quadruple.subtract()} work right;
-   * <li>basic data to test the subtraction that covers all execution paths;<br>
-   * <li>A number of pairs of random numbers.
+   * <li>A number of pairs including all possible combinations of special values 
+   *      like -0, "NaN", and "Infinity" with each other and with some normal numeric values, 
+   *      to ascertain that the initial checks in {@link Quadruple#subtract(Quadruple)} work properly;
+   * <li>A statically defined data set from {@link TestData#basicSubtractionData}
+   *      that covers all execution paths of the tested method;
+   * <li>A number of pairs of random numbers such that the members of a pair 
+   *      are concerted so that their subtraction makes sense in most cases.
    * </ul>
    * <br>The elements of the list are arrays, each containing three strings -- two operands
-   * and the expected result, that can be null or an empty string.
+   * and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> subtractionDataList() {
@@ -392,13 +413,16 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing multiplication.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of pairs including all possible combinations of special values like -0, "NaN" and "Infinity"
-   *      with each other and with some normal numeric values, to ascertain that initial checks in {@code Quadruple.multiply()} work right;
-   * <li>basic data to test the multiplication that covers all execution paths;<br>
-   * <li>A number of pairs of random numbers.
+   * <li>A number of pairs including all possible combinations of special values 
+   *      like -0, "NaN", and "Infinity" with each other and with some normal numeric values, 
+   *      to ascertain that the initial checks in {@link Quadruple#multiply(Quadruple)} work properly;
+   * <li>A statically defined data set from {@link TestData#basicMultiplicationData}
+   *      that covers all execution paths of the tested method;
+   * <li>A number of pairs of random numbers such that the members of a pair 
+   *      are concerted so that their multiplication makes sense in most cases.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing three strings -- two operands
-   * and the expected result, that can be null or an empty string.
+   * and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> multiplicationDataList() {
@@ -412,13 +436,16 @@ public class DataProviders {
   /**
    * Assembles and returns a data set for testing division.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>a number of pairs including all possible combinations of special values like -0, "NaN" and "Infinity"
-   *      with each other and with some normal numeric values, to ascertain that initial checks in {@code Quadruple.divide()} work right;
-   * <li>basic data to test the division that covers all execution paths;<br>
-   * <li>A number of pairs of random numbers.
+   * <li>A number of pairs including all possible combinations of special values 
+   *      like -0, "NaN", and "Infinity" with each other and with some normal numeric values, 
+   *      to ascertain that the initial checks in {@link Quadruple#divide(Quadruple)} work properly;
+   * <li>A statically defined data set from {@link TestData#basicDivisionData}
+   *      that covers all execution paths of the tested method;
+   * <li>A number of pairs of random numbers such that the members of a pair 
+   *      are concerted so that their division makes sense in most cases.
    * </ul>
    * <br>The returned data set is a list of arrays, each containing three strings -- two operands
-   * and the expected result, that can be null or an empty string.
+   * and the expected result, that can be {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> divisionDataList() {
@@ -434,15 +461,17 @@ public class DataProviders {
  *****************************************************************************/
 
   /**
-   * Assembles and returns a data set for testing square root.
+   * Assembles and returns a data set for testing the square root computation.
    * Includes subsets:<ul style="list-style-position: outside">
-   * <li>basic data to test the square root that covers all execution paths;<br>
-   * <li>A number of sequences of growing values where each item differs from the previous one
-   * by the least significant bit in the mantissa of the argument;
-   * <li>A number of random values;
+   * <li>A statically defined data set from {@link TestData#basicSqrtData}
+   *      that covers all execution paths of the {@link Quadruple#sqrt()};
+   * <li>A number of sequences of growing values where each item differs from the 
+   *      previous one by the least significant bit of the mantissa of the argument;
+   * <li>A number of random values.
    * </ul>
-   * <br>The returned data set is a list of arrays, each containing two strings -- an operand to apply the operation to
-   * and the expected result, that can be null or an empty string.
+   * <br>The returned data set is a list of arrays, each containing two strings -- 
+   * an operand to apply the operation to and the expected result, that can be 
+   * {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> sqrtDataList() {
@@ -457,13 +486,17 @@ public class DataProviders {
     return convertToListOfArraysNx2(list);
   } // public static List<String[]> sqrtDataList() {
 
+  // TODO HERE 21.04.05 21.04.05 20:01:10
+
   /**
-   * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code String} and back to {@code Quadruple},
-   * to ascertain that the conversion from {@code Quadruple} to {@code String} is reversible.
-   * Consists of the data returned by {@link #q2sConversionDataList()} and the data returned by {@link #s2qConversionDataList()}.
-   * <br>The returned data set is a list of arrays, each containing two strings
-   * an operand to apply the operation to and the expected result,
-   * that can be null or an empty string.
+   * Assembles and returns a data set for testing the conversion from {@code Quadruple} to 
+   * {@code String} and back to {@code Quadruple}, to ascertain that the conversion 
+   * from {@code Quadruple} to {@code String} is reversible.<br>
+   * Consists of the data returned by {@link #q2sConversionDataList()} and the data 
+   * returned by {@link #s2qConversionDataList()}.
+   * <br>The returned data set is a list of arrays, each containing two strings -- 
+   * an operand to apply the operation to and the expected result, that can be 
+   * {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> q2s2qConversionDataList() {
@@ -473,12 +506,14 @@ public class DataProviders {
   } // public static List<String[]> q2s2qConversionDataList() {
 
   /**
-   * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code BigDecimal} and back to {@code Quadruple},
-   * to ascertain that the conversion from {@code Quadruple} to {@code BigDecimal} is reversible.
-   * Consists of the data returned by {@link #q2bdConversionDataList()} and the data returned by {@link #bd2qConversionDataList()}.
-   * <br>The returned data set is a list of arrays, each containing two strings
-   * -- an operand to apply the operation to
-   * and the expected result, that can be null or an empty string.
+   * Assembles and returns a data set for testing the conversion from {@code Quadruple} to 
+   * {@link BigDecimal} and back to {@code Quadruple}, to ascertain that the conversion 
+   * from {@code Quadruple} to {@code BigDecimal} is reversible.<br>
+   * Consists of the data returned by {@link #q2bdConversionDataList()} and the data 
+   * returned by {@link #bd2qConversionDataList()}.
+   * <br>The returned data set is a list of arrays, each containing two strings -- 
+   * an operand to apply the operation to and the expected result, that can be 
+   * {@code null} or an empty string.
    * @return a set of data described above
    */
   public static List<String[]> q2bd2qConversionDataList() {
