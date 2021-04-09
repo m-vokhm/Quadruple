@@ -25,17 +25,22 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import com.mvohm.quadruple.Quadruple;
+
 /**
- * Data sets for testing substantial public methods of {@code Quadruple}.
- * Provide coverage for all the code of the methods and some corner cases (except most trivial ones that don't require special testing).
- * All the data are static arrays of {@code Strings} representing numeric values, generally with precision of 120 decimal digits.
- * Every array contains data for testing a certain operation, like the addition or a conversion from one type to another.
- * The arrays consist of groups, each group of two (for unary operations and conversions)
+ * Statically defined data sets for testing basic public methods of {@link com.mvohm.quadruple.Quadruple}.
+ * Provide coverage for all the code of the methods and some corner cases
+ * (except most trivial ones that don't require special testing).
+ * All the data are static arrays of {@code Strings} representing decimal numeric values,
+ * generally with precision of 120 decimal digits. Every array contains data
+ * for testing a certain operation, like addition or a conversion from one type to another.
+ * The arrays consist of logical groups, each group of two (for unary operations and conversions)
  * or three (for binary operations) items represents a test case.
- * The first item of a pair or the two first items of a triplet are the input operands for the corresponding operation,
- * and the last one is a value that should be the result of the operation.
- * In most cases, the expected result may be determined by the code that performs testing,
- * in such cases there may be null or an empty string instead of the expected value, e.g.
+ * The first item of a pair or the two first items of a triplet are the input operands
+ * for the corresponding operation, and the last one is a value that should be the result
+ * of the operation. In most cases, the expected result may be determined by the code
+ * that performs testing, in such cases there may be {@code null} or an empty string instead
+ * of the expected value, e.g.
  * <br><pre>
  * "3.5", "4.5", "8",   // for addition: 3.5 + 4.5 = 8
  * "1", "2", null,      // the testing code will find
@@ -46,15 +51,15 @@ import java.math.RoundingMode;
  * </pre>
  * In cases where the operation being tested, when applied to the given operand(s), should throw an exception,
  * the word "Error" is used instead of the expected result, to inform the testing code about the fact
- * that throwing an exception is the expected behavior of the operation.<br>
- * There are two sorts of strings that are interpreted by the testing code in special ways:<br><ul>
- * <li>If the first string of the group starts with "//", it is considered to be a comment
- * and can be printed by the testing code to the console, depending on the code and/or the execution mode,
- * the subsequent items of the group are ignored in this case.
- * <li>If the first string of the group equals "$_STOP_$", it is interpreted as an instruction to quit the test execution.
+ * that throwing an exception is the correct and expected behavior of the operation.<br>
+ * There are also two sorts of strings that are interpreted by the testing code in special ways:<br><ul>
+ * <li>If the first string of the group starts with "//", such group is considered to contain a comment
+ * rather than a test case data, and its first item can be printed by the testing code to the console,
+ * depending on the code and/or the execution mode, the subsequent items of the group are ignored in this case.
+ * <li>If the first string of the group equals "$_STOP_$" (case-insensitively),
+ * it is interpreted as an instruction to quit the test execution.
  * </ul>
- * <br><br>
- *
+ * <br>
  * @author M.Vokhmentsev
  */
 public class TestData {
@@ -94,63 +99,87 @@ public class TestData {
    ******** Data arrays containing test data **************************************
    ********************************************************************************/
 
+  /**
+   * A data set to test some corner cases for methods converting {@code Quadruple} values
+   * to values of other types, except {@code BigDecimal}.<br>
+   * Includes {@code NaN}, {@code Infinity}, the boundary values of widely used ranges, such as
+   * {@link Double#MAX_VALUE}, {@link Long#MAX_VALUE}, etc., both positive and negative,
+   * and some values between them.<br>
+   * Used to provide coverage for quick-and-dirty checks that are performed at the beginning
+   * of most of the conversion methods.
+   */
   static String[] rough_Q2T_cornerCases = new String[] {
-    "NaN",                              null,
-    "Infinity",                         null,
-    bdStr(mult(Double.MAX_VALUE, 2)),   null,
-    bdStr(Double.MAX_VALUE),            null,
-    bdStr(div(Double.MAX_VALUE, 2)),    null,
-    bdStr(mult(Long.MAX_VALUE, 2)),     null,
-    bdStr(Long.MAX_VALUE),              null,
-    bdStr(div(Long.MAX_VALUE, 2)),      null,
-    bdStr(mult(Integer.MAX_VALUE, 2)),  null,
-    bdStr(Integer.MAX_VALUE),           null,
-    bdStr(div(Integer.MAX_VALUE, 2)),   null,
-    "12345",                            null,
-    "0",                                null,
-    "-0",                               null,
-    "-12345",                           null,
-    bdStr(div(Integer.MAX_VALUE, -2)),  null,
-    bdStr(-Integer.MAX_VALUE),          null,
-    bdStr(mult(Integer.MAX_VALUE, -2)), null,
-    bdStr(div(Long.MAX_VALUE, -2)),     null,
-    bdStr(-Long.MAX_VALUE),             null,
-    bdStr(mult(Long.MAX_VALUE, -2)),    null,
-    bdStr(div(Double.MAX_VALUE, -2)),   null,
-    bdStr(-Double.MAX_VALUE),           null,
-    bdStr(mult(Double.MAX_VALUE, -2)),  null,
-    "-Infinity",                        null,
+    "NaN",                                        null,
+    "Infinity",                                   null,
+    bdStr(mult(Double.MAX_VALUE, 2)),             null,
+    bdStr(Double.MAX_VALUE),                      null,
+    bdStr(div(Double.MAX_VALUE, 2)),              null,
+    bdStr(mult(Long.MAX_VALUE, 2)),               null,
+    bdStr(Long.MAX_VALUE),                        null,
+    bdStr(div(Long.MAX_VALUE, 2)),                null,
+    bdStr(mult(Integer.MAX_VALUE, 2)),            null,
+    bdStr(Integer.MAX_VALUE),                     null,
+    bdStr(div(Integer.MAX_VALUE, 2)),             null,
+    "12345",                                      null,
+    "0",                                          null,
+    "-0",                                         null,
+    "-12345",                                     null,
+    bdStr(div(Integer.MAX_VALUE, -2)),            null,
+    bdStr(-Integer.MAX_VALUE),                    null,
+    bdStr(mult(Integer.MAX_VALUE, -2)),           null,
+    bdStr(div(Long.MAX_VALUE, -2)),               null,
+    bdStr(-Long.MAX_VALUE),                       null,
+    bdStr(mult(Long.MAX_VALUE, -2)),              null,
+    bdStr(div(Double.MAX_VALUE, -2)),             null,
+    bdStr(-Double.MAX_VALUE),                     null,
+    bdStr(mult(Double.MAX_VALUE, -2)),            null,
+    "-Infinity",                                  null,
   };
 
+  /**
+   * A data set to test some corner cases for the method converting {@code Quadruple} values
+   * to {@link BigDecimal} values.<br>
+   * Includes {@code NaN}, {@code Infinity}, the boundary values of widely used ranges, such as
+   * {@link Double#MAX_VALUE}, {@link Long#MAX_VALUE}, etc., both positive and negative,
+   * and some values between them. Contains expected results ({@code "error" or "0"}) for the values
+   * that have no valid {@code BigDecimal} counterparts ({@code NaN, Infinity, -Infinity, -0}).<br>
+   * Used to provide coverage for quick-and-dirty checks that are performed
+   * at the beginning of {@link Quadruple#bigDecimalValue()} method.
+   */
   static String[] rough_Q2BD_cornerCases = new String[] {
-    "NaN",                              "error",
-    "Infinity",                         "error",
-    bdStr(mult(Double.MAX_VALUE, 2)),   null,
-    bdStr(Double.MAX_VALUE),            null,
-    bdStr(div(Double.MAX_VALUE, 2)),    null,
-    bdStr(mult(Long.MAX_VALUE, 2)),     null,
-    bdStr(Long.MAX_VALUE),              null,
-    bdStr(div(Long.MAX_VALUE, 2)),      null,
-    bdStr(mult(Integer.MAX_VALUE, 2)),  null,
-    bdStr(Integer.MAX_VALUE),           null,
-    bdStr(div(Integer.MAX_VALUE, 2)),   null,
-    "12345",                            null,
-    "0",                                null,
-    "-0",                               "0",
-    "-12345",                           null,
-    bdStr(div(Integer.MAX_VALUE, -2)),  null,
-    bdStr(-Integer.MAX_VALUE),          null,
-    bdStr(mult(Integer.MAX_VALUE, -2)), null,
-    bdStr(div(Long.MAX_VALUE, -2)),     null,
-    bdStr(-Long.MAX_VALUE),             null,
-    bdStr(mult(Long.MAX_VALUE, -2)),    null,
-    bdStr(div(Double.MAX_VALUE, -2)),   null,
-    bdStr(-Double.MAX_VALUE),           null,
-    bdStr(mult(Double.MAX_VALUE, -2)),  null,
-    "-Infinity",                        "error",
+    "NaN",                                        "error",
+    "Infinity",                                   "error",
+    bdStr(mult(Double.MAX_VALUE, 2)),             null,
+    bdStr(Double.MAX_VALUE),                      null,
+    bdStr(div(Double.MAX_VALUE, 2)),              null,
+    bdStr(mult(Long.MAX_VALUE, 2)),               null,
+    bdStr(Long.MAX_VALUE),                        null,
+    bdStr(div(Long.MAX_VALUE, 2)),                null,
+    bdStr(mult(Integer.MAX_VALUE, 2)),            null,
+    bdStr(Integer.MAX_VALUE),                     null,
+    bdStr(div(Integer.MAX_VALUE, 2)),             null,
+    "12345",                                      null,
+    "0",                                          null,
+    "-0",                                         "0",
+    "-12345",                                     null,
+    bdStr(div(Integer.MAX_VALUE, -2)),            null,
+    bdStr(-Integer.MAX_VALUE),                    null,
+    bdStr(mult(Integer.MAX_VALUE, -2)),           null,
+    bdStr(div(Long.MAX_VALUE, -2)),               null,
+    bdStr(-Long.MAX_VALUE),                       null,
+    bdStr(mult(Long.MAX_VALUE, -2)),              null,
+    bdStr(div(Double.MAX_VALUE, -2)),             null,
+    bdStr(-Double.MAX_VALUE),                     null,
+    bdStr(mult(Double.MAX_VALUE, -2)),            null,
+    "-Infinity",                                  "error",
   };
 
-  static String[] rough_Q2L_cornerCases = new String[] {
+  /**
+   * A data set to test some corner cases for {@link Quadruple#assign(long)} method.<br>
+   * Includes {@link Long#MAX_VALUE}, {@link Long#MIN_VALUE}, and a number of values between them.
+   * Used for draft testing of {@link Quadruple#assign(long)} method.
+   */
+  static String[] rough_l2Q_cornerCases = new String[] {
     String.valueOf(Long.MAX_VALUE),               null,
     String.valueOf(Long.MAX_VALUE / 2),           null,
     String.valueOf(Integer.MAX_VALUE * 2L),       null,
@@ -158,7 +187,6 @@ public class TestData {
     String.valueOf(Integer.MAX_VALUE / 2),        null,
     "12345",                                      null,
     "0",                                          null,
-    "-0",                                         "0",
     "-12345",                                     null,
     String.valueOf(Integer.MIN_VALUE / 2 + 1),    null,
     String.valueOf(Integer.MIN_VALUE + 1),        null,
@@ -169,11 +197,13 @@ public class TestData {
   };
 
   /**
-   * A data set for testing {@code Quadruple.toString()}.<br>
+   * A data set for testing {@link Quadruple#toString()} method.<br>
    * Each data sample consists of two strings: a string representation of the number
-   * to be converted and the expected result.
-   * Actually, in this data set the expected result can be correctly deduced by the test code in all cases,
-   * so all the odd items are {@code null}s.<br>
+   * to be converted, and the expected result. Covers all execution paths of
+   * {@code Quadruple.toString()} method.<br>
+   * Actually, in this data set the expected result can be correctly deduced
+   * by the test code in all cases, so all the odd items are {@code null}s.<br>
+   * Completely covers the code of the {@code Quadruple.toString()} method.<br>
    * The number of items must be even.
    */
   static String[] basic_Q2S_conversionData = new String[] {
@@ -240,11 +270,14 @@ public class TestData {
   }; // static String[] basic_Q2S_conversionData = new String[] {
 
   /**
-   * A data set for testing {@code Quadruple.doubleValue().}<br>
+   * A data set for testing the conversion of a {@code Quadruple} value to
+   * a {@code double} value with {@link Quadruple#doubleValue()} method.<br>
    * Each data sample consists of two strings: a string representation of the number
    * to be converted, and the expected result.
-   * The latter is actually needed only in the cases when the value can't be represented as
-   * BigDecimal, which is used as the type of findExpectedResult() in Conversion_Q2T_Tester.<br>
+   * The latter is actually needed only in the cases when the value can't be expressed as
+   * {@code BigDecimal}, which is the return type of
+   * {@code TesterClasses.UnaryFunctionTester.findExpectedResult()}.<br>
+   * Completely covers the code of the {@code Quadruple.doubleValue()} method.<br>
    * The number of items must be even.
    */
   static String[] basic_Q2D_conversionData = new String[] {
@@ -359,11 +392,13 @@ public class TestData {
   }; // static String[] basic_Q2D_conversionData = new String[] {
 
   /**
-   * A data set for testing {@code Quadruple.longValue() }.<br>
+   * A data set for testing the conversion of a {@code Quadruple} value to
+   * a {@code long} value with {@link Quadruple#longValue()} method.<br>
    * Each data sample consists of two strings: a string representation of the number
    * to be converted, and the expected result.
-   * Actually, in this data set the expected result can be correctly deduced by the test code in all cases,
-   * so all the odd items are {@code null}s.<br>
+   * Actually, for all data samples from this set the expected results
+   * can be correctly deduced by the test code, so all the odd items are {@code null}s.<br>
+   * Completely covers the code of the {@code Quadruple.longValue()} method.<br>
    * The number of items must be even.
    */
   static String[] basic_Q2L_conversionData = new String[] {
@@ -403,11 +438,13 @@ public class TestData {
   }; // static String[] basic_Q2L_conversionData = new String[] {
 
   /**
-   * A data set for testing {@code Quadruple.intValue() }.<br>
+   * A data set for testing the conversion of a {@code Quadruple} value to
+   * an {@code int} value with {@link Quadruple#intValue()} method.<br>
    * Each data sample consists of two strings: a string representation of the number
    * to be converted, and the expected result.
-   * Actually, in this data set the expected result can be correctly deduced by the test code in all cases,
+   * Actually, the expected results can be correctly deduced by the test code in all cases,
    * so all the odd items are {@code null}s.<br>
+   * Completely covers the code of the {@code Quadruple.intValue()} method.<br>
    * The number of items must be even.
    */
   static String[] basic_Q2I_conversionData = new String[] {
@@ -445,13 +482,17 @@ public class TestData {
 
   }; // static String[] basic_Q2I_conversionData = new String[] {
 
-  /** A data set for testing {@code Quadruple.bigDecimalValue()}<br>
+  /**
+   * A data set for testing the conversion of a {@code Quadruple} value to
+   * an {@link BigDecimal} value with {@link Quadruple#bigDecimalValue()} method.<br>
    * Each data sample consists of two strings: a string representation of the number
    * to be converted, and the expected result.
-   * For the values that are not valid values for {@code BigDecimal}, the method is expected
-   * to throw an exception. The word "Error" is used as the expected result in such cases.
+   * For the values that are not valid for {@code BigDecimal}, the tested method is expected
+   * to throw an exception. The word "Error" is used as a substitute of the expected result in
+   * such cases, to inform the test code that throwing an exception is the correct behavior.
    * For all other values, the expected results can be evaluated by the testing code,
    * thus the data contains {@code null}s instead of expected values.<br>
+   * Completely covers the code of the {@code Quadruple.bigDecimalValue()} method.<br>
    * The number of items must be even.
    */
   static String[] basic_Q2BD_conversionData = new String[] {
@@ -500,11 +541,11 @@ public class TestData {
 
   }; // static String[] basic_Q2BD_conversionData = new String[] {
 
-  /** An auxiliary data set that can be used for testing or debugging {@code Quadruple.bigDecimalValue()}
-   * with some values of a special interest.<br>
-   * Each data sample consists of two strings:
-   * a string representation of the value to be used for testing or debugging the method,
-   * and a string representation of the expected result<br>
+  /** An auxiliary data set that can be used for testing or debugging
+   * {@code Quadruple.bigDecimalValue()} with some values of a special interest.<br>
+   * Each data sample consists of two strings: a string representation of the value
+   * to be used for testing or debugging the method, and a string representation
+   * of the expected result.<br>
    * The number of items must be even.
    */
   static String[] special_S2Q_conversionSata = {
@@ -513,16 +554,19 @@ public class TestData {
   };
 
   /**
-   * A data set for testing {@code Quadruple.assign(String value)} or the constructor that accepts a {@code String}<br>
+   * A data set for testing {@link Quadruple#assign(String value)} method or the constructor
+   * that accepts a {@code String} parameter.<br>
    * Each data sample consists of two strings: a string representation of the value to be assigned,
-   * and the value that a Quadruple instance is expected to have after the assignment.
-   * In most cases the expected value for a sample can be evaluated by the testing code,
-   * so {@code null}s are used instead of the expected values.<br>
-   * Since some special String values can be used as the assignment arguments
-   * to designate certain Quadruple values ("min_value", "max_value", etc.),
-   * such strings are accompanied with string representations of the corresponding Quadruple values.<br>
+   * and a string representation of the value that a Quadruple instance is expected to have
+   * after the assignment. In most cases the expected value for a sample can be evaluated
+   * by the testing code, so {@code null}s are used instead of the expected values.<br>
+   * Since some special String values can be used as the assignment arguments to designate
+   * certain Quadruple values ("min_value", "max_value", etc.), such strings are accompanied
+   * with string representations of the corresponding Quadruple values.<br>
    * The samples of knowingly unacceptable input strings that are expected to cause an exception
-   * are accompanied with the word "error".<br>
+   * during their parsing are accompanied with the word "error", to inform the test code that
+   * throwing an exception is the correct behavior for such cases.<br>
+   * Completely covers the code of the {@code Quadruple.assign(String value)} method.<br>
    * The number of items must be even.
    */
   static String[] basic_S2Q_conversionData = new String[] {
@@ -658,13 +702,13 @@ public class TestData {
 
   /* */
     "// MIN_VALUE * (2^63 + 65535.999) (shift by 65 bits)",     null,
-    bdStr(mult(MIN_VALUE, add(powerOfTwo(63), 65535.999))),           null,
+    bdStr(mult(MIN_VALUE, add(powerOfTwo(63), 65535.999))),     null,
     "// MIN_VALUE * (2^64 - 1) (shift by 65 bits)",             null,
-    bdStr(mult(MIN_VALUE, sub(powerOfTwo(64), 1))),                   null,
+    bdStr(mult(MIN_VALUE, sub(powerOfTwo(64), 1))),             null,
     "// MIN_VALUE * (2^65 - 0.3) (shift by 64 bits)",           null,
-    bdStr(mult(MIN_VALUE, sub(powerOfTwo(65), 0.3))),                 null,
+    bdStr(mult(MIN_VALUE, sub(powerOfTwo(65), 0.3))),           null,
     "// MIN_VALUE * (2^98 + 65535.999) (shift by 30 bits)",     null,
-    bdStr(mult(MIN_VALUE, add(powerOfTwo(98), 65535.999))),           null,
+    bdStr(mult(MIN_VALUE, add(powerOfTwo(98), 65535.999))),     null,
     "// MIN_NORMAL - MIN_VALUE (shift by 1 bit)",               null,
     bdStr(sub(MIN_NORMAL, MIN_VALUE)),                          null,
 
@@ -672,7 +716,7 @@ public class TestData {
   "// Test rounding a subnormal up to MIN_NORMAL",              null,
     "//MN - (MV * 0.1)",                                        null,
     bdStr(sub(MIN_NORMAL, mult(MIN_VALUE, 0.1))),               null,
-    bdStr(sub(MIN_NORMAL, mult(MIN_VALUE, powerOfTwo(-60)))),         null,
+    bdStr(sub(MIN_NORMAL, mult(MIN_VALUE, powerOfTwo(-60)))),   null,
     bdStr(add(bd(-1, -1, 0), mult(MIN_VALUE, 0.5))),            null, // (MIN_NORMAL - LSB + 0.5 * LSB
 
   /* */
@@ -697,19 +741,19 @@ public class TestData {
 
   /* */
   "// Touch the boundaries of the range",                       null,
-    "// MAX_VALUE + LSB, expected infinity",             null,
+    "// MAX_VALUE + LSB, expected infinity",                    null,
     bdStr(add(MAX_VALUE, LSB_OF_MAX_VALUE)),                    null, //"Infinity",
-    "// MAX_VALUE + LSB * 0.500001, expected infinity",  null,
+    "// MAX_VALUE + LSB * 0.500001, expected infinity",         null,
     bdStr(add(MAX_VALUE, mult(LSB_OF_MAX_VALUE, 0.500001))),    null, //"Infinity",
-    "// MAX_VALUE + LSB * 0.5, expected Infinity",       null,
+    "// MAX_VALUE + LSB * 0.5, expected Infinity",              null,
     bdStr(add(MAX_VALUE, mult(LSB_OF_MAX_VALUE, 0.5))),         null, //"Infinity",
-    "// MAX_VALUE + LSB * 0.499999, expected MAX_VALUE", null,
+    "// MAX_VALUE + LSB * 0.499999, expected MAX_VALUE",        null,
     bdStr(add(MAX_VALUE, mult(LSB_OF_MAX_VALUE, 0.499999))),    null, // MAX_VALUE
-    "// MAX_VALUE - LSB * 0.499999, expected MAX_VALUE", null,
+    "// MAX_VALUE - LSB * 0.499999, expected MAX_VALUE",        null,
     bdStr(sub(MAX_VALUE, mult(LSB_OF_MAX_VALUE, 0.499999))),    null, // MAX_VALUE_STR,
-    "// MAX_VALUE - LSB * 0.5, expected MAX_VALUE", null,
+    "// MAX_VALUE - LSB * 0.5, expected MAX_VALUE",             null,
     bdStr(sub(MAX_VALUE, mult(LSB_OF_MAX_VALUE, 0.5))),         null,   // MAX_VALUE_STR,
-    "// MAX_VALUE - LSB * 0.500001, expected MAX_VALUE - LSB", null,
+    "// MAX_VALUE - LSB * 0.500001, expected MAX_VALUE - LSB",  null,
     bdStr(sub(MAX_VALUE, mult(LSB_OF_MAX_VALUE, 0.500001))),    null,   // MAX_VALUE.subtract(MAX_V_LOWEST_BIT).toString(),
 
   /* */
@@ -726,12 +770,14 @@ public class TestData {
   }; // simple_S2Q_conversions_data
 
   /**
-   * A data set for testing {@code Quadruple.assign(BigDecimal value)} or the constructor that accepts a {@code BigDecimal}<br>
+   * A data set for testing {@link Quadruple#assign(BigDecimal value)} or the constructor
+   * that accepts a {@code BigDecimal} parameter.<br>
    * Each data sample consists of two strings: a string representation of the value to be assigned,
-   * and the value that a Quadruple instance is expected to have after the assignment.
-   * For any {@code BigDecimal} value, the corresponding {@code Quadruple} value can be evaluated by the testing code,
-   * so {@code null}s are used as the second items for all samples.<br>
-   * thus the data contains {@code null}s instead of expected values.<br>
+   * and a string representation of the value that a Quadruple instance is expected to have
+   * after the assignment. For any {@code BigDecimal} value, the corresponding {@code Quadruple}
+   * value can be evaluated by the testing code, so {@code null}s are used as the second items
+   * for all samples.<br>
+   * Completely covers the code of the {@code Quadruple.assign(BigDecimal value)} method.<br>
    * The number of items must be even.
    */
   static String[] basic_BD2Q_conversionData = new String[] {
@@ -860,15 +906,15 @@ public class TestData {
 
   "// Test the shifts of mantissa",                           null,
     "// MIN_VALUE * (2^25 + 65535.999) (shift by 103 bits)",  null,
-    bdStr(mult(MIN_VALUE, add(powerOfTwo(25), 65535.999))),         null,
+    bdStr(mult(MIN_VALUE, add(powerOfTwo(25), 65535.999))),   null,
     "// MIN_VALUE * (2^63 + 65535.999) (shift by 65 bits)",   null,
-    bdStr(mult(MIN_VALUE, add(powerOfTwo(63), 65535.999))),         null,
+    bdStr(mult(MIN_VALUE, add(powerOfTwo(63), 65535.999))),   null,
     "// MIN_VALUE * (2^64 - 1) (shift by 65 bits)",           null,
-    bdStr(mult(MIN_VALUE, sub(powerOfTwo(64), 1))),                 null,
+    bdStr(mult(MIN_VALUE, sub(powerOfTwo(64), 1))),           null,
     "// MIN_VALUE * (2^65 - 0.3) (shift by 64 bits)",         null,
-    bdStr(mult(MIN_VALUE, sub(powerOfTwo(65), 0.3))),               null,
+    bdStr(mult(MIN_VALUE, sub(powerOfTwo(65), 0.3))),         null,
     "// MIN_VALUE * (2^98 + 65535.999) (shift by 30 bits)",   null,
-    bdStr(mult(MIN_VALUE, add(powerOfTwo(98), 65535.999))),         null,
+    bdStr(mult(MIN_VALUE, add(powerOfTwo(98), 65535.999))),   null,
 
 
   "// Test rounding a subnormal up to MIN_NORMAL",            null,
@@ -879,11 +925,14 @@ public class TestData {
   }; // static String[] basic_BD2Q_conversionData = new String[] {
 
   /**
-   * A data set for testing {@code Quadruple.assign(double value)} or the constructor that accepts a value of type {@code double}<br>
+   * A data set for testing {@link Quadruple#assign(double value)} or the constructor that
+   * accepts a {@code double} parameter.<br>
    * Each data sample consists of two strings: a string representation of the value to be assigned,
-   * and the value that a Quadruple instance is expected to have after the assignment.
-   * For any {@code double} value, the corresponding {@code Quadruple} value can be evaluated by the testing code,
-   * thus the data contains {@code null}s instead of expected values.<br>
+   * and a string representation of the value that a Quadruple instance is expected to have
+   * after the assignment. For any {@code double} value, the corresponding {@code Quadruple} value
+   * can be evaluated by the testing code, thus the data contains {@code null}s instead of
+   * expected values.<br>
+   * Completely covers the code of the {@code Quadruple.assign(double value)} method.<br>
    * The number of items must be even.
    */
   static String[] basic_d2Q_conversionData = new String[] {
@@ -919,14 +968,17 @@ public class TestData {
   }; // static String[] basic_d2Q_conversionData = new String[] {
 
   /**
-   * A data set for testing {@code Quadruple.assign(long value)} or the constructor that accepts a value of type {@code long}<br>
+   * A data set for testing {@link Quadruple#assign(long value)} or the constructor that
+   * accepts a {@code long} parameter.<br>
    * Each data sample consists of two strings: a string representation of the value to be assigned,
-   * and the value that a Quadruple instance is expected to have after the assignment.
-   * For any {@code long} value, the corresponding {@code Quadruple} value can be evaluated by the testing code,
-   * thus the data contains {@code null}s instead of expected values.<br>
+   * and a string representation of the value that a Quadruple instance is expected to have
+   * after the assignment. For any {@code long} value, the corresponding {@code Quadruple} value
+   * can be evaluated by the testing code, thus the data contains {@code null}s instead of
+   * expected values.<br>
+   * Completely covers the code of the {@code Quadruple.assign(long value)} method.<br>
    * The number of items must be even.
    */
-  static String[] basic_L2Q_conversionData = new String[] {
+  static String[] basic_l2Q_conversionData = new String[] {
     "// Long.MAX_VALUE",                              null,
     String.valueOf(Long.MAX_VALUE),                   null, // 9223372036854775807
     "1234567890",                                     null,
@@ -937,10 +989,13 @@ public class TestData {
   }; // static String[] basic_L2Q_conversionData = new String[] {
 
   /**
-   * A data set for testing the addition.<br>
-   * Each data sample consists of three strings: two operands and the expected result of their addition.<br>
+   * A data set for testing {@link Quadruple#add(Quadruple)} and
+   * {@link Quadruple#add(Quadruple, Quadruple)} methods.<br>
+   * Each data sample consists of three strings: two strings representing the values of the operands,
+   * and the expected result of their addition.<br>
    * For any pair of the operands, the corresponding result can be evaluated by the testing code,
    * thus the data contains {@code null}s instead of the values of the expected results.<br>
+   * Completely covers the code of the {@code Quadruple.add(Quadruple)} method.<br>
    * The number of items must be divisible by 3.
    */
   static String[] basicAdditionData = new String[] {
@@ -1072,8 +1127,11 @@ public class TestData {
   }; // static String[] basicAdditionData = new String[] {
 
   /**
-   * A data set for testing or debugging the subtraction at some specific values that may be of special interest.<br>
-   * Each data sample consists of three strings: two operands and the expected result of their addition.<br>
+   * A data set for testing or debugging the subtraction at some specific values
+   * that may be of a special interest.<br>
+   * Each data sample consists of three strings: two strings representing the values of the operands,
+   * and the expected result of their subtraction.<br>
+   * Is not used in the current version.<br>
    * The number of items must be divisible by 3.
    */
   static String[] specialSubtractionData = new String[] {
@@ -1099,10 +1157,13 @@ public class TestData {
   }; // static String[] specialSubtractionData = new String[] {
 
   /**
-   * A data set for testing the subtraction.<br>
-   * Each data sample consists of three strings: minuend, subtrahend, and the expected value of their difference.<br>
+   * A data set for testing {@link Quadruple#subtract(Quadruple subtrahend)} and
+   * {@link Quadruple#add(Quadruple minuend, Quadruple subtrahend)} methods.<br>
+   * Each data sample consists of three strings: string representations of the minuend
+   * and the subtrahend, and the expected value of their difference.<br>
    * For any pair of the operands, the corresponding result can be evaluated by the testing code,
    * thus the data contains {@code null}s instead of the values of the expected results.<br>
+   * Completely covers the code of the {@code Quadruple.subtract(Quadruple subtrahend)} method.<br>
    * The number of items must be divisible by 3.
    */
   static String[] basicSubtractionData = new String[] {
@@ -1455,47 +1516,63 @@ public class TestData {
 
   // Subtract normal from normal with different exponents
     "// difference = n * LSB, mantLo = 0x...1201L, err = 0", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 164),  bdStr(0x0000_0000_0200_0000L, 0x0000_0000_0000_0000L, 100), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 164),
+    bdStr(0x0000_0000_0200_0000L, 0x0000_0000_0000_0000L, 100), null,
     "// difference = (n - 0.49999...) * LSB, rounding up, mantLo = 0x...1201L, err = +0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 164),  bdStr(0x0000_0000_0200_0000L, 0x7FFF_FFFF_FFFF_FFFFL, 100), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 164),
+    bdStr(0x0000_0000_0200_0000L, 0x7FFF_FFFF_FFFF_FFFFL, 100), null,
     "// difference = (n - 0.5) * LSB, rounding up, mantLo = 0x...1201L, err = +0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 164),  bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0000L, 100), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 164),
+    bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0000L, 100), null,
     "// difference = (n - 0.500...001) * LSB, rounding down, mantLo = 0x...1200L, err = -0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 164),  bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0001L, 100), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 164),
+    bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0001L, 100), null,
     // "$_Stop_$", null, null, // OK
 
   // Subtract subnormal from normal, with normal difference
     "// difference = n * LSB, mantLo = 0x...1201L, err = 0", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),  bdStr(0x0000_0000_0200_0000L, 0x0000_0000_0000_0000L, 0), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),
+    bdStr(0x0000_0000_0200_0000L, 0x0000_0000_0000_0000L, 0), null,
     "// difference = (n - 0.49999...) * LSB, rounding up, mantLo = 0x...1201L, err = +0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),  bdStr(0x0000_0000_0200_0000L, 0x7FFF_FFFF_FFFF_FFFFL, 0), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),
+    bdStr(0x0000_0000_0200_0000L, 0x7FFF_FFFF_FFFF_FFFFL, 0), null,
     "// difference = (n - 0.5) * LSB, rounding up, mantLo = 0x...1201L, err = +0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),  bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0000L, 0), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),
+    bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0000L, 0), null,
     "// difference = (n - 0.500...001) * LSB, rounding down, mantLo = 0x...1200L, err = -0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),  bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0001L, 0), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),
+    bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0001L, 0), null,
     //       "$_Stop_$", null, null, // OK
 
   // Subtract subnormal from normal, with subnormal difference
     "// difference = n * LSB, mantLo = 0x...1201L, err = 0", null, null,
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, 1),  bdStr(0x0000_0000_1000_0000L, 0x0000_0000_0000_0000L, 0), null,
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, 1),
+    bdStr(0x0000_0000_1000_0000L, 0x0000_0000_0000_0000L, 0), null,
     "// difference = (n - 0.49999...) * LSB, rounding up, mantLo = 0x...1201L, err = +0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),  bdStr(0x0000_0000_0200_0000L, 0x7FFF_FFFF_FFFF_FFFFL, 0), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),
+    bdStr(0x0000_0000_0200_0000L, 0x7FFF_FFFF_FFFF_FFFFL, 0), null,
     "// difference = (n - 0.5) * LSB, rounding up, mantLo = 0x...1201L, err = +0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),  bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0000L, 0), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),
+    bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0000L, 0), null,
     "// difference = (n - 0.500...001) * LSB, rounding down, mantLo = 0x...1200L, err = -0.5 * LSB", null, null,
-    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),  bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0001L, 0), null,
+    bdStr(0x1200_1200_1200_1201L, 0x1200_1200_1200_1201L, 65),
+    bdStr(0x0000_0000_0200_0000L, 0x8000_0000_0000_0001L, 0), null,
 
   /**/
   }; // static String[] basicSubtractionData = new String[] {
 
   /**
-   * A data set for testing the multiplication.<br>
-   * Each data sample consists of three strings: two factors and the expected value of their product.<br>
-   * For most of the pairs of the operands, the corresponding result can be evaluated by the testing code,
-   * thus the data in such cases contains {@code null}s instead of the values of the expected results.<br>
-   * Exceptions are cases where the product is subnormal, since subnormal values contain fewer bits
-   * in the mantissa than normal values, so the relative error of subnormal values can be much larger
-   * than the standard error threshold.<br>
+   * A data set for testing {@link Quadruple#multiply(Quadruple factor)} and
+   * {@link Quadruple#multiply(Quadruple factor1, Quadruple factor2)} methods.<br>
+   * Each data sample consists of three strings: string representations of the two factors,
+   * and the expected value of their product.<br>
+   * For most of the pairs of the operands, the corresponding result can be evaluated
+   * by the testing code, thus the data in such cases contains {@code null}s
+   * instead of the values of the expected results. Exceptions are the cases
+   * where the product is subnormal, since subnormal values contain fewer bits
+   * in the mantissa than normal values, so the relative error of subnormal
+   * values can be much higher than the standard error threshold.<br>
+   * Completely covers the code of the {@code Quadruple.multiply(Quadruple factor)} method.<br>
    * The number of items must be divisible by 3.
    */
   static String[] basicMultiplicationData = new String[] {
@@ -1567,7 +1644,7 @@ public class TestData {
     bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXP_0Q / 2 + 1), null,
     // private Quadruple multUnsigned(Quadruple factor) covered completely =============
 
-  // Test data for normalizeAndUnpack(factor, productExponent, factor1, factor2); // TODO Doing here 20.05.02 18:09:46
+  // Test data for normalizeAndUnpack(factor, productExponent, factor1, factor2);
     "// this is subnormal", null, null,
     bdStr(0x0000_0000_1000_1230L, 0x0000_0000_0000_0000L, 0),
     bdStr(0x0000_0000_0000_0000L, 0x1000_1230_0000_0000L, EXP_MAX), null, // product is approx. 2^-35 (2.9e-11)
@@ -1743,8 +1820,11 @@ public class TestData {
   }; //  static String[] basicMultiplicationData = new String[] {
 
   /**
-   * A data set for testing or debugging the division at some specific values that may be of special interest.<br>
-   * Each data sample consists of three strings: two operands and the expected result of their addition.<br>
+   * A data set for testing or debugging the division at some specific values
+   * that may be of a special interest.<br>
+   * Each data sample consists of three strings: two operands and the expected result
+   * of their addition.<br>
+   * Is not used in the current version.<br>
    * The number of items must be divisible by 3.
    */
   static String[] specialDivisionData = new String[] {
@@ -1770,13 +1850,17 @@ public class TestData {
   };
 
   /**
-   * A data set for testing the division.<br>
-   * Each data sample consists of three strings: the dividend, the divisor, and the expected value of their quotient.<br>
-   * For most of the pairs of the operands, the corresponding result can be evaluated by the testing code,
-   * thus the data in such cases contains {@code null}s instead of the values of the expected results.<br>
-   * Exceptions are cases where the quotient is subnormal, since subnormal values contain fewer bits
-   * in the mantissa than normal values, so the relative error of subnormal values can be much larger
-   * than the standard error threshold.<br>
+   * A data set for testing {@link Quadruple#divide(Quadruple divisor)} and
+   * {@link Quadruple#divide(Quadruple dividend, Quadruple divisor)} methods.<br>
+   * Each data sample consists of three strings: string representations of the two operands,
+   * and the expected value of their quotient.<br>
+   * For most of the pairs of the operands, the corresponding result can be evaluated
+   * by the testing code, thus the data in such cases contains {@code null}s
+   * instead of the values of the expected results. Exceptions are the cases
+   * where the quotient is subnormal, since subnormal values contain fewer bits
+   * in the mantissa than normal values, so the relative error of subnormal values
+   * can be much higher than the standard error threshold.<br>
+   * Completely covers the code of the {@code Quadruple.divide(Quadruple divisor)} method.<br>
    * The number of items must be divisible by 3.
    */
   static String[] basicDivisionData = new String[] {
@@ -2006,11 +2090,12 @@ public class TestData {
 
   /**
    * A data set for testing or debugging {@code Quadruple.sqrt()} at some specific values
-   * that may be of special interest.<br>
-   * Each data sample consists of two strings: a string representation of the argument of {@code sqrt()}
-   * and the expected result of extracting the square root of this argument.
-   * Actually, in this data set the expected result can be correctly deduced by the test code in all cases,
-   * so all the odd items are {@code null}s.<br>
+   * that may be of a special interest.<br>
+   * Each data sample consists of two strings: a string representation of the argument
+   * of {@code sqrt()} and the expected result of extracting the square root of this argument.
+   * Actually, in this data set the expected results can be correctly deduced by the test code
+   * in all cases, so all the odd items are {@code null}s.<br>
+   * Is not used in the current version.<br>
    * The number of items must be even.
    */
   static String[] specialSqrtData = {
@@ -2052,11 +2137,14 @@ public class TestData {
   }; // static String[] specialSqrtData = {
 
   /**
-   * A data set for testing {@code Quadruple.sqrt()}.<br>
-   * Each data sample consists of two strings: a string representation of the argument of {@code sqrt()}
-   * and the expected result of extracting the square root of this argument.
-   * Actually, in this data set the expected result can be correctly deduced by the test code in all cases,
-   * so all the odd items are {@code null}s.<br>
+   * A data set for testing {@link Quadruple#sqrt()} and {@link Quadruple#sqrt(Quadruple)} methods.<br>
+   * Each data sample consists of two strings: a string representation of the argument of
+   * {@code sqrt()} function to be tested, and the expected result of extracting
+   * the square root of this argument.
+   * In this data set the expected result can be correctly deduced by the test code
+   * in most cases, so most of the odd items are {@code null}s. Exceptions are the cases of
+   * negative arguments, for which the expected result is {@code NaN}, that is stated explicitely. <br>
+   * Completely covers the code of the {@code Quadruple.sqrt()} method.<br>
    * The number of items must be even.
    */
   static String[] basicSqrtData = {
@@ -2156,4 +2244,5 @@ public class TestData {
 
   @SuppressWarnings("unused")
   private void dummyMethodToEnableThePreviousCommentBeFoldedInEclipse() {}
+
 }

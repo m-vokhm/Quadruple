@@ -433,6 +433,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return assignWithUnbiasedExponent(negative, 64 - bitsToShift, value, 0);
   } // public Quadruple assign(long value) {
 
+  // TODO 21.04.09 19:09:26 Say a word about the precision
   /**
    * Parses the given String that is expected to contain
    * floating-point value in any conventional string form or a string designation of one of a special values.<br>
