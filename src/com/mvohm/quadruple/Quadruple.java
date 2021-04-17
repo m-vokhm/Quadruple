@@ -307,7 +307,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    *  Returns the unbiased value of binary exponent,
    * i. e. 0 for values falling within the interval of {@code [1.0 .. 2.0)}, 1 for {@code [2.0 .. 4.0)} etc.
    * @return the unbiased value of binary exponent */
-  public int unbiasedExponent() { return exponent - EXP_OF_ONE; } // TODO 20.12.25 15:37:07 Поменять везде, где используется
+  public int unbiasedExponent() { return exponent - EXP_OF_ONE; }
 
   /**
    * Returns the most significant 64 bits of the fractional part of the mantissa.
@@ -433,7 +433,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return assignWithUnbiasedExponent(negative, 64 - bitsToShift, value, 0);
   } // public Quadruple assign(long value) {
 
-  // TODO 21.04.09 19:09:26 Say a word about the precision
+  // TODO 21.04.09 19:09:26 Say a word or two about the precision
   /**
    * Parses the given String that is expected to contain
    * floating-point value in any conventional string form or a string designation of one of a special values.<br>

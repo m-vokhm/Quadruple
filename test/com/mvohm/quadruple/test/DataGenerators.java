@@ -44,10 +44,12 @@ public class DataGenerators {
   /* ********************************************************************************/
 
   /**
-   * Takes a list where each item contains a value and insert nulls in even positions,
-   * so that the result looks like v1, null, v2, null, etc. The input list remains unchanged.
+   * Takes a list of {@code Strings} and copies all the items of it into
+   * a new list, inserting {@code nulls} after each of them.
+   * The resulting list looks like {@code (v1, null, v2, null, ...)},
+   * where {@code v1, v2...} are the values from the first list.
    * @param inpList a dense list with values
-   * @return a list where the values from the input list are supplemented with null items
+   * @return a new list where the values from the input list are supplemented with null items
    */
   public static List<String> insertNulls(List<String> inpList) {
     final List<String> result = new ArrayList<>();
@@ -59,38 +61,46 @@ public class DataGenerators {
   } // public static List<String> insertNulls(List<String> inpList) {
 
   /**
-   * Adds the given strings to the end of the list
+   * Takes a list of {@code Strings} and copies all the items of it into
+   * a new list, inserting {@code nulls} after each of them.
+   * Additionally inserts the given {@code header} in the beginning of the resulting list.
+   * The resulting list looks like {@code (h, v1, null, v2, null, ...)},
+   * where {@code h} is the {@code header}, and {@code v1, v2...} are the values from the
+   * first list. The input list remains unchanged.
+   * @param header the header to insert in the the beginning of the list
+   * @param inpList the list to copy the values from
+   * @return the list that contains the header and all the items from the input list,
+   * with nulls inserted after each item
+   */
+  public static List<String> insertNulls(String header, List<String> inpList) {
+    final List<String> result = insertNulls(inpList);
+    result.add(0, header);
+    return result;
+  } // public static List<String> insertNulls(String header, List<String> inpList) {
+
+  /**
+   * Appends the given strings to the end of the list.
    * @param list the list to add the comments to
    * @param comments the comment lines to add to the list
    * @return the input list with the given strings added to the end of it
    */
-  public static List<String> addComment(List<String> list, String...comments) {
+  public static List<String> appendComment(List<String> list, String...comments) {
     for (final String s: comments)
       list.add(s);
     return list;
   } // public static List<String> addComment(List<String> list, String...comments) {
 
   /**
-   * Takes a list where each item contains, inserts the given header in its beginning, and inserts nulls
-   * after each item.
-   * @param header the header to insert in the the beginning of the list
-   * @param inpList the list process
-   * @return the list that contains the header and all the items from the input list,
-   * with nulls inserted after each item
-   */
-  public static List<String> insertNulls(String header, List<String> inpList) {
-    inpList.add(0, header);
-    return insertNulls(inpList);
-  } // public static List<String> insertNulls(String header, List<String> inpList) {
-
-
-  /**
-   * Returns a sequence of values from {@code strValue + (startDelta * 2^-128)}
-   * to {@code strValue + (endDelta * 2^-128)} inclusive, with a step of {@code 2^-128},
-   * which corresponds to the least significant bit of the value expressed as {@code Quadruple}
+   * Returns a list of {@code Strings} representing a sequence of values growing
+   * from <span style="white-space:nowrap">{@code (baseValue + (startDelta * 2^-128))}</span>
+   * to <span style="white-space:nowrap">{@code (baseValue + (endDelta * 2^-128))}</span>
+   * inclusive, with a step of {@code 2^-128}, which corresponds to the least significant bit
+   * of the of the mantissa of the corresponding {@code Quadruple} value.
    * @param baseValue the value to add the delta to, expressed as a {@code String}
-   * @param startDelta the factor to multiply the LSB by, to get the delta to add to the base at the first iteration
-   * @param endDelta the factor to multiply the LSB by, to get the delta to add to the base at the last iteration
+   * @param startDelta the factor to multiply the LSB by, to get the delta
+   *          to add to the base at the first iteration
+   * @param endDelta the factor to multiply the LSB by, to get the delta to add
+   *          to the base at the last iteration
    * @return a list containing the sequence of the values described above, expressed as strings
    */
   public static List<String> sequence(String baseValue, int startDelta, int endDelta) { //
@@ -108,23 +118,32 @@ public class DataGenerators {
   } // public static List<String> sequence(String baseValue, int startDelta, int endDelta) { //
 
   /**
-   * Returns a sequence of values from {@code sourceValue * (1 + startDelta * 2^-128)}
-   * to {@code sourceValue * (1 + endDelta * 2^-128)}
-   * with a step of {@code sourceValue * step * 1^-128}:<pre>
-   * sourceValue * (1 + (startDelta * 2^-128)),
-   * sourceValue * (1 + (startDelta + (1 * step * 2^-128))),
-   * sourceValue * (1 + (startDelta + (2 * step * 2^-128))),
+   * Returns a list of {@code Strings} representing a sequence of values growing from
+   * <span style="white-space:nowrap">{@code (baseValue* (1 + startDelta * 2^-128))}</span>
+   * to <span style="white-space:nowrap">{@code (baseValue* (1 + endDelta * 2^-128))}</span>
+   * inclusive, with a step of
+   * <span style="white-space:nowrap">{@code (baseValue* step * 1^-128)}.</span><br>
+   * In other words, the resulting list contains the following values:<pre>
+   * baseValue * (1 + (startDelta * 2^-128)),
+   * baseValue * (1 + (startDelta + (1 * step * 2^-128))),
+   * baseValue * (1 + (startDelta + (2 * step * 2^-128))),
    * ...
-   * sourceValue * (1 + (ensDelta - (1 * step * 2^-128))),
-   * sourceValue * (1 + endDelta * 2^-128)</pre>
-   * @param baseValue   a factor to multiply by the growing coefficient to get the next value of the sequence
-   * @param startDelta  addition to one, in 2^-128, to find the starting value of the the growing coefficient
-   * @param endDelta    addition to one, in 2^-128, to find the ending value of the the growing coefficient
-   * @param step        defines the difference between adjacent values, so that v1 = v0 + sourceValue * step * 2^-128
-   * @param addComment  a flag signifying that comment lines with human-readable expressions should be added before each value in the sequence
+   * baseValue * (1 + (ensDelta - (1 * step * 2^-128))),
+   * baseValue * (1 + endDelta * 2^-128)</pre>
+   * @param baseValue   a factor to multiply by the growing coefficient to get the next value
+   *                    of the sequence
+   * @param startDelta  addition to one, in 2^-128, to find the starting value
+   *                    of the the growing coefficient
+   * @param endDelta    addition to one, in 2^-128, to find the ending value of the the growing
+   *                    coefficient
+   * @param step        defines the difference between adjacent values, so
+   *                    that v1 = v0 + baseValue* step * 2^-128
+   * @param addComment  a flag signifying that comment lines with human-readable expressions should be
+   *                    added before each value in the sequence
    * @return a list of string representations of the values described above
    */
-  public static List<String> sequence(BigDecimal baseValue, double startDelta, double endDelta, double step, boolean addComment) {
+  public static List<String> sequence(BigDecimal baseValue, double startDelta, double endDelta,
+                                      double step, boolean addComment) {
     final List<String> result = new ArrayList<>();
     BigDecimal bdDelta;
 
@@ -139,17 +158,18 @@ public class DataGenerators {
   } // public static List<String> sequence(BigDecimal baseValue, double startDelta, double endDelta, double step, boolean addComment) {
 
   /**
-   * Returns a sequence of values from
-   * <p style="margin-left:20px;">{@code (sourceValue + startDelta * 2^-128) * 2^exp}</p>
-   * to
-   * <p style="margin-left:20px;">{@code (sourceValue + endDelta * 2^-128) * 2^exp}</p>
-   * with step = {@code step * 2^-128 * 2^exp} :<pre>
-   * {@code (sourceValue + startDelta * 2^-128) * 2^exp},
-   * {@code (sourceValue + (startDelta + 1 * step) * 2^-128) * 2^exp},
-   * {@code (sourceValue + (startDelta + 2 * step) * 2^-128) * 2^exp},
+   * Returns a list of {@code Strings} representing a sequence of values growing from
+   * <span style="white-space:nowrap">{@code ((baseValue+ startDelta * 2^-128) * 2^exp)}</span>
+   * to <span style="white-space:nowrap">{@code ((baseValue+ endDelta * 2^-128) * 2^exp)}</span>
+   * inclusive, with a step of
+   * <span style="white-space:nowrap">{@code (step * 2^-128 * 2^exp)}.</span><br>
+   * In other words, the resulting list contains the following values:<pre>
+   * {@code (baseValue + startDelta * 2^-128) * 2^exp},
+   * {@code (baseValue + (startDelta + 1 * step) * 2^-128) * 2^exp},
+   * {@code (baseValue + (startDelta + 2 * step) * 2^-128) * 2^exp},
    * ...
-   * {@code (sourceValue + (ensDelta - 1 * step) * 2^-128) * 2^exp},
-   * {@code (sourceValue + endDelta * 2^-128) * 2^exp}</pre>
+   * {@code (baseValue + (ensDelta - 1 * step) * 2^-128) * 2^exp},
+   * {@code (baseValue + endDelta * 2^-128) * 2^exp}</pre>
    * @param baseValue   a base value to add the growing addition to before raising to the power of two
    * @param startDelta  a delta that is to be multiplied by 2^-128 before adding to sourceValue
    *                    and raising to the power of two to form the starting value of the sequence
@@ -160,8 +180,8 @@ public class DataGenerators {
    * @param addComment  a flag signifying that comment lines with human-readable expressions should be added before each value in the sequence
    * @return a list of string representations of the values described above
    */
-  public static List<String> sequence(BigDecimal baseValue, double startDelta, double endDelta, double step,
-                                       int exponent, boolean addComment) {
+  public static List<String> sequence(BigDecimal baseValue, double startDelta, double endDelta,
+                                       double step, int exponent, boolean addComment) {
     final List<String> result = new ArrayList<>();
     BigDecimal bdDelta;
     final BigDecimal powerOf2 = powerOfTwo(exponent, MC_120_HALF_EVEN);
@@ -179,17 +199,24 @@ public class DataGenerators {
   } // public static List<String> sequence (BigDecimal baseValue, double startDelta, double endDelta, double step,
 
   /**
-   * Generates and returns a series of sequences of form <pre>
-   * s[0] + sd * 2^-128, s[0] + (sd + 1) * 2^-128, s[0] + (sd + 2) * 2^-128, ... s[0] + ed * 2^-128;
-   * s[1] + sd * 2^-128, s[1] + (sd + 1) * 2^-128, s[1] + (sd + 2) * 2^-128, ... s[1] + ed * 2^-128;
-   * ...
-   * s[n-1] + sd * 2^-128, s[n-1] + (sd + 1) * 2^-128, s[n-1] + (sd + 2) * 2^-128, ... s[n-1]+ ed * 2^-128;
-   * </pre>where {@code s[0] .. s[n-1]} are the elements of strValues, {@code sd} is the {@code startDelta} parameter,
-   * and {@code ed} is the {@code endDelta} parameter.
-   * @param startDelta  the starting delta, which should be multiplied by 2^-128 and then
-   *                    added to the current element of {@code strValues} for the first item of the current sequence
-   * @param endDelta    the ending delta, which should be multiplied by 2^-128 and then added to the current element
-   *                    of {@code strValues} for the last item of the current sequence
+   * Generates and returns a series of sequences of form
+
+   <div style="margin-left:20px; margin-top:10px; margin-bottom:10px;">
+   <code>
+       s[0] + sd * 2^-128,&nbsp;&nbsp;s[0] + (sd + 1) * 2^-128,  ... s[0] + ed * 2^-128;<br>
+       s[1] + sd * 2^-128,&nbsp;&nbsp;s[1] + (sd + 1) * 2^-128,  ... s[1] + ed * 2^-128;<br>
+       ... ; <br>
+       s[n-1] + sd * 2^-128,&nbsp;&nbsp;s[n-1] + (sd + 1) * 2^-128,  ... s[n-1]+ ed * 2^-128,<br>
+   </code>
+   </div>
+
+   * <div style="margin-left:0px; margin-top:0px; margin-bottom:0px;">
+   * where <b>{@code s[0] .. s[n-1]}</b> are the elements of baseValues,
+   * <b>{@code sd}</b> is the value of the {@code startDelta} parameter,
+   * and <b>{@code ed}</b> is the value of the {@code endDelta} parameter.</div>
+   <!-- Seems like JavaDoc can't handle div's in brief method descriptions -->
+   * @param startDelta  the starting delta, in the units of 2^-128
+   * @param endDelta    the ending delta, in the units of 2^-128
    * @param baseValues   an array of string representations of the base values to generate the sequences
    * @return a list of string representations of the values described above
    */
@@ -201,11 +228,13 @@ public class DataGenerators {
   } // public static List<String> sequences(int startDelta, int endDelta, String... baseValues) {
 
   /**
-   * Multiplies each of the the values from the given {@code inputList} by the given {@code factor}
-   * and returns a list containing the products.
+   * Multiplies each of the the values, represented by the items of {@code inputList},
+   * by the given {@code factor}, and returns a list containing string representations
+   * of the corresponding products.<br>
+   * The input list remains unchanged.
    * @param inputList a list of strings representing the values to be multiplied by the given {@code factor}
    * @param factor a factor to multiply the values from the {@code inputList}
-   * @return a list of strings expressing the products
+   * @return a list of strings representing the products
    */
   public static List<String> multiply(List<String> inputList, BigDecimal factor) {
     final List<String> result = new ArrayList<>();
@@ -220,26 +249,32 @@ public class DataGenerators {
   } // public static List<String> multiply(List<String> inputList, BigDecimal factor) {
 
   /**
-   * Multiplies each of the the values from the given {@code inputList} by the given {@code factor}
-   * and returns a list containing the products.
+   * Multiplies each of the the values, represented by the items of {@code inputList},
+   * by the given {@code factor}, and returns a list containing string representations
+   * of the corresponding products.<br>
+   * The input list remains unchanged.
    * @param inputList a list of strings representing the values to be multiplied by the given {@code factor}
    * @param factor a factor to multiply the values from the {@code inputList}
-   * @return a list of strings expressing the products
+   * @return a list of strings representing the products
    */
   public static List<String> multiply(List<String> inputList, double factor) {
     return multiply(inputList, BigDecimal.valueOf(factor));
   } // public static List<String> multiply(List<String> inputList, double factor) {
 
   /**
-   * Multiplies each of the the values from the given {@code inputList} by each of the given {@code factors}
-   * and returns a list containing string representations of the products:
+   * Multiplies each of the given {@code factors} by each of the the values,
+   * represented by the items of {@code inputList}, and returns a list containing
+   * string representations of the corresponding products.<br>
+   * The resulting list contains the products in the following order:
    * <pre> v[0] * f[0], v[1] * f[0], ... v[n-1] * f[0],
    * v[0] * f[1], v[1] * f[1], ... v[n-1] * f[1],
    * ...
    * v[0] * f[m-1], v[1] * f[m-1], ... v[n-1] * f[m-1]</pre>
+   * Both input arguments remain unchanged.
    * @param inputList a list of strings representing the values to be multiplied by the given {@code factor}
    * @param factors an array of factors to multiply the values from the {@code inputList}
-   * @return a list of strings expressing the products, v[0] * f[0], v[1] * f[0], ... v[n-1] * f[0], v[0] * f[1], v[1] * f[0], ... v[n-1] * f[0],
+   * @return a list of strings expressing the products, v[0] * f[0], v[1] * f[0], ... v[n-1] * f[0],
+   * v[0] * f[1], v[1] * f[1], ... v[n-1] * f[1], ... v[0] * f[m-1], v[1] * f[m-1], ... v[n-1] * f[m-1]
    */
   public static List<String> multiplyByFactors(List<String> inputList, double... factors) {
     final List<String> list = new ArrayList<>();
@@ -253,12 +288,20 @@ public class DataGenerators {
 
   /**
    * Generates and returns a series of sequences, each of which is a number of values,
-   * successively approaching and then moving away from the base value that is
-   * a value from the {@code mantissas} multiplied by {@code Quadruple.MIN_VALUE}.
-   * Such sequences are repeated for a number of values of binary exponents within
+   * successively approaching and then moving away from the base value, that is
+   * a product of a value from the {@code mantissas} list multiplied by {@code Quadruple.MIN_VALUE};
+   * such sequences are repeated for a number of values of binary exponents within
    * the range of subnormal {@code Quadruple} values.<br><br>
    * The result for maxDelta = 3e-39 and minDelta = 3e-40, for example,
    * would look as the following:<pre>
+   *
+   *
+   * ((m * 2^e + a) - maxDelta) * MIN_VALUE,
+   * ((m * 2^e + a) - maxDelta / 10) * MIN_VALUE,
+   * ...
+   * ((m * 2^e + a) + maxDelta / 10) * MIN_VALUE,
+   * ((m * 2^e + a) + maxDelta) * MIN_VALUE,
+
    (0.5 - 3E-39) * MIN_VALUE,
    (0.5 - 3E-40) * MIN_VALUE,
     0.5 * MIN_VALUE,
@@ -654,7 +697,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
     private static List<String> randList(String headerComment, int count, Supplier<String> generator) {
       final List<String> list = new ArrayList<>((count + 1) * 2);
       if (count > 0)
-        addComment(list, "// " + headerComment + ": " + count + " random values", null);
+        appendComment(list, "// " + headerComment + ": " + count + " random values", null);
       for (int i = 0; i < count; i++) {
         list.add(generator.get());
         list.add(null);
@@ -676,7 +719,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
     private static List<String> randPairList(String headerComment, int count, Function<Integer, Integer> findNextExponent) {
       final List<String> list = new ArrayList<>((count + 1) * 3);
       if (count > 0)
-        addComment(list, String.format("// %d pairs of random values for %s", count, headerComment), null, null);
+        appendComment(list, String.format("// %d pairs of random values for %s", count, headerComment), null, null);
       for (int i = 0; i < count; i++) {
         final int exp1 = random.nextInt();
         final int exp2 = findNextExponent.apply(exp1); // = exp1 + random.nextInt(258) - 129;
@@ -846,9 +889,9 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
    * {@code (m[i] * 2^exp + a) * MIN_VALUE}. The values of the sequence based on
    * an i'th member of the {@code mantissas} grow from
    * {@code (v[0] = m[i] * 2^exp + a - maxDelta) * MIN_VALUE} to
-   * {@code (v[n] = m[i] * 2^exp + a + maxDelta) * MIN_VALUE}, such that the
-   * difference
-   * {@code delta * MIN_VALUE) between the elements of the sequence first
+   * {@code (v[n] = m[i] * 2^exp + a + maxDelta) * MIN_VALUE},
+   * such that the difference {@code delta * MIN_VALUE)
+   * between an element of the sequence and its base value first
    * decreases in magnitude by a factor of 10 with each step, running thru
    * values from {@code -maxDelta * MIN_VALUE} to {@code -minDelta * MIN_VALUE},
    * then passes 0, and then increases by a factor of 10, running thru values
@@ -857,17 +900,30 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
    * the value of the {@code exponent} parameter, {@code a} is the value of the
    * {@code addition} parameter, {@code maxDelta} and {@code minDelta} are the
    * values of the corresponding parameters, and {@code MIN_VALUE} is {@code
-   * Quadruple.MIN_VALUE}, i.e. the unit of the least significant bit of a
-   * subnormal {@code Quadruple} value. For m[i] = 1.25, a = 0.5, maxDelta =
-   * 3e-39, minDelta = 3e-40, and exp = 5, for example, the corresponding
-   * fragment of the output list will have the following values:
+   * Quadruple.MIN_VALUE}, i.e. the value of the least significant bit of a
+   * subnormal {@code Quadruple} value.<br>
+   * In other words, the values in the resulting list may described as follows:
    *
    * <pre>
-   (1.25 * 32 + 0.5 - 3e-39) * MIN_VALUE,
-   (1.25 * 32 + 0.5 - 3e-40) * MIN_VALUE,
-   (1.25 * 32 + 0.5) * MIN_VALUE,
-   (1.25 * 32 + 0.5 - 3e-39) * MIN_VALUE,
-   (1.25 * 32 + 0.5 - 3e-39) * MIN_VALUE,
+   *    ((m[0] * 2^e + a) - maxDelta) * MIN_VALUE,
+   *    ((m[0] * 2^e + a) - maxDelta / 10) * MIN_VALUE,
+   *    ...
+   *    ((m[0] * 2^e + a) - minDelta) * MIN_VALUE,
+   *    (m[0] * 2^e + a) * MIN_VALUE,
+   *    ((m[0] * 2^e + a) + minDelta) * MIN_VALUE,
+   *    ...
+   *    ((m[0] * 2^e + a) + maxDelta / 10) * MIN_VALUE,
+   *    ((m[0] * 2^e + a) + maxDelta) * MIN_VALUE,
+   *
+   *    ((m[1] * 2^e + a) - maxDelta) * MIN_VALUE,
+   *    ((m[1] * 2^e + a) - maxDelta / 10) * MIN_VALUE,
+   *    ...
+   *    ((m[1] * 2^e + a) - minDelta) * MIN_VALUE,
+   *    (m[1] * 2^e + a) * MIN_VALUE,
+   *    ((m[1] * 2^e + a) + minDelta) * MIN_VALUE,
+   *    ...
+   *    ((m[1] * 2^e + a) + maxDelta / 10) * MIN_VALUE,
+   *    ((m[1] * 2^e + a) + maxDelta) * MIN_VALUE,
    * </pre>
    *
    * @param mantissas
@@ -891,7 +947,9 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
     if (prevMantissa == null)
       prevMantissa = new BigDecimal(0);
     for (final String mantissa : mantissas) {
+      // m * 2^e
       BigDecimal bdMantissa = mult(new BigDecimal(mantissa), powerOfTwo(exponent, MC_120_HALF_EVEN));
+      // m * 2^e + a
       bdMantissa = add(new BigDecimal(bdMantissa.toBigInteger()), addition);
       if (bdMantissa.compareTo(prevMantissa) != 0) {                          // To suppress doubling of the values
         result.addAll(vicinityOfSubnormal(bdMantissa, maxDelta, minDelta));
@@ -903,30 +961,31 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /**
    * Generates and returns a sequence of values in a vicinity of the base value,
-   * {@code m * MIN_VALUE}, from {@code v[0] = m * MIN_VALUE - maxDelta} to
-   * {@code v[n] = m * MIN_VALUE + maxDelta}, such that the difference (delta)
-   * between the elements of the sequence and {@codem * MIN_VALUE} first
+   * {@code m * MIN_VALUE}, from {@code v[0] = (m - maxDelta) * MIN_VALUE } to
+   * {@code v[n] = (m + maxDelta) * MIN_VALUE}, such that the difference (delta)
+   * between the elements of the sequence and {@code m * MIN_VALUE} first
    * decreases in magnitude by a factor of 10 with each step, running thru
-   * values from {@code -maxDelta} to {@code -minDelta}, then passes 0, and then
-   * increases by a factor of 10, running thru values from {@code minDelta} to
-   * {@code maxDelta}, where m is the given {@code mantissa} and
+   * values from {@code -maxDelta * MIN_VALUE} to {@code -minDelta * MIN_VALUE},
+   * then passes 0, and then increases by a factor of 10, running thru values
+   * from {@code minDelta * MIN_VALUE} to {@code maxDelta * MIN_VALUE},
+   * where m is the given {@code mantissa} and
    * {@code MIN_VALUE} is the value of {@code Quadruple.MIN_VALUE}, i.e. the
    * value of the least significant bit of subnormal {@code Quadruple} values:
    *
    * <pre>
-   * m * MIN_VALUE - maxDelta,
-   * m * MIN_VALUE - (maxDelta / 10),
-   * m * MIN_VALUE - (maxDelta / 100),
-   * ...
-   * m * MIN_VALUE - minDelta * 10,
-   * m * MIN_VALUE - minDelta,
-   * m * MIN_VALUE,
-   * m * MIN_VALUE + minDelta,
-   * m * MIN_VALUE + minDelta * 10,
-   * ...
-   * m * MIN_VALUE + (maxDelta / 100),
-   * m * MIN_VALUE + (maxDelta / 10),
-   * m * MIN_VALUE + maxDelta,
+   * (m - maxDelta) * MIN_VALUE,
+   * (m - maxDelta / 10) * MIN_VALUE,
+   * (m - maxDelta / 100) * MIN_VALUE,
+   * (..
+   * (m - minDelta * 10) * MIN_VALUE,
+   * (m - minDelta) * MIN_VALUE,
+   *  m * MIN_VALUE,
+   * (m + minDelta) * MIN_VALUE,
+   * (m + minDelta * 10) * MIN_VALUE,
+   * (..
+   * (m + maxDelta / 100) * MIN_VALUE,
+   * (m + maxDelta / 10) * MIN_VALUE,
+   * (m + maxDelta) * MIN_VALUE,
    *
    * </pre>
    *

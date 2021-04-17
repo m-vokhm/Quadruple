@@ -478,15 +478,13 @@ public class DataProviders {
     final ArrayList<String> list = new ArrayList<>(1500);
     list.addAll(Arrays.asList(TestData.basicSqrtData));
 
-    addComment(list, "// Generated sequence:", null);
+    appendComment(list, "// Generated sequence:", null);
     list.addAll(insertNulls(multiplyByFactors(sequence("1", 1, 20),
                                               1.0, 1.2, 1.5, 1.7, 2.0, 3.0, 3.4)));
 
     list.addAll(simpleRandomsWithNulls(randomCount));
     return convertToListOfArraysNx2(list);
   } // public static List<String[]> sqrtDataList() {
-
-  // TODO HERE 21.04.05 21.04.05 20:01:10
 
   /**
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to
