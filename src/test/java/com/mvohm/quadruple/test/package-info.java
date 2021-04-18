@@ -13,7 +13,7 @@
  * After the test is finished, these values can be obtained via respective getters or printed to the console.
  *
  * The QuadTest class contains a main() method that executes all the tests autonomously.
- * The QuadJUnitTests contains JUnit test methods.
+ * The QuadJUnitTest contains JUnit test methods.
  *
  * Includes classes:<ul style="list-style-position: outside">
  * <li>{@link com.mvohm.quadruple.test.AuxMethods}            -- auxiliary static methods used by other classes of the package
@@ -22,7 +22,7 @@
  * <li>{@link com.mvohm.quadruple.test.DataItem}              -- a container for data pertaining to a test
  * <li>{@link com.mvohm.quadruple.test.DataProviders}         -- a set of static methods that generate and collect data sets
  *                                                              for specific operations
- * <li>{@link com.mvohm.quadruple.test.QuadJUnitTests}        -- a set of test methods to be used with JUnit
+ * <li>{@link com.mvohm.quadruple.test.QuadJUnitTest}        -- a set of test methods to be used with JUnit
  * <li>{@link com.mvohm.quadruple.test.QuadTest}              -- an autonomous executor of all the tests
  * <li>{@link com.mvohm.quadruple.test.SpecificTesterClasses} -- concrete descendants of the QuadTester class,
  *                                                              each for a specific quadruple operation

@@ -30,8 +30,6 @@ import java.util.Map;
 
 import com.mvohm.quadruple.Quadruple;
 
-import sun.print.resources.serviceui;
-
 /**
  * A set of convenience methods to be used by other classes of the quadruple.test package.
  * Includes mainly a number of methods to convert values of various types to each other,

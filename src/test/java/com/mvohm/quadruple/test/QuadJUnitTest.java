@@ -18,33 +18,50 @@
 
 package com.mvohm.quadruple.test;
 
-import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Locale;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.mvohm.quadruple.test.SpecificTesterClasses.*;
 import com.mvohm.quadruple.test.TesterClasses.QuadTester;
 import com.mvohm.quadruple.test.TesterClasses.Verbosity;
 import com.mvohm.quadruple.Quadruple;
+import static com.mvohm.quadruple.test.AuxMethods.say;
+
+
 
 /**
  * A set of JUnit test methods. Each method tests a certain {@link Quadruple} operation.
  * @author M.Vokhmentev
  */
-public class QuadJUnitTests {
+@TestInstance(Lifecycle.PER_CLASS)
+public class QuadJUnitTest {
+
+  private static final TestResults totalResults = new TestResults(Consts.NORM_ERR_THRESH);
 
   /**
    * Prepares the testing environment.<br>
    * Sets the medium level of verbosity and sets {@link java.util.Locale#US} as the default locale, to provide formatting
    * of numbers in such a way that they can be parsed by methods like {@link Double#valueOf(String)}
    */
-  @Before
-  public void setup() {
-    TesterClasses.setVerbosity(Verbosity.MEDIUM);
+  @BeforeAll
+  public static void setup() {
+    say("method setup() must be executed @BeforeAll");
+
+    TesterClasses.setVerbosity(Verbosity.SILENT);
+    DataProviders.setRandomCount(100);
     Locale.setDefault(Locale.US);
+  }
+
+  @AfterAll
+  public void showResults() {
+    say("======");
+    say(totalResults.getReport(totalResults.getSummaryTestName()));
+
+    say("method showResults() must be executed @AfterAll");
   }
 
   /**
@@ -56,6 +73,7 @@ public class QuadJUnitTests {
   @Test
   public void testQuadToStringConversion() {
     final TestResults results = new QuadToStringTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -73,6 +91,7 @@ public class QuadJUnitTests {
   @Test
   public void testQuadToDoubleConversion() {
     final TestResults results = new QuadToDoubleTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -90,6 +109,7 @@ public class QuadJUnitTests {
   @Test
   public void testQuadToLongConversion() {
     final TestResults results = new QuadToLongTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -107,6 +127,7 @@ public class QuadJUnitTests {
   @Test
   public void testQuadToIntConversion() {
     final TestResults results = new QuadToIntTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -124,6 +145,7 @@ public class QuadJUnitTests {
   @Test
   public void testQuadToBdConversion() {
     final TestResults results = new QuadToBdTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -141,6 +163,7 @@ public class QuadJUnitTests {
   @Test
   public void testStringToQuadConversion() {
     final TestResults results = new StringToQuadTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -158,6 +181,7 @@ public class QuadJUnitTests {
   @Test
   public void testBdToQuadConversion() {
     final TestResults results = new BdToQuadTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -175,6 +199,7 @@ public class QuadJUnitTests {
   @Test
   public void testDoubleToQuadConversion() {
     final TestResults results = new DoubleToQuadTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -192,6 +217,7 @@ public class QuadJUnitTests {
   @Test
   public void testLongToQuadConversion() {
     final TestResults results = new LongToQuadTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -209,6 +235,7 @@ public class QuadJUnitTests {
   @Test
   public void testInstanceAddition() {
     final TestResults results = new InstanceAdditionTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -226,6 +253,7 @@ public class QuadJUnitTests {
   @Test
   public void testInstanceSubtraction() {
     final TestResults results = new InstanceSubtractionTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -243,6 +271,7 @@ public class QuadJUnitTests {
   @Test
   public void testInstanceMultiplication() {
     final TestResults results = new InstanceMultiplicationTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -260,6 +289,7 @@ public class QuadJUnitTests {
   @Test
   public void testInstanceDivision() {
     final TestResults results = new InstanceDivisionTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -277,6 +307,7 @@ public class QuadJUnitTests {
   @Test
   public void testStaticAddition() {
     final TestResults results = new StaticAdditionTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -294,6 +325,7 @@ public class QuadJUnitTests {
   @Test
   public void testStaticSubtraction() {
     final TestResults results = new StaticSubtractionTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -311,6 +343,7 @@ public class QuadJUnitTests {
   @Test
   public void testStaticMultiplication() {
     final TestResults results = new StaticMultiplicationTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -328,6 +361,7 @@ public class QuadJUnitTests {
   @Test
   public void testStaticDivision() {
     final TestResults results = new StaticDivisionTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -346,6 +380,7 @@ public class QuadJUnitTests {
   @Test
   public void testQuadToStringToQuad() {
     final TestResults results = new QuadToStringToQuadTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -364,6 +399,7 @@ public class QuadJUnitTests {
   @Test
   public void testQuadToBDToQuad() {
     final TestResults results = new QuadToBDToQuadTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -381,6 +417,7 @@ public class QuadJUnitTests {
   @Test
   public void testStaticSqrt() {
     final TestResults results = new StaticSqrtTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
@@ -398,6 +435,7 @@ public class QuadJUnitTests {
   @Test
   public void testInstanceSqrt() {
     final TestResults results = new InstanceSqrtTester().test();
+    totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrCount(),
           results.getBitDiffCount(),
