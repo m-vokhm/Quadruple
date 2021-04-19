@@ -49,7 +49,7 @@ public class QuadJUnitTest {
    */
   @BeforeAll
   public static void setup() {
-    say("method setup() must be executed @BeforeAll");
+    say("See -- method setup() is executed @BeforeAll");
 
     TesterClasses.setVerbosity(Verbosity.SILENT);
     DataProviders.setRandomCount(100);
@@ -61,7 +61,7 @@ public class QuadJUnitTest {
     say("======");
     say(totalResults.getReport(totalResults.getSummaryTestName()));
 
-    say("method showResults() must be executed @AfterAll");
+    say("See -- method showResults() is executed @AfterAll");
   }
 
   /**

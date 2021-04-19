@@ -72,43 +72,31 @@
         <version>2.19</version>
         
         <dependencies>
-            <dependency>
-                <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-surefire-provider</artifactId>
-                <version>1.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.0.0</version>
-            </dependency>
-        </dependencies>
-                
-        <!-- <dependencies>
-        
           <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>1.${junit.jupiter.minorVersion}</version>
+            <version>1.0.0</version>
           </dependency>
           <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.${junit.jupiter.minorVersion}</version>
           </dependency>
-        </dependencies>  -->
+        </dependencies>  
                     
         <configuration>
+        
+          <skipTests>true</skipTests> <!--  TODO to speed up build process, for testing it  -->
+          
           <includes>
             <include>**/QuadJUnitTest.java</include>
           </includes>
           
-<!-- TODO Put here all that mustn't run -->       
           <excludes>
             <exclude>%regex[Test.+]</exclude>
             <exclude>**/QuadTest.java</exclude>
           </excludes>          
- <!-- -->          
+           
         </configuration>
       </plugin>
       
@@ -120,6 +108,59 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      
+      <plugin>
+	      <artifactId>maven-jar-plugin</artifactId>
+	      <executions>
+	        <execution>
+	          <id>test-jar</id>
+	          <phase>package</phase>
+	          <goals>
+	            <goal>test-jar</goal>
+	          </goals>
+	          
+				    <configuration>
+				        <archive>
+				            <manifest>
+				                <addClasspath>true</addClasspath>
+				                <classpathPrefix>libs/</classpathPrefix>
+				                <mainClass>
+				                    com.mvohm.quadruple.test.QuadTest
+				                </mainClass>
+				            </manifest>
+				        </archive>
+				    </configuration>
+				    	          
+	        </execution>
+	      </executions>
+	    </plugin>      
+      
+      <!-- From https://www.baeldung.com/executable-jar-with-maven,
+      2.2. Apache Maven Assembly Plugin 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <archive>
+              <manifest>
+                <mainClass>
+                  com.mvohm.quadruple.test.QuadTest
+                </mainClass>
+              </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin> -->       
       
     </plugins>
     
