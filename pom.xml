@@ -1,4 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project 
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>com.mvohm.quadruple</groupId>
@@ -15,6 +18,7 @@
   </properties>
   
   <dependencies>
+  
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
@@ -36,7 +40,6 @@
       <scope>test</scope>
     </dependency>
             
-            
   </dependencies>
   
   <build>
@@ -49,8 +52,7 @@
         <directory>src/main</directory>
         <excludes>
           <exclude>**/*.java</exclude>
-          <exclude>**/javadoc</exclude>
-          <exclude>**/javadoc/**</exclude>
+          <exclude>**/javadoc/</exclude>
         </excludes>
       </resource>
     </resources>
@@ -60,8 +62,7 @@
         <directory>src/test</directory>
         <excludes>
           <exclude>**/*.java</exclude>
-          <exclude>**/javadoc</exclude>
-          <exclude>**/javadoc/**</exclude>
+          <exclude>**/javadoc/</exclude>
         </excludes>
       </testResource>
     </testResources>
@@ -112,7 +113,6 @@
       <plugin>
 	      <artifactId>maven-jar-plugin</artifactId>
 	      <executions>
-	      
 	        <execution>
 	          <id>test-jar</id>
 	          <phase>package</phase>
@@ -131,11 +131,8 @@
 		            </manifest>
 			        </archive>
 				    </configuration>
-				    	          
 	        </execution>
-        
         </executions>
-        
 	    </plugin>      
       
     </plugins>
@@ -170,7 +167,6 @@
         
       </plugins>
     </pluginManagement>
-    
     
   </build>
 </project>
