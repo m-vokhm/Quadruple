@@ -165,33 +165,33 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   protected void ____Constructors____() {} // Just to put a visible mark of the section in the outline view of the IDE
 
   /**
-   * Creates a new instance of {@link Quadruple} with value 0.0
+   * Creates a new instance of {@code Quadruple} with value 0.0
    */
   public Quadruple() {
   }
 
   /**
-   * Creates a new {@link Quadruple} instance with the value of the given {@code Quadruple} instance.<br>
+   * Creates a new {@code Quadruple} instance with the value of the given {@code Quadruple} instance.<br>
    * First creates an empty (zero) instance, then copies the fields of the parameter.
    * to the fields of the new instance
-   * @param qValue the the {@code Quadruple} value to be assigned to the new instance.
+   * @param qValue the {@code Quadruple} value to be assigned to the new instance.
    */
   public Quadruple(Quadruple qValue) {
     assign(qValue);
   }
 
   /**
-   *  Creates a new {@link Quadruple} instance with the given {@code double} value.<br>
+   *  Creates a new {@code Quadruple} instance with the given {@code double} value.<br>
    * First creates an empty (zero) instance, then assigns the given
    * value to the new instance, using {@link #assign(double)}.
-   * @param dValue  the the {@code double} value to be assigned
+   * @param dValue  the {@code double} value to be assigned
    */
   public Quadruple(double dValue) {
     assign(dValue);
   }
 
   /**
-   * Creates a new {@link Quadruple} with the given {@code long} value.<br>
+   * Creates a new {@code Quadruple} with the given {@code long} value.<br>
    * First creates an empty (zero) instance, then assigns the given
    * value to the new instance, using {@link #assign(long)}.
    * @param lValue  the {@code long} value to be assigned */
@@ -200,11 +200,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   }
 
   /**
-   * Creates a new {@link Quadruple} with the value represented by the given {@code String}.<br>
+   * Creates a new {@code Quadruple} with the value represented by the given {@code String}.<br>
    * First creates an empty (zero) instance, then assigns the given
    * value to the new instance, converting the string to the corresponding floating-point value.
    * Some non-standard string designations for special values are admissible, see {@link #assign(String)}
-   * @param strValue the the {@code String} value to be assigned
+   * @param strValue the {@code String} value to be assigned
    * @see #assign(String)
    */
   public Quadruple(String strValue) {
@@ -212,17 +212,17 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   }
 
   /**
-   * Creates a new {@link Quadruple} with the value of the given {@code BigDecimal} instance.<br>
+   * Creates a new {@code Quadruple} with the value of the given {@code BigDecimal} instance.<br>
    * First creates an empty (zero) instance, then assigns the given
    * value to the new instance, converting the BigDecimal to respective floating-point value
-   * @param bdValue the the {@code BigDecimal} value to be assigned
+   * @param bdValue the {@code BigDecimal} value to be assigned
    */
   public Quadruple(BigDecimal bdValue) {
     assign(bdValue);
   }
 
   /**
-   * Creates a new {@link Quadruple} built from the given parts.<br>
+   * Creates a new {@code Quadruple} built from the given parts.<br>
    * @param negative  the sign of the value ({@code true} signifies negative values)
    * @param exponent  the binary exponent (unbiased)
    * @param mantHi  the most significant 64 bits of fractional part of the mantissa
@@ -236,7 +236,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   }
 
   /**
-   * Creates a new {@link Quadruple} with a positive value built from the given parts.<br>
+   * Creates a new {@code Quadruple} with a positive value built from the given parts.<br>
    * @param exponent  the binary exponent (unbiased)
    * @param mantHi  the most significant 64 bits of fractional part of the mantissa
    * @param mantLo  the least significant 64 bits of fractional part of the mantissa
@@ -254,6 +254,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**  Returns a new {@code Quadruple} instance with the value of {@code -Infinity}.
    * @return a new {@code Quadruple} instance with the value of NEGATIVE_INFINITY */
   public static Quadruple negativeInfinity() {  return  new Quadruple().assignNegativeInfinity(); }
+
   /**  Returns a new {@code Quadruple} instance with the value of {@code +Infinity}.
    * @return a new {@code Quadruple} instance with the value of POSITIVE_INFINITY */
   public static Quadruple positiveInfinity() {  return  new Quadruple().assignPositiveInfinity(); }
@@ -261,12 +262,15 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**  Returns a new {@code Quadruple} instance with the value of {@code NaN}.
    * @return a new {@code Quadruple} instance with the value of NAN */
   public static Quadruple nan()             {  return  new Quadruple().assignNaN();         }
+
   /**  Returns a new {@code Quadruple} instance with the value of 1.0.
    * @return a new {@code Quadruple} instance with the value of 1.0 */
   public static Quadruple one()             {  return  new Quadruple().assign(1);           }
+
   /**  Returns a new {@code Quadruple} instance with the value of 2.0.
    * @return a new {@code Quadruple} instance with the value of 2.0 */
   public static Quadruple two()             {  return  new Quadruple().assign(2);           }
+
   /**  Returns a new {@code Quadruple} instance with the value of 10.0.
    * @return a new {@code Quadruple} instance with the value of 10.0 */
   public static Quadruple ten()             {  return  new Quadruple().assign(10);          }
@@ -275,10 +279,12 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    *   ({@code 2^-2147483774} = 6.67282948260747430814835377499134611597699952e-646457032)
    * @return a new {@code Quadruple} instance with the value of MIN_VALUE */
   public static Quadruple minValue()        {  return  new Quadruple().assignMinValue();    }
+
   /**  Returns a new {@code Quadruple} instance with the value of {@code MAX_VALUE}<br>
    *   ({@code 2^2147483647 * (2 - 2^-128)} = 1.76161305168396335320749314979184028566452310e+646456993)
    * @return a new {@code Quadruple} instance with the value of {@code MAX_VALUE} */
   public static Quadruple maxValue()        {  return  new Quadruple().assignMaxValue();    }
+
   /**  Returns a new {@code Quadruple} instance with the value of {@code MIN_NORMAL}<br>
    *  ({@code 2^-2147483646} = 2.27064621040149253752656726517958758124747730e-646456993)
    * @return a new {@code Quadruple} instance with the value of {@code MIN_NORMAL} */
@@ -370,7 +376,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Converts the given value to quadruple and assigns it to the instance.<br>
    * Expands exponent to 32 bits preserving its value, and expands mantissa to 128 bits,
    * filling with zeroes the least significant 76 bits that absent in the double value.
-   * Subnormal double values (Double.MIN_NORMAL &lt; v &lt;= Double.MIN_VALUE) are converted
+   * Subnormal double values
+   * <span style="white-space:nowrap">{@code (Double.MIN_NORMAL < v <= Double.MIN_VALUE)}</span>
+   * are converted
    * to normal quadruple values, by shifting them leftwards and correcting the exponent accordingly.
    * @param value  the {@code double} value to be assigned.
    * @return this instance with the newly assigned value
@@ -976,6 +984,61 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return q1.compareMagnitudeTo(q2);
   } // public static int compareMagnitudes(Quadruple q1, Quadruple q2) {
 
+  /**
+   * Returns a new instance of {@code Quadruple} with the value of the
+   * maximum of the values of the operands.
+   * @param q1 first operand to compare
+   * @param q2 first operand to compare
+   * @return a new instance of {@code Quadruple} whose value is
+   *      equal to the value of the greater of the operands.
+   */
+  public static Quadruple max(Quadruple q1, Quadruple q2) {
+    if (q1.compareTo(q2) > 0)
+      return new Quadruple(q1);
+    else
+      return new Quadruple(q2);
+  }
+
+  /**
+   * Returns a new instance of {@code Quadruple} with the value of the
+   * minimum of the values of the operands.
+   * @param q1 first operand to compare
+   * @param q2 first operand to compare
+   * @return a new instance of {@code Quadruple} whose value is
+   *      equal to the value of the lesser of the operands.
+   */
+  public static Quadruple min(Quadruple q1, Quadruple q2) {
+    if (q1.compareTo(q2) < 0)
+      return new Quadruple(q1);
+    else
+      return new Quadruple(q2);
+  }
+
+  /**
+   * Assigns to this instance the maximum of the
+   * values of {@code this} instance and the operand.
+   * @param other the operand to compare with
+   * @return {@code this} instance, after setting its value
+   *      to the value of the greater of {@code this} and the operand.
+   */
+  public Quadruple assignMax(Quadruple other) {
+    if (compareTo(other) < 0)
+      assign(other);
+    return this;
+  }
+
+  /**
+   * Assigns to this instance the minimum of the
+   * values of {@code this} instance and the operand.
+   * @param other the operand to compare with
+   * @return {@code this} instance, after setting its value
+   *      to the value of the lesser of {@code this} and the operand.
+   */
+  public Quadruple assignMin(Quadruple other) {
+    if (compareTo(other) > 0)
+      assign(other);
+    return this;
+  }
 
   /* ***********************************************************************************
    ****** Arithmetics ******************************************************************
@@ -1468,7 +1531,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Creates a new Quadruple instance with a pseudo-random value
    * using a static randomly initialized {@code java.util.Random} instance.
-   * The generated value may fall between -{@linkplain Quadruple#MAX_VALUE} and {@linkplain Quadruple#MAX_VALUE}
+   * The generated value falls within the range from
+   * -{@linkplain Quadruple#MAX_VALUE} to {@linkplain Quadruple#MAX_VALUE} inclusive.
    * @return a new instance containing a next random value
    */
   public static Quadruple nextRandom() {
@@ -1478,12 +1542,14 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Creates a new Quadruple instance with a pseudo-random value
    * using the given {@code java.util.Random} instance.}<br>
-   * The generated value may fall between -{@linkplain Quadruple#MAX_VALUE} and {@linkplain Quadruple#MAX_VALUE}
+   * The generated value falls within the range from
+   * -{@linkplain Quadruple#MAX_VALUE} to {@linkplain Quadruple#MAX_VALUE} inclusive.
    * Can be used to repeatedly generate the same pseudo-random sequence.
    * @param rand an instance of {@code java.util.Random} to be used for generating the random value
    * @return a new instance containing a next random value
    */
   public static Quadruple nextRandom(Random rand) {
+    // FIXIT 21.04.24 9:55:14 Non-uniform distribution of returned values!
     final boolean sign = rand.nextBoolean();
     final int exp = rand.nextInt();
     final long mantHi = rand.nextLong();
@@ -1494,7 +1560,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Creates a new Quadruple instance with a pseudo-random value
    * using a static randomly initialized {@code java.util.Random} instance.
-   * The generated value may fall within the range 0.0 (inclusive) to 1.0 (exclusive).
+   * The generated value falls within the range 0.0 (inclusive) to 1.0 (exclusive).
    * @return a new instance containing a next random value
    */
   public static Quadruple nextNormalRandom() {
@@ -1504,7 +1570,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Creates a new Quadruple instance with a pseudo-random value
    * using the given {@code java.util.Random} instance.
-   * The generated value may fall within the range 0.0 (inclusive) to 1.0 (exclusive).
+   * The generated value falls within the range 0.0 (inclusive) to 1.0 (exclusive).
    * Can be used to repeatedly generate the same pseudo-random sequence.
    * @param rand an instance of {@code java.util.Random} to be used for generating the random value
    * @return a new instance containing a next random value
