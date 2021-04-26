@@ -745,6 +745,157 @@ public class SpecificTesterClasses {
    * by the TestResults
    */
 
+  /** A tester class to test static method {@link Quadruple#max(Quadruple op1, Quadruple op2)}.<br>
+   * Obtains the test data from {@link DataProviders#maxDataList()}
+   * and performs {@link Quadruple#max(Quadruple op1, Quadruple op2)} as the tested operation.
+   */
+  static class StaticMaxTester extends BinaryFunctionTester {
+
+    /** Returns the name of the tested operation, namely "{@code max(Quadruple op1, Quadruple op2)}". */
+    @Override protected String getName()                                  { return "max(Quadruple op1, Quadruple op2)"; }
+
+    /** Obtains and returns a data set intended to test {@code max()} function.<br>
+     * Uses {@link DataProviders#maxDataList()} to obtain the data. */
+    @Override protected List<String[]> getTestDataList()                  { return maxDataList(); }
+
+    /** Performs the tested operation ({@code Quadruple.max(Quadruple op1, Quadruple op2)})
+     * with the given operands and returns the result. */
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return Quadruple.max(op1, op2); }
+
+    /**
+     * Calculates a {@code BigDecimal} value equal to the expected result
+     * of {@code max()} function of the two operands.<br>
+     * Converts arguments to {@code BigDecimal}s and finds and returns their maximum.
+     * If one or both operands are not convertible to {@code BigDecimal},
+     * throws a {@code NumberFormatException}
+     * and further processing is performed by the parent class.
+     */
+    @Override
+    protected BigDecimal findExpectedResult(Quadruple operand1, Quadruple operand2) {
+      final BigDecimal bdOp1 = bigDecimalValueOf(operand1);
+      final BigDecimal bdOp2 = bigDecimalValueOf(operand2);
+      return bdOp1.max(bdOp2);
+    }
+
+    /**
+     * Returns a string representation of the expected result of {@code max()} function
+     * in the cases when one or both operands are not convertible to {@code BigDecimal}.<br>
+     * Depending on the values of the operands, returns "NaN", "Infinity", "-Infinity", or
+     * a string representation of one of the operands,
+     * following the same rules that are used for comparison of double operands.
+     */
+    @Override
+    protected String findExpectedString(Quadruple q1, Quadruple q2) {
+      if (isNaN(q1) || isNaN(q2))
+        return "NaN";     // NaN > anything, so it's the max in any case
+
+      if (    isInfinite(q1) && !isNegative(q1)
+          ||  isInfinite(q2) && !isNegative(q2))
+        return "Infinity";     // Infinity
+
+      if (isInfinite(q1) && isNegative(q1))
+        return (q2.toString());
+      if (isInfinite(q2) && isNegative(q2))
+        return (q1.toString());
+
+      return null;
+    }
+
+  } // static class StaticMaxTester extends BinaryFunctionTester {
+
+  /** A tester class to test instance method {@link Quadruple#assignMax((Quadruple op2)}.<br>
+   * Obtains the test data from {@link DataProviders#maxDataList()}
+   * and performs {@link Quadruple#assignMax(Quadruple op2)} as the tested operation.
+   */
+  static class  InstanceMaxTester extends StaticMaxTester {
+    /** Returns the name of the tested operation, namely "{@code op1.assignMax(Quadruple op2)}". */
+    @Override protected String getName() { return "op1.assignMax(op2)"; }
+
+    /** Performs the tested operation ({@code op1.assignMax(Quadruple op2)})
+     * with the given operands and returns the result. */
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return new Quadruple(op1).assignMax(op2); }
+
+  } // static class  InstanceMaxTester extends StaticMaxTester {
+
+  /** A tester class to test static method {@link Quadruple#min(Quadruple op1, Quadruple op2)}.<br>
+   * Obtains the test data from {@link DataProviders#minDataList()}
+   * and performs {@link Quadruple#min(Quadruple op1, Quadruple op2)} as the tested operation.
+   */
+  static class StaticMinTester extends BinaryFunctionTester {
+
+    /** Returns the name of the tested operation, namely "{@code min(Quadruple op1, Quadruple op2)}". */
+    @Override protected String getName()                                  { return "min(Quadruple op1, Quadruple op2)"; }
+
+    /** Obtains and returns a data set intended to test {@code min()} function.<br>
+     * Uses {@link DataProviders#minDataList()} to obtain the data. */
+    @Override protected List<String[]> getTestDataList()                  { return minDataList(); }
+
+    /** Performs the tested operation ({@code Quadruple.min(Quadruple op1, Quadruple op2)})
+     * with the given operands and returns the result. */
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return Quadruple.min(op1, op2); }
+
+    /**
+     * Calculates a {@code BigDecimal} value equal to the expected result
+     * of {@code min()} function of the two operands.<br>
+     * Converts arguments to {@code BigDecimal}s and finds and returns their minimum.
+     * If one or both operands are not convertible to {@code BigDecimal},
+     * throws a {@code NumberFormatException}
+     * and further processing is performed by the parent class.
+     */
+    @Override
+    protected BigDecimal findExpectedResult(Quadruple operand1, Quadruple operand2) {
+      final BigDecimal bdOp1 = bigDecimalValueOf(operand1);
+      final BigDecimal bdOp2 = bigDecimalValueOf(operand2);
+      return bdOp1.min(bdOp2);
+    }
+
+    /**
+     * Returns a string representation of the expected result of {@code min()} function
+     * in the cases when one or both operands are not convertible to {@code BigDecimal}.<br>
+     * Depending on the values of the operands, returns "NaN", "Infinity", "-Infinity", or
+     * a string representation of one of the operands,
+     * following the same rules that are used for comparison of double operands.
+     */
+    @Override
+    protected String findExpectedString(Quadruple q1, Quadruple q2) {
+      if (isNaN(q1))
+        return q2.toString();
+      if (isNaN(q2))
+        return q1.toString();     // NaN > anything, so the other operand is the min in any case
+
+      if (isInfinite(q1) && !isNegative(q1)) // Positive infinity
+        return q2.toString();
+      if (isInfinite(q2) && !isNegative(q2))
+        return q1.toString();
+
+      if (   isInfinite(q1) && isNegative(q1)  // Negative infinity
+          || isInfinite(q2) && isNegative(q2))
+        return ("-Infinity");
+
+      return null;
+    }
+
+  } // static class StaticMinTester extends BinaryFunctionTester {
+
+  /** A tester class to test instance method {@link Quadruple#assignMin((Quadruple op2)}.<br>
+   * Obtains the test data from {@link DataProviders#minDataList()}
+   * and performs {@link Quadruple#assignMin(Quadruple op2)} as the tested operation.
+   */
+  static class  InstanceMinTester extends StaticMinTester {
+    /** Returns the name of the tested operation, namely "{@code op1.max(Quadruple op2)}". */
+    @Override protected String getName() { return "op1.assignMin(op2)"; }
+
+    /** Performs the tested operation ({@code op1.assignMin(Quadruple op2)})
+     * with the given operands and returns the result. */
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return new Quadruple(op1).assignMin(op2); }
+
+  } // static class  InstanceMaxTester extends StaticMaxTester {
+
+
+/************************************************************
+ ***** Private utility methods ******************************
+ ************************************************************/
+
   private static boolean isNaN(Quadruple operand) {
     return
       operand.exponent() == EXP_INF

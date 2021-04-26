@@ -112,6 +112,11 @@ public class QuadTest {
     new StaticMultiplicationTester(),
     new StaticDivisionTester(),
 
+    new InstanceMaxTester(),
+    new InstanceMinTester(),
+    new StaticMaxTester(),
+    new StaticMinTester(),
+    
   // Reverse conversion Quadruple -> String -> Quadruple
     new QuadToStringToQuadTester(),   // 14 source errors inherited from basic_S2Q_conversionData
     new QuadToBDToQuadTester(),

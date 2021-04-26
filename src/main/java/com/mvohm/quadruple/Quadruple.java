@@ -141,11 +141,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private static final int HASH_CODE_OF_NAN =  -441827835;  // All the NaNs have to have the same hashcode.
                                                             // This is the best one I could imagine.
 
-  /** The value of the exponent (biased), corresponding to subnormal values; equals to 0 */
+  /** The value of the exponent (biased) corresponding to subnormal values; equals to 0 */
   public static final int EXP_SUB             = 0;
-  /** The value of the exponent (biased), corresponding to {@code MIN_NORMAL}; equals to 1 */
+  /** The value of the exponent (biased) corresponding to {@code MIN_NORMAL}; equals to 1 */
   public static final int EXP_MIN             = 1;
-  /** The value of the exponent (biased), corresponding to {@code 1.0 == 2^0)};
+  /** The value of the exponent (biased) corresponding to {@code 1.0 == 2^0};
    * equals to 2_147_483_647 ({@code 0x7FFF_FFFF}) */
   public static final int EXP_OF_ONE          = 0x7FFF_FFFF;
   /** The value of the exponent (biased), corresponding to {@code MAX_VALUE};

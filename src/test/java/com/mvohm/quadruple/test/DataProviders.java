@@ -456,6 +456,44 @@ public class DataProviders {
     return convertToListOfArraysNx3(list);
   } // public static List<String[]> divisionDataList() {
 
+  /**
+   * Assembles and returns a data set for testing {@code min()} function.
+   * Includes subsets:<ul style="list-style-position: outside">
+   * <li>A number of pairs including all possible combinations of special values
+   *      like -0, "NaN", and "Infinity" with each other and with some normal numeric values,
+   *      to make sure that {@code min()} function handles them correctly;
+   * <li>A number of pairs of random numbers.
+   * </ul>
+   * <br>The returned data set is a list of arrays, each containing three strings -- two operands
+   * and the expected result, that can be {@code null} or an empty string.
+   * @return a set of data described above
+   */
+  public static List<String[]> minDataList() {
+    final ArrayList<String> list = new ArrayList<>();
+    list.addAll(specialValuesForMin());
+    list.addAll(randomsPairs(randomCount));
+    return convertToListOfArraysNx3(list);
+  }
+
+  /**
+   * Assembles and returns a data set for testing {@code max()} function.
+   * Includes subsets:<ul style="list-style-position: outside">
+   * <li>A number of pairs including all possible combinations of special values
+   *      like -0, "NaN", and "Infinity" with each other and with some normal numeric values,
+   *      to make sure that {@code max()} function handles them correctly;
+   * <li>A number of pairs of random numbers.
+   * </ul>
+   * <br>The returned data set is a list of arrays, each containing three strings -- two operands
+   * and the expected result, that can be {@code null} or an empty string.
+   * @return a set of data described above
+   */
+  public static List<String[]> maxDataList() {
+    final ArrayList<String> list = new ArrayList<>();
+    list.addAll(specialValuesForMax());
+    list.addAll(randomsPairs(randomCount));
+    return convertToListOfArraysNx3(list);
+  }
+
 /* ***************************************************************************
  * Data collectors for unary operations **************************************
  *****************************************************************************/

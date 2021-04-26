@@ -463,6 +463,31 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
     }; // private static String[] specialValies = new String[] {
 
     /**
+     * Generates and returns a list of pairs of operands for testing {@code min()} function.
+     * Since findExpectedResult() in the tester class returns BigDecimal, its result can't be -0.<br>
+     * Thus we have to provide -0 as the expected value for the pairs of operands whose min() should be -0.
+     * So, replace nulls with "-0.0" wherever the function result equals -0.
+     * @return a Cartesian square of the {@link #specialValies} with values of {@code -0}
+     * wherever the tested operation is expected to result in -0.
+     * */
+    static List<String> specialValuesForMin()  {
+      return cartesianSquareWithMinusZeros(specialValies, (a, b) -> Math.min(a, b));
+    } // static List<String> specialValuesForMin() {
+
+    /**
+     * Generates and returns a list of pairs of operands for testing {@code max()} function.
+     * Since findExpectedResult() in the tester class returns BigDecimal, its result can't be -0.<br>
+     * Thus we have to provide -0 as the expected value for the pairs of operands whose max() should be -0.
+     * So, replace nulls with "-0.0" wherever the function result equals -0.
+     * @return a Cartesian square of the {@link #specialValies} with values of {@code -0}
+     * wherever the tested operation is expected to result in -0.
+     * */
+    static List<String> specialValuesForMax()  {
+      return cartesianSquareWithMinusZeros(specialValies, (a, b) -> Math.max(a, b));
+    } // static List<String> specialValuesForMin() {
+
+
+    /**
      * Generates and returns a list of pairs of operands for testing the addition.
      * Since findExpectedResult() in the tester class returns BigDecimal, its result can't be -0.<br>
      * Thus we have to provide -0 as the expected value for the pairs of summands whose sum should be -0.
@@ -510,13 +535,14 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
       return cartesianSquareWithMinusZeros(specialValies, (a, b) -> a / b);
     } // static List<String> specialValuesForDivision() {
 
+
     /**
      * Builds a list of all possible pairs of operands from the given array of values,
      * supplemented with "-0.0" (if the expected result of the tested operation applied to the operands is -0)
      * or with null (in all other cases).
      * @param operands an array containing string representations of double operands to combine
      * @param operation the operation whose result affects the third item of the triplet (the expected result of the operation)
-     * @return
+     * @return a newly-created list with the values described above
      */
     private static List<String> cartesianSquareWithMinusZeros(String[] operands, BinaryOperator<Double> operation) {
       final List<String> result = new ArrayList<>();
@@ -554,7 +580,6 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
   static class Randoms {
 
     private static Random random;
-    private static int expOfDelta = -64;
 
     /**
      * Initializes the random generator
@@ -679,6 +704,18 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      */
     public static List<String> randomsForDivision(int count) {
       return randPairList("division", count, exp -> otherExpForDiv(exp));
+    } // public static List<String> randomsForDivision(int count) {
+
+    /**
+     * Returns a list of pairs of random values, with null after each pair.
+     * The values of the items in each pair are concerted so that division makes sense in most cases
+     * (i.e. the expected result is rarely equal to 0 or Infinity)
+     * @param count the number of pairs to generate
+     * @return a list of strings, containing string representations of the generated pairs of values,
+     * with nulls inserted after each pair
+     */
+    public static List<String> randomsPairs(int count) {
+      return randPairList("min()/max()", count, exp -> random.nextInt());
     } // public static List<String> randomsForDivision(int count) {
 
     /* *****************************************************************************************
