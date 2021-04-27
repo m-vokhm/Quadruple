@@ -43,6 +43,23 @@ more accurately than the standard `double` allows, and at the same time
 to do them faster than the standard `BigDecimal` can do, that may be important 
 for some resource-intensive scientific computing and simulations.  
 
+Current benchmarks are as follows:
+
+    Benchmark                     Mode  Cnt  Score   Error   Units 
+    ---------------------------------------------------------------
+    a_bigDecimalAddition          avgt  5  253.467 ± 1.223   ns/op 
+    b_quadrupleAddition           avgt  5   34.701 ± 0.160   ns/op 
+    c_bigDecimalSubtraction       avgt  5  269.780 ± 0.811   ns/op 
+    d_quadrupleSubtraction        avgt  5   42.305 ± 0.145   ns/op 
+    e_bigDecimalMultiplcation     avgt  5  523.018 ± 2.519   ns/op 
+    f_quadrupleMultiplcation      avgt  5   84.208 ± 1.161   ns/op 
+    g_bigDecimalDivision          avgt  5  583.228 ± 4.580   ns/op 
+    h_quadrupleDivision           avgt  5  613.096 ± 3.492   ns/op 
+
+(see [the benchmarking project](https://github.com/m-vokhm/QuadrupleAddendum/tree/master/QuadBenchmarks) )    
+But some operations, especially division, are going to be optimized.    
+
+
 #### Usage
 A simple example:
 
