@@ -153,7 +153,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   public static final long EXP_MAX            = 0xFFFF_FFFEL;
   /** The value of the exponent (biased), corresponding to {@code Infinity},
    * {@code _Infinty}, and {@code NaN};
-   * equals to -1 {@code 0xFFFF_FFFF} */
+   * equals to -1 ({@code 0xFFFF_FFFF}) */
   public static final int EXP_INF             = 0xFFFF_FFFF;
 
 
@@ -444,14 +444,42 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   // TODO 21.04.09 19:09:26 Say a word or two about the precision
   /**
    * Parses the given String that is expected to contain
-   * floating-point value in any conventional string form or a string designation of one of a special values.<br>
+   * floating-point value in any conventional string form or a string designation
+   * of one of special values, and assigns the corresponding value to the instance.<br>
+   * Parsing is case-insensitive.<br>
    * The admittable string designations for special values are the following:<ul>
    * <li>"Quadruple.MIN_VALUE", <li>"MIN_VALUE", <li>"Quadruple.MAX_VALUE", <li>"MAX_VALUE",
    * <li>"Quadruple.MIN_NORMAL", <li>"MIN_NORMAL", <li>"Quadruple.NaN", <li>"NaN",
    * <li>"Quadruple.NEGATIVE_INFINITY", <li>"NEGATIVE_INFINITY", <LI>"-INFINITY",
    * <li>"Quadruple.POSITIVE_INFINITy", <li>"POSITIVE_INFINITY", <li>"INFINITY", <li>"+INFINITY".</ul>
-   * <br>Assigns the corresponding value to the instance.
-   * <br>Case insensitive.
+   *<br>
+   * If the exact value of the  number represented by the input string is greater
+   * than the nearest exact {@code Quadruple} value by less than {@code 0.5 - 1e-17}
+   * of the least significant bit of the mantissa of the latter, it gets rounded
+   * down to the aforementioned {@code Quadruple} value.<br>
+   * If it is greater by 0.5 LSB or more, it gets rounded up to the greater adjacent
+   * Quadruple value.<br>
+   * In cases when difference between the input value and the nearest {@code Quadruple}
+   * value is between {@code (0.5 - 1e-17) * LSB} and {@code 0.5 * LSB},
+   * the direction of the rounding is unpredictable.
+   *
+   * Expressing it via formulas,
+   * <pre>
+   * (1 + (n + d) * 2^-128) * 2^e ==&gt; (1 + n * 2^-128) * 2^e, if d &lt;= 0.5 - 1e-17;
+   * (1 + (n + d) * 2^-128) * 2^e ==&gt; (1 + (n + 1) * 2^-128) * 2^e, if d =&gt; 0.5.</pre>
+   * where <b>n</b> is an integer less than {@code 2^128}, <b>e</b>
+   * is the exponent of the {@code Quadruple}.<br><br>
+   * For example,
+   * {@code 1.5 + 0.5 * 2^-128}, that equals<br>
+   * {@code 1.500000000000000000000000000000000000001469367938527859384960921...}<br>
+   * gets rounded up to<br>
+   * {@code 1.5000000000000000000000000000000000000029387}, whose mantissa is {@code 0x8000_..._0001},<br>
+   * while {@code 1.5 + (0.5 - 1e-17) * 2^-128}, that equals to<br>
+   * {@code 1.500000000000000000000000000000000000001469367938527859355573561...}<br>
+   * gets rounded down to 1.5, whose mantissa is {@code 0x8000_..._0000}.<br>
+   * The values between the two may get rounded either up or down.
+   *
+   *
    * @param source the String to be parsed
    * @throws NullPointerException if the input string is {@code null}
    * @throws NumberFormatException if the input string does not contain valid value
@@ -464,7 +492,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Converts the given value to {@code Quadruple}, and assigns it to the instance.<br>
    * If the source value can't be represented as {@code Quadruple} exactly, it gets rounded to a 129-bit value
-   * (implicit unity + 128 bits of the fractional part of the mantissa) in accordance to the 'half-up' rule.
+   * (implicit unity + 128 bits of the fractional part of the mantissa) according to the 'half-up' rule.
+   * Due to limited precision of computing of great powers of two, the input values
+   * that differ from exact values of corresponding {@code Quadruples} by a value that lies between
+   * {@code (0.5 - 1e-40) * LSB} and {@code 0.5 * LSB} may get rounded either up or down.
    * @param value the value to be assigned.
    * @throws NullPointerException if the parameter is {@code null}
    * @return this instance with the newly assigned value
@@ -835,6 +866,36 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     result[2] = mantLo;
     return result;
   } // public long[] toLongWords() {
+
+// TODO 21.04.27 18:02:41: For the next commit
+//  /**
+//   * Returns the value of {@code this} instance as an array of bytes, containing
+//   * a physical representation of the standard IEEE-754 quadruple-precision
+//   * floating-point number.<br>
+//   * The order of bytes is big-endian, so that the sign bit and the most significant bits
+//   * of the exponent is returned in result[0], and the least significant bits
+//   * of the mantissa in result[15].
+//   * The values that exceed
+//   * the maximum possible value of IEEE-754 Quadruple are converted to Infinity, and the values
+//   * less than 3.36210314311209350626267781732175260 * 10^-4932 (minimal normal positive value )
+//   * the values less than {@code 6.4751751194380251109244389582276466 * 10^-4966} (minimum positive value of of IEEE-754 Quadruple)
+//   * are converted to 0.
+//   *
+//   * and
+//   * the least significant bits of the exponent
+//   * @return
+//   */
+//  public byte[] toIeee754Bytes() {
+//    // TODO 21.04.27 13:06:34
+//    return null;
+//  }
+//
+//  public long[] toIeee754Longs() {
+//    return null;
+//    // TODO 21.04.27 13:06:34
+//  }
+//
+
 
   /* ***********************************************************************************
    ****** Comparisons ******************************************************************

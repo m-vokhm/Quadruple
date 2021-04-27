@@ -74,6 +74,7 @@ public class DataGenerators {
    */
   public static List<String> insertNulls(String header, List<String> inpList) {
     final List<String> result = insertNulls(inpList);
+    result.add(0, null);
     result.add(0, header);
     return result;
   } // public static List<String> insertNulls(String header, List<String> inpList) {
