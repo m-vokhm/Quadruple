@@ -389,8 +389,8 @@ public class TesterClasses {
           return di.withValueOf(bdValue);
       } catch (final Exception x) {                         // Can't be converted to BigDecimal
         final String strOfQuadValue = quadToString43(quadValue);
-        if (quadValue.exponent() == Quadruple.EXP_INF
-            && !x.getMessage().equals("Error was expected"))      // it's NaN or Infinity
+        if (quadValue.exponent() == Quadruple.EXPONENT_OF_INFINITY
+            && !"Error was expected".equals(x.getMessage()))
           return di.withValueOfString(strOfQuadValue);      // A String "NaN" or "Infinity"
 
         final String expextedStr = findExpectedString(quadValue);
@@ -433,9 +433,19 @@ public class TesterClasses {
     protected void testOp(String[] dataSample) {
       final DataItem srcData      = new DataItem("src").withQuadValueOfString(dataSample[0]); // Makes an item with source value as BD and Quad
       final DataItem result       = makeResultItem(srcData);                          // Takes Quadruple from srcData and performs tested op, puts result into rawData
-      final DataItem resultValue  = new DataItem("val").withValueOf(result.getRawData());  // Takes rawData and converts it into BD and Quad
+      final DataItem resultValue  = makeResultValueItem(result);                      // Takes rawData and converts it into BD and Quad
       final DataItem expected     = makeExpectedItem(srcData, dataSample[1]);         // expected if provided, else converts source type
       results.record(srcData, result, resultValue, expected);                         // it computes the error as well
+    }
+
+    /**
+     * Creates a {@link DataItem} instance with the numeric value of the raw result value of type <b>R</b>
+     * which is stored in the {@code rawData} field of the passed-in {@code DataItem} instance
+     * @param result a {@code DataItem} with the raw result of the tested operation
+     * @return a new {@code DataItem} instance with labeled "val" with the numeric value of the result
+     */
+    protected DataItem makeResultValueItem(final DataItem result) {
+      return new DataItem("val").withValueOf(result.getRawData());
     }
 
     /**
@@ -444,7 +454,7 @@ public class TesterClasses {
      * @param srcData a data item containing the source value for the tested operation
      * @return a data item containing the result of the tested operation or an error message in case of failure
      */
-    private DataItem makeResultItem(DataItem srcData) {
+    protected DataItem makeResultItem(DataItem srcData) {
       final Quadruple quadValue = srcData.getQuadValue();
       try {
         final Object result = (quadValue == null) ? null : performOp(quadValue); // may be of any type
@@ -505,11 +515,47 @@ public class TesterClasses {
     @Override
     protected void testOp(String[] dataSample) {
       final DataItem srcData  = makeSrcItem(dataSample[0]);   // Makes an item with specific source type
-      final DataItem srcValue = new DataItem("val").withValueOf(srcData.getRawData());
+      final DataItem srcValue = makeSrcValueItem(srcData);
       final DataItem result   = makeResultItem(srcData);
       final DataItem expected = makeExpectedItem(srcValue, dataSample[1]); // expected if provided, else convert source type
       results.record(srcData, srcValue, result, expected);    // it computes the error as well
     } // protected void testOp(String[] dataSample) {
+
+    /**
+     * Creates a new {@code DataItem} that contains a 'raw' value of type <b>S</b>
+     * to be converted by the tested method, or an error message in case of error during parsing the input string.
+     * @param s a {@code String} containing a representation of the the value to be converted to {@code Quadruple}
+     * @return a {@code DataItem} containing the corresponding value of type <b>S</b> or an error message
+     */
+    protected DataItem makeSrcItem(String s) {
+      try {
+        return new DataItem("src").withRawValue(parseSrcType(s));
+      } catch (final Exception x) {
+        return new DataItem("src").withError(String.format("%s\n%19s parsing '%s' as %s",
+                                                            x.toString(), "", s, otherTypeName()),
+                                             s);
+      }
+    } //private DataItem makeSrcItem(String s) {
+
+    /**
+     * Parses a string expressing an input value for the tested conversion
+     * and returns the corresponding value of type <b>S</b>.<br>
+     * A concrete implementation should be provided by a concrete descendant.
+     * Indirectly used by {@link #testOp(String[])}
+     * @param s a string representing the input value of type S
+     * @return the value of type <b>S</b>, expressed by the input string
+     */
+    protected abstract S parseSrcType(String s);
+
+    /**
+     * Creates a new {@code DataItem} instance that contains Quadruple and BigDecimal values of the raw data
+     * stored in the {@code rawData} field of the DataItem passed in as a parameter.
+     * @param srcData a {@code DataItem} instance with the raw source data of type <b>S</b>
+     * @return the newly-created instance of {@code DataItem} containing numeric values of the source data
+     */
+    protected DataItem makeSrcValueItem(final DataItem srcData) {
+      return new DataItem("val").withValueOf(srcData.getRawData());
+    }
 
     /**
      * Returns the simple name of the input type of the tested conversion.<br>
@@ -537,32 +583,6 @@ public class TesterClasses {
       if (operand instanceof BigDecimal)  return new Quadruple((BigDecimal)operand);
       throw new IllegalArgumentException("Can't perform " + getName() + " on " + operand.getClass().getSimpleName());
     }
-
-    /**
-     * Parses a string expressing an input value for the tested conversion
-     * and returns the corresponding value of type <b>S</b>.<br>
-     * A concrete implementation should be provided by a concrete descendant.
-     * Indirectly used by {@link #testOp(String[])}
-     * @param s a string representing the input value of type S
-     * @return the value of type <b>S</b>, expressed by the input string
-     */
-    protected abstract S parseSrcType(String s);
-
-    /**
-     * Creates a new {@code DataItem} that contains a 'raw' value of type <b>S</b>
-     * to be converted by the tested method, or an error message in case of error during parsing the input string.
-     * @param s a {@code String} containing a representation of the the value to be converted to {@code Quadruple}
-     * @return a {@code DataItem} containing the corresponding value of type <b>S</b> or an error message
-     */
-    private DataItem makeSrcItem(String s) {
-      try {
-        return new DataItem("src").withRawValue(parseSrcType(s));
-      } catch (final Exception x) {
-        return new DataItem("src").withError(String.format("%s\n%19s parsing '%s' as %s",
-                                                            x.toString(), "", s, otherTypeName()),
-                                             s);
-      }
-    } //private DataItem makeSrcItem(String s) {
 
     /**
      * Performs the tested operation with the value of type <b>S</b> extracted

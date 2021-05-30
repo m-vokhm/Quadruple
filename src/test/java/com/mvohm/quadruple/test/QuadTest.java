@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.test.SpecificTesterClasses.*;
+import com.mvohm.quadruple.test.IeeeQuadrupleTesterClasses.*;
 import com.mvohm.quadruple.test.TesterClasses.QuadTester;
 import com.mvohm.quadruple.test.TesterClasses.Verbosity;
 
@@ -74,14 +75,16 @@ on 70209 samples with err threshold 1.470e-39
  */
 public class QuadTest {
 
-  private static final String USAGE = "\nRuns tests of operations of the Quadruple class.\n"
+  private static final String USAGE = "\nTests the operations of the Quadruple class.\n"
       + "Usage:\n"
-      + "  java QuadTest [-v:verbosity] [-r:randCount]\n"
+      + "  java QuadTest [-v:verbosity] [-r:randCount] [-x:exitMode]\n"
       + "  verbosity: 0 -- silent (no output except the summary),\n"
       + "             1 -- medium (default, outputs the results of specific tests),\n"
       + "             2 -- talkative (outputs data and errors for each data sample).\n"
       + "  randCount: 0 -- do not include random numbers in the test data,\n"
       + "             n -- generate n random samples for each test, default value is 3000\n"
+      + "  exitMode:  \"y\" -- stop running tests and exit immediately if one of the tests ends with errors\n"
+      + "             \"n\" -- to continue testing regardless of errors encountered\n"
       + "";
 
   /**
@@ -95,12 +98,18 @@ public class QuadTest {
     new QuadToLongTester(),
     new QuadToIntTester(),
     new QuadToBdTester(),               // 6 source errors testing NaNs etc
+    new QuadToIEEELongsTester(),
+    new QuadToIEEEBytesTester(),
+
 
   // Conversions from other types to Quadruple
     new StringToQuadTester(),             // 14 source errors testing detection of syntax errors
     new BdToQuadTester(),                 // 3 source errors testing detection of syntax errors
     new DoubleToQuadTester(),
     new LongToQuadTester(),
+    new AssignIEEELongsTester(),
+    new AssignIEEEBytesTester(),
+
 
   // Binary operations
     new InstanceAdditionTester(),
@@ -116,7 +125,7 @@ public class QuadTest {
     new InstanceMinTester(),
     new StaticMaxTester(),
     new StaticMinTester(),
-    
+
   // Reverse conversion Quadruple -> String -> Quadruple
     new QuadToStringToQuadTester(),   // 14 source errors inherited from basic_S2Q_conversionData
     new QuadToBDToQuadTester(),
@@ -124,12 +133,14 @@ public class QuadTest {
   // Unary operation
     new StaticSqrtTester(),
     new InstanceSqrtTester(),       // 37 total source errors
+
   };
 
   /** The values of the valid keys of the command-line arguments */
   private enum ArgumentKeys {
     VERBOSITY,        // -v:n n = 0 - silent, n = 1 - medium,  n = 2 - talkative
-    RANDOM_COUNT      // -r:n -- n -- the number of random samples to generate for each test
+    RANDOM_COUNT,     // -r:n -- n -- the number of random samples to generate for each test
+    EXIT_ON_ERROR     // -x:y -- letter 'y' or 'Y' means exit on error
   }
 
   /**
@@ -198,6 +209,7 @@ public class QuadTest {
     switch (key) {
       case "-v":    return setVerbosity(value);
       case "-r":    return setRandomCount(value);
+      case "-x":    return setExitOnErrorMode(value);
       default:
     } // switch (key) {
     return key;
@@ -237,6 +249,35 @@ public class QuadTest {
   }
 
   /**
+   * Puts the value of {@code EXIT_ON_ERROR} key, extracted from the command-line arguments,
+   * to a hashtable containing keys and values to control the execution mode,
+   * under the corresponding key.
+   * @param value the value to put to the hashtable for the key {@code ArgumentKeys.EXIT_ON_ERROR},
+   * expected to be a letter "y" or "n".
+   * @return not null as a sign of an error, if the value is not "y" neither "n".
+   */
+  private static String setExitOnErrorMode(String value) {
+    return setYesNoArgValue(ArgumentKeys.EXIT_ON_ERROR, value);
+  }
+
+  /**
+   * Puts the value of the given key, extracted from the command-line arguments,
+   * to a hashtable containing keys and values to control the execution mode,
+   * under the corresponding key.
+   * @param value the value to put to the hashtable for the key {@code ArgumentKeys.EXIT_ON_ERROR},
+   * expected to be a letter "y" or "n".
+   * @param argumentKey the key in the hashtable to put the value under
+   * @param value the value to put into the hashtable under the given key, must be either "y" or "n"
+   * @return not null as a sign of an error, if the value is not "y" neither "n".
+   */
+  private static String setYesNoArgValue(ArgumentKeys argumentKey, String value) {
+    if (!"y".equals(value) && !"n".equals(value)) return value;
+    COMMAND_LINE_ARGS.put(argumentKey, value);
+    return null;
+  }
+
+
+  /**
    * Puts a value, that's expected to be a long value expressed by the given {@code String},
    * to a hashtable containing keys and values to control the execution mode,
    * under the given key.
@@ -262,6 +303,7 @@ public class QuadTest {
   static private final HashMap<ArgumentKeys, Object> COMMAND_LINE_ARGS = new HashMap<ArgumentKeys, Object>() {{
     put(ArgumentKeys.VERBOSITY, Verbosity.MEDIUM);
     put(ArgumentKeys.RANDOM_COUNT, 3000L);
+    put(ArgumentKeys.EXIT_ON_ERROR, "y");
   }};
 
   /**
@@ -279,10 +321,12 @@ public class QuadTest {
     DataProviders.setRandomCount(((Long)COMMAND_LINE_ARGS.get(ArgumentKeys.RANDOM_COUNT)).intValue());
 
     final TestResults totalResults = new TestResults(Consts.NORM_ERR_THRESH);
+    final boolean toStopOnError = "y".equals(COMMAND_LINE_ARGS.get(ArgumentKeys.EXIT_ON_ERROR));
     for (final QuadTester t: testers) {
       final TestResults results = t.test();
       totalResults.register(results);
-      if (results.getErrCount() != 0 || results.getBitDiffCount() != 0)
+      if (   (results.getErrCount() != 0 || results.getBitDiffCount() != 0)
+           && toStopOnError )
         break;
     }
     say("======");

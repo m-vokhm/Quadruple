@@ -609,6 +609,10 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
       return randList("Simple random generator", count, ()->randomBigDecimalString());
     } // static List<String> simpleRandomsWithNulls(int count) {
 
+    public static List<String> randomIeee754Quadruples(int count ) {
+      return randList("Simple random IEEE-754 generator", count, ()->randomIeee754String());
+    }
+
     /**
      * Generates and returns a list with string representations of
      * random {@code BigDecimal} values that fall within the range valid for @code double},
@@ -779,6 +783,19 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
       final String s = bd.toString() + expStr;
       return s;
     } // static String randomBigDecimalString() {
+
+    /**
+     * Generates a string representing a random {@code BigDecimal} value falling within the range valid for {@code Quadruple}s.
+     * @return a string with decimal representation of the generated value
+     */
+    private static String randomIeee754String() {
+      final BigInteger bi = new BigInteger(128, random);
+      final BigDecimal bd = new BigDecimal(String.valueOf(random.nextInt(9)+1) + "." + String.format("%040d", bi));
+      final String expStr = "1e" + (MIN_IEEE754_EXPONENT  + random.nextInt(MAX_IEEE754_EXPONENT - MIN_IEEE754_EXPONENT));
+      final String s = bd.toString() + expStr;
+      return s;
+    } // static String randomBigDecimalString() {
+
 
     /**
      * Generates a string expressing a random value, within the range valid for {@code double}s,

@@ -803,7 +803,7 @@ public class SpecificTesterClasses {
 
   } // static class StaticMaxTester extends BinaryFunctionTester {
 
-  /** A tester class to test instance method {@link Quadruple#assignMax((Quadruple op2)}.<br>
+  /** A tester class to test instance method {@link Quadruple#assignMax(Quadruple op2)}.<br>
    * Obtains the test data from {@link DataProviders#maxDataList()}
    * and performs {@link Quadruple#assignMax(Quadruple op2)} as the tested operation.
    */
@@ -877,7 +877,7 @@ public class SpecificTesterClasses {
 
   } // static class StaticMinTester extends BinaryFunctionTester {
 
-  /** A tester class to test instance method {@link Quadruple#assignMin((Quadruple op2)}.<br>
+  /** A tester class to test instance method {@link Quadruple#assignMin(Quadruple op2)}.<br>
    * Obtains the test data from {@link DataProviders#minDataList()}
    * and performs {@link Quadruple#assignMin(Quadruple op2)} as the tested operation.
    */

@@ -94,6 +94,8 @@ public class DataProviders {
     randomCount = count;
   }
 
+  static int getRandomCount() { return randomCount; }
+
   /**
    * Assembles and returns a data set for testing the conversion from {@code Quadruple} to {@code String}.
    * Includes subsets:<ul style="list-style-position: outside">
@@ -575,7 +577,7 @@ public class DataProviders {
    * @param inpList a list of {@code String}s to convert;
    * @return a list of arrays of {@code String}s where each array contains two adjacent elements of the input list
    */
-  private static ArrayList<String[]> convertToListOfArraysNx2(List<String> inpList) {
+  static ArrayList<String[]> convertToListOfArraysNx2(List<String> inpList) {
     final ArrayList<String[]> list = new ArrayList<>();
     for (int i = 0; i < inpList.size(); i += 2)
       list.add(new String[] { inpList.get(i), inpList.get(i + 1) } );

@@ -90,6 +90,8 @@ public class Consts {
     put("+infinity",                    Quadruple.positiveInfinity());
   }};
 
+  public static final int MAX_IEEE754_EXPONENT      = 4932;
+  public static final int MIN_IEEE754_EXPONENT      = -4966;
 
   /** = new MathContext(40, HALF_EVEN) */
   public static final MathContext MC_40_HALF_EVEN   = new MathContext(40, HALF_EVEN);

@@ -345,9 +345,12 @@ class DataItem {
       s = (strValue != null)? "'" + strValue + "': " + errMsg : errMsg; // Возможно, есть исходная строка
     else if (rawData != null) {
       s = rawData.toString();
-      if (Character.isDigit(s.charAt(0))) s = " " + s;          // Число без знака -- добавить пробел для выравнивания
+      if (Character.isDigit(s.charAt(0)))
+        s = " " + s;          // Число без знака -- добавить пробел для выравнивания
+      else if (s.startsWith("["))
+        s = strValue;        // If rawData is an array, strValue contains its hex representation
     } else {
-      // if bdVaue == null, then getBDasString() substitutes NaN или Infinty, depending on the quadValue value
+      // if bdVaue == null, then getBDasString() substitutes NaN или Infinity, depending on the quadValue value
       s = String.format("%-" + FULL_BD_LENGTH + "s (%s)", getBDasString(), quadValue == null? "null" : hexStr(quadValue));
     }
     return role + ": " + s;
@@ -460,6 +463,12 @@ class DataItem {
     // quadValue.exponent() != Quadruple.EXP_INF)
     assert false: "Regular quad value and bdValue == null";
     return null;    // Actually should never happen, since it may be invoked only in case when bdValue could not be deduced from quadValue
+  }
+
+
+  public DataItem withString(String s) {
+    this.strValue = s;
+    return this;
   }
 
 

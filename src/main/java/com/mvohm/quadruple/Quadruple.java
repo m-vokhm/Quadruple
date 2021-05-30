@@ -75,13 +75,13 @@ import java.util.regex.Pattern;
     </tr>
     <tr class="altColor">
       <td>{@code 0x0000_0000}</td>
-      <td>{@code EXP_SUB}</td>
+      <td>{@code EXPONENT_OF_SUBNORMAL}</td>
       <td>subnormal values</td>
       <td>{@code 0x8000_0001 = -2147483647 =  Integer.MIN_VALUE + 1}</td>
     </tr>
     <tr class="rowColor">
       <td>{@code 0x0000_0001}</td>
-      <td>{@code EXP_MIN}</td>
+      <td>{@code EXPONENT_OF_MIN_NORMAL}</td>
       <td>{@code MIN_NORMAL}</td>
       <td>{@code 0x8000_0002 = -2147483646 =  Integer.MIN_VALUE + 2}</td>
     </tr>
@@ -93,7 +93,7 @@ import java.util.regex.Pattern;
     </tr>
     <tr class="rowColor">
       <td>{@code 0x7FFF_FFFF}</td>
-      <td>{@code EXP_OF_ONE}</td>
+      <td>{@code EXPONENT_OF_ONE}</td>
       <td>{@code 0}</td>
       <td>{@code 0x0000_0000}</td>
     </tr>
@@ -105,13 +105,13 @@ import java.util.regex.Pattern;
     </tr>
     <tr class="rowColor">
       <td>{@code 0xFFFF_FFFE}</td>
-      <td>{@code EXP_MAX}</td>
+      <td>{@code EXPONENT_OF_MAX_VALUE}</td>
       <td>{@code MAX_VALUE}</td>
       <td>{@code 0x7fff_ffff =  2147483647 =  Integer.MAX_VALUE}</td>
     </tr>
     <tr class="altColor">
       <td>{@code 0xFFFF_FFFF}</td>
-      <td>{@code EXP_INF}</td>
+      <td>{@code EXPONENT_OF_INFINITY}</td>
       <td>{@code Infinity}</td>
       <td>{@code 0x8000_0000 =  2147483648 =  Integer.MIN_VALUE}</td>
     </tr>
@@ -137,24 +137,59 @@ import java.util.regex.Pattern;
  */
 public class Quadruple extends Number implements Comparable<Quadruple> {
 
-  private static final long serialVersionUID = 1L;
-  private static final int HASH_CODE_OF_NAN =  -441827835;  // All the NaNs have to have the same hashcode.
+
+  private static final long serialVersionUID      = 1L;
+  private static final int HASH_CODE_OF_NAN       = -441827835;  // All the NaNs have to have the same hashcode.
                                                             // This is the best one I could imagine.
 
+  /** The value of the exponent (biased) corresponding to subnormal values; equals to 0
+  * Deprecated, will be removed in release version. Use {@link EXPONENT_OF_SUBNORMAL} instead */
+  @Deprecated
+  public static final int EXP_SUB                 = 0;
   /** The value of the exponent (biased) corresponding to subnormal values; equals to 0 */
-  public static final int EXP_SUB             = 0;
+  public static final int EXPONENT_OF_SUBNORMAL   = 0;
+
+  /** The value of the exponent (biased) corresponding to {@code MIN_NORMAL}; equals to 1
+   * Deprecated, will be removed in release version. Use {@link EXPONENT_OF_MIN_NORMAL} instead */
+  @Deprecated
+  public static final int EXP_MIN                 = 1;
   /** The value of the exponent (biased) corresponding to {@code MIN_NORMAL}; equals to 1 */
-  public static final int EXP_MIN             = 1;
+  public static final int EXPONENT_OF_MIN_NORMAL  = 1;
+
+
   /** The value of the exponent (biased) corresponding to {@code 1.0 == 2^0};
-   * equals to 2_147_483_647 ({@code 0x7FFF_FFFF}) */
-  public static final int EXP_OF_ONE          = 0x7FFF_FFFF;
+   * equals to 2_147_483_647 ({@code 0x7FFF_FFFF})
+   * Deprecated, will be removed in release version. Use {@link #EXPONENT_OF_ONE} instead */
+  @Deprecated
+  public static final int EXP_OF_ONE              = 0x7FFF_FFFF;
+  /** The value of the exponent (biased) corresponding to {@code 1.0 == 2^0};
+   * equals to 2_147_483_647 ({@code 0x7FFF_FFFF}).
+   * The same as {@link #EXPONENT_BIAS}   */
+  public static final int EXPONENT_OF_ONE         = 0x7FFF_FFFF;
+  /** The value of the exponent (biased) corresponding to {@code 1.0 == 2^0};
+   * equals to 2_147_483_647 ({@code 0x7FFF_FFFF})
+   * The same as {@link #EXPONENT_OF_ONE} */
+  public static final int EXPONENT_BIAS           = 0x7FFF_FFFF;
+
+  /** The value of the exponent (biased), corresponding to {@code MAX_VALUE};
+   * equals to 4_294_967_294L ({@code 0xFFFF_FFFEL})
+  * Deprecated, will be removed in release version. Use {@link #EXPONENT_OF_MAX_VALUE} instead */
+ @Deprecated
+  public static final long EXP_MAX                = 0xFFFF_FFFEL;
   /** The value of the exponent (biased), corresponding to {@code MAX_VALUE};
    * equals to 4_294_967_294L ({@code 0xFFFF_FFFEL}) */
-  public static final long EXP_MAX            = 0xFFFF_FFFEL;
+  public static final long EXPONENT_OF_MAX_VALUE  = 0xFFFF_FFFEL;
+
+  /** The value of the exponent (biased), corresponding to {@code Infinity},
+   * {@code _Infinty}, and {@code NaN};
+   * equals to -1 ({@code 0xFFFF_FFFF})
+   * Deprecated, will be removed in release version. Use {@link #EXPONENT_OF_INFINITY} instead  */
+  @Deprecated
+  public static final int EXP_INF                 = 0xFFFF_FFFF;
   /** The value of the exponent (biased), corresponding to {@code Infinity},
    * {@code _Infinty}, and {@code NaN};
    * equals to -1 ({@code 0xFFFF_FFFF}) */
-  public static final int EXP_INF             = 0xFFFF_FFFF;
+  public static final int EXPONENT_OF_INFINITY    = 0xFFFF_FFFF;
 
 
 
@@ -313,7 +348,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    *  Returns the unbiased value of binary exponent,
    * i. e. 0 for values falling within the interval of {@code [1.0 .. 2.0)}, 1 for {@code [2.0 .. 4.0)} etc.
    * @return the unbiased value of binary exponent */
-  public int unbiasedExponent() { return exponent - EXP_OF_ONE; }
+  public int unbiasedExponent() { return exponent - EXPONENT_BIAS; }
 
   /**
    * Returns the most significant 64 bits of the fractional part of the mantissa.
@@ -335,13 +370,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Checks if the value is infinite (i.e {@code NEGATIVE_INFINITY} or {@code POSITIVE_INFINITY}).
    * @return {@code true}, if the value is infinity (either positive or negative), {@code false} otherwise */
   public boolean isInfinite() {
-    return (exponent == EXP_INF) && ((mantHi | mantLo) == 0);
+    return (exponent == EXPONENT_OF_INFINITY) && ((mantHi | mantLo) == 0);
   }
 
   /** Checks if the value is not a number (i.e. has the value of {@code NaN}).
    * @return {@code true}, if the value is not a number (NaN), {@code false} otherwise */
   public boolean isNaN() {
-    return (exponent == EXP_INF) && ((mantHi | mantLo) != 0);
+    return (exponent == EXPONENT_OF_INFINITY) && ((mantHi | mantLo) != 0);
   }
 
   /**
@@ -396,7 +431,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       return makeQuadOfSubnormDoubleAsLong(dobleAsLong);
 
     if ((dobleAsLong & DOUBLE_EXP_MASK) == DOUBLE_EXP_MASK) { // Special case: NaN or Infinity
-      exponent = EXP_INF;
+      exponent = EXPONENT_OF_INFINITY;
       if ((dobleAsLong & DOUBLE_MANT_MASK) == 0)        // Infinity
         mantHi = 0;
       else                                              // NaN
@@ -405,7 +440,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     }
 
   // Normal case
-    exponent = (int)((dobleAsLong & DOUBLE_EXP_MASK) >>> 52) - EXP_0D + EXP_OF_ONE; // 7FF -> 8000_03FF, 400 -> 8000_0000, 1 -> 7FFF_FC01,
+    exponent = (int)((dobleAsLong & DOUBLE_EXP_MASK) >>> 52) - EXP_0D + EXPONENT_BIAS; // 7FF -> 8000_03FF, 400 -> 8000_0000, 1 -> 7FFF_FC01,
     mantHi = (dobleAsLong & DOUBLE_MANT_MASK) << 12;    // mantissa in double starts from bit 51
     return this;
   } // public Quadruple assign(double value) {
@@ -441,7 +476,6 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return assignWithUnbiasedExponent(negative, 64 - bitsToShift, value, 0);
   } // public Quadruple assign(long value) {
 
-  // TODO 21.04.09 19:09:26 Say a word or two about the precision
   /**
    * Parses the given String that is expected to contain
    * floating-point value in any conventional string form or a string designation
@@ -454,13 +488,16 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * <li>"Quadruple.POSITIVE_INFINITy", <li>"POSITIVE_INFINITY", <li>"INFINITY", <li>"+INFINITY".</ul>
    *<br>
    * If the exact value of the  number represented by the input string is greater
-   * than the nearest exact {@code Quadruple} value by less than {@code 0.5 - 1e-17}
+   * than the nearest exact {@code Quadruple} value by less than
+   * <span style="white-space:nowrap">{@code 0.5 - 1e-17}</span>
    * of the least significant bit of the mantissa of the latter, it gets rounded
    * down to the aforementioned {@code Quadruple} value.<br>
    * If it is greater by 0.5 LSB or more, it gets rounded up to the greater adjacent
    * Quadruple value.<br>
    * In cases when difference between the input value and the nearest {@code Quadruple}
-   * value is between {@code (0.5 - 1e-17) * LSB} and {@code 0.5 * LSB},
+   * value is between
+   * <span style="white-space:nowrap">{@code (0.5 - 1e-17) * LSB}</span>
+   *  and <span style="white-space:nowrap">{@code 0.5 * LSB}</span>,
    * the direction of the rounding is unpredictable.
    *
    * Expressing it via formulas,
@@ -526,13 +563,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     }
 
     exp2 = assigndMantValue(mant2, exp2, expNegative);  // assigns the mantissa to mantHi, mantLo. May round up and correct exp2
-    exp2 = (expNegative? -exp2 : exp2) + EXP_OF_ONE;    // Make it biased
+    exp2 = (expNegative? -exp2 : exp2) + EXPONENT_BIAS; // Make it biased
 
     if (exp2 <= 0)                                      // subnormal
       exp2 = makeSubnormal(exp2);
     exponent = (int)exp2;
 
-    if (exponent == EXP_INF)                            // if after rounding up, it has grown up to Infinity
+    if (exponent == EXPONENT_OF_INFINITY)                            // if after rounding up, it has grown up to Infinity
       mantHi = mantLo = 0;
 
     return this;
@@ -541,7 +578,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Builds a Quadruple value from the given low-level parts and assigns it to the instance.<br>
    * Treats the {@code exponent} parameter as the biased exponent value,
-   * whose {@link #EXP_OF_ONE} ({@code 0xFFFF_FFFEL}) value corresponds to the {@code Quadruple} value of 1.0.
+   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0xFFFF_FFFEL}) 
+   * corresponds to the {@code Quadruple} value of 1.0.
    * @param negative   the sign of the value ({@code true} for negative)
    * @param exponent  Binary exponent (biased, so that 0x7FFF_FFFF corresponds to 2^0)
    * @param mantHi  The most significant 64 bits of the fractional part of the mantissa
@@ -568,7 +606,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   public Quadruple assignWithUnbiasedExponent(boolean negative, int exponent, long mantHi, long mantLo) {
     this.negative = negative;
-    this.exponent = exponent + EXP_OF_ONE;
+    this.exponent = exponent + EXPONENT_OF_ONE;
     this.mantHi = mantHi;
     this.mantLo = mantLo;
     return this;
@@ -577,7 +615,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Builds a non-negative Quadruple value from the given low-level parts and assigns it to the instance.<br>
    * Treats the {@code exponent} parameter as the biased exponent value,
-   * whose {@link #EXP_OF_ONE} ({@code 0xFFFF_FFFEL}) value corresponds to the {@code Quadruple} value of 1.0.
+   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0xFFFF_FFFEL}) 
+   * corresponds to the {@code Quadruple} value of 1.0.
    * @param exponent  Binary exponent (biased, 0x7FFF_FFFF means 2^0)
    * @param mantHi  The most significant 64 bits of the fractional part of the mantissa
    * @param mantLo  The least significant 64 bits of the fractional part of the mantissa
@@ -621,12 +660,86 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return this;
   } // public Quadruple assign(long[] value) {
 
+
+  /**
+   * Assigns the value of a IEEE-754 quadruple value passed in as an array
+   * of two {@code long}s containing the 128 bits of the IEEE-754 quadruple to the given instance.<br>
+   * The passed in array of longs is expected to be big-endian, in other words the {@code value[0]}
+   * should contain the sign bit, the exponent, and the most significant 48 bits of the significand.<br>
+   * The argument remains unchanged.
+   * @param value an array of two longs, containing the 128 bits of the IEEE-754 quadruple value to be assigned
+   * @return this instance with the newly assigned value
+   * @throws IllegalArgumentException if the length of the input array is not 2
+   */
+  public Quadruple assignIeee754(long[] value) throws IllegalArgumentException {
+    if (value.length != 2)
+      throw new IllegalArgumentException("the length of the input array must be 2, not " + value.length);
+
+    negative = value[0] < 0;
+    final int ieeeExponent = (int)((value[0] & IEEE754_EXPONENT_MASK) >>> 48);
+
+    if (ieeeExponent == LOWER_15_BITS) {                                  // NaN or Infinity
+      if (((value[0] & LOWER_48_BITS) | value[1]) != 0)                   // Significand is not 0: NaN
+        return assignNaN();
+      return assignInfinity(false);
+    }
+
+    if (ieeeExponent == 0) {                        // 0 or subnormal
+      if (((value[0] & LOWER_48_BITS) | value[1]) == 0)                   // Significand is 0: 0 or -0
+        return assignZero(false);
+    }
+
+    mantHi = value[0] & LOWER_48_BITS; mantLo = value[1];
+    final int expDiff = EXPONENT_BIAS - IEEE754_EXPONENT_BIAS;
+    if (ieeeExponent == 0) {                                              // Subnormal
+      int shift = Long.numberOfLeadingZeros(mantHi) + 1;
+      if (shift < 64) {                                                   // There are significant bits in the high word
+        mantHi = mantHi << shift | mantLo >>> (64 - shift);
+        mantLo <<= shift;
+        exponent = expDiff + 17 - shift;
+      } else if (shift == 64) {
+        mantHi = mantLo;
+        mantLo = 0;
+        exponent = expDiff  + 17 - shift;
+      } else {
+        shift = Long.numberOfLeadingZeros(mantLo) + 1;
+        mantHi = shift == 64? 0: mantLo << shift;                         // shift == 64 means it's smallest subnormal
+        mantLo = 0;
+        exponent = expDiff  + 17 - shift - 64;
+      }
+    } else {                                                              // normal
+      mantHi = mantHi << 16 | mantLo >>> (48);
+      mantLo <<= 16;
+      exponent = ieeeExponent + expDiff;
+    }
+    return this;
+  }
+
+  /**
+   * Assigns the value of a IEEE-754 quadruple value passed in as an array
+   * of 16 {@code byte}s containing the 128 bits of the IEEE-754 quadruple to the given instance.<br>
+   * The passed in array of longs is expected to be big-endian, in other words the {@code value[0]}
+   * should contain the sign bit, and the high-order 7 bits of the IEEE-754 quadruple's exponent,
+   * and the {@code value[15]} is expected to contain the least significant 8 bits of the significand.<br>
+   * The argument remains unchanged.
+   * @param value an array of 16 bytes, containing the 128 bits of the IEEE-754 quadruple value to be assigned
+   * @return this instance with the newly assigned value
+   * @throws IllegalArgumentException if the length of the input array is not 16
+   */
+  public Quadruple assignIeee754(byte[] value) {
+    if (value.length != 16)
+      throw new IllegalArgumentException("the length of the input array must be 16, not " + value.length);
+
+    return assignIeee754(mergeBytesToLongs(value));
+  }
+
+
   /**
    * Assigns the value of {@code +Infinity} to this instance.
    * @return this instance with the value of {@code POSITIVE_INFINITY}
    */
   public Quadruple assignPositiveInfinity() {
-    negative = false; exponent = EXP_INF;
+    negative = false; exponent = EXPONENT_OF_INFINITY;
     mantHi = 0; mantLo = 0;
     return this;
   } // public Quadruple assignPositiveInfinity() {
@@ -636,7 +749,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return this instance with the value of {@code NEGATIVE_INFINITY}
    */
   public Quadruple assignNegativeInfinity() {
-    negative = true; exponent = EXP_INF;
+    negative = true; exponent = EXPONENT_OF_INFINITY;
     mantHi = 0; mantLo = 0;
     return this;
   } // public Quadruple assignNegativeInfinity() {
@@ -646,10 +759,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return this instance with the value of {@code NaN}
    */
   public Quadruple assignNaN() {
-    negative = false; exponent = EXP_INF;
+    negative = false; exponent = EXPONENT_OF_INFINITY;
     mantHi = 0x8000_0000_0000_0000L; mantLo = 0;
     return this;
   } // public Quadruple assignNaN() {
+
 
   /* **********************************************************************
    ******* Conversions to other types *************************************
@@ -664,7 +778,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * */
   @Override
   public int intValue() {
-    final long exp = (exponent & LOWER_32_BITS) - EXP_OF_ONE;   // Unbiased exponent
+    final long exp = (exponent & LOWER_32_BITS) - EXPONENT_BIAS; // Unbiased exponent
     if (exp < 0 || isNaN()) return 0;
     if (exp >= 31)                                              // value <= Integer.MIN_VALUE || value > Integer.MAX_VALUE
       return negative? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -679,7 +793,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   @Override
   public long longValue() {
-    final long exp = (exponent & LOWER_32_BITS) - EXP_OF_ONE;   // Unbiased exponent
+    final long exp = (exponent & LOWER_32_BITS) - EXPONENT_BIAS; // Unbiased exponent
     if (exp < 0 || isNaN()) return 0;                           // NaN.longValue == 0
     if (exp >= 63)                                              // value <= Long.MIN_VALUE || value > Long.MAX_VALUE
       return negative? Long.MIN_VALUE : Long.MAX_VALUE;
@@ -704,13 +818,16 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * */
   @Override
   public double doubleValue() {
-    if (exponent == 0 && mantHi == 0 && mantLo == 0)
+    if (exponent == 0)                  // All subnormal Quadruples are also converted into 0d
       return negative? -0.0d : 0.0d;
 
-    if (exponent == EXP_INF) return (mantHi != 0 || mantLo != 0 )? Double.NaN :
-                            negative ?   Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+    if (exponent == EXPONENT_OF_INFINITY)
+      return (mantHi != 0 || mantLo != 0 )? Double.NaN :
+                                            negative ?
+                                              Double.NEGATIVE_INFINITY :
+                                              Double.POSITIVE_INFINITY;
 
-    int expD = exponent - EXP_OF_ONE;                   // Unbiased, to range -0x8000_0000 ... 0x7FFF_FFFF
+    int expD = exponent - EXPONENT_BIAS;                   // Unbiased, to range -0x8000_0000 ... 0x7FFF_FFFF
     if (expD > EXP_0D)                                  // Out of range
       return negative? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
 
@@ -780,13 +897,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   @Override
   public String toString() {
 
-    if (exponent == EXP_INF)                            // infinity or NaN
+    if (exponent == EXPONENT_OF_INFINITY)                            // infinity or NaN
       return ((mantHi | mantLo) != 0)? "NaN" : (negative)? "-Infinity" : "Infinity";
 
     if ((exponent | mantHi | mantLo) == 0)              // 0.0 / -0.0
       return negative? "-0.0" : "0.0";
 
-    final int exp2 = exponent - EXP_OF_ONE;             // Unbiased exponent
+    final int exp2 = exponent - EXPONENT_BIAS;             // Unbiased exponent
 
     // Decimal mantissa M and decimal exponent E are found from the binary mantissa m and the binary exponent e as
     // M = m * 2^e / 10^E.
@@ -867,34 +984,84 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return result;
   } // public long[] toLongWords() {
 
-// TODO 21.04.27 18:02:41: For the next commit
-//  /**
-//   * Returns the value of {@code this} instance as an array of bytes, containing
-//   * a physical representation of the standard IEEE-754 quadruple-precision
-//   * floating-point number.<br>
-//   * The order of bytes is big-endian, so that the sign bit and the most significant bits
-//   * of the exponent is returned in result[0], and the least significant bits
-//   * of the mantissa in result[15].
-//   * The values that exceed
-//   * the maximum possible value of IEEE-754 Quadruple are converted to Infinity, and the values
-//   * less than 3.36210314311209350626267781732175260 * 10^-4932 (minimal normal positive value )
-//   * the values less than {@code 6.4751751194380251109244389582276466 * 10^-4966} (minimum positive value of of IEEE-754 Quadruple)
-//   * are converted to 0.
-//   *
-//   * and
-//   * the least significant bits of the exponent
-//   * @return
-//   */
-//  public byte[] toIeee754Bytes() {
-//    // TODO 21.04.27 13:06:34
-//    return null;
-//  }
-//
-//  public long[] toIeee754Longs() {
-//    return null;
-//    // TODO 21.04.27 13:06:34
-//  }
-//
+  /**
+   * Returns the 128 bits of an IEEE-754 quadruple precision number nearest to the value
+   * of {@code this} instance as an array of two {@code long}s, containing a physical representation
+   * of the standard IEEE-754 quadruple-precision floating-point number.<br>
+   * The order of words is big-endian, so that the sign bit, exponent
+   * and 48 most significant bits of the mantissa are returned in result[0],
+   * and 64 least significant bits of the mantissa in result[1].
+   * The 128-bit significand of this instance is rounded to fit to the 112 bits of the
+   * IEEE-754 quadruple. The rounding mode is half-up, i.e. if the exact value of the instance
+   * differs from the nearest IEEE-754 quadruple value by 1/2 of LSB of the IEEE-754
+   * quadruple's significand, it gets rounded up.
+   * The values whose magnitude exceed the maximum possible value of IEEE-754 Quadruple
+   * (namely, 1.18973149535723176508575932662800702 * 10^4932) plus half of its mantissa'a LSB
+   * are converted to {@code Infinity} or {@code -Infinity}, depending on the sign,
+   * the values with magnitudes less than minimum normal IEEE-754 quadruple value
+   * ({@code 3.36210314311209350626267781732175260 * 10^-4932})
+   * but greater or equal to {@code 6.4751751194380251109244389582276466 * 10^-4966}
+   * are converted to subnormal IEEE-754 values, and the values whose magnitude is less
+   * than {@code 6.4751751194380251109244389582276466 * 10^-4966} (minimum positive value of of IEEE-754 Quadruple)
+   * are converted to 0 or -0, depending on the sign of {@code this} instance.
+   *
+   * @return an array of two longs containing the 128 bits of the IEEE-745 Quadruple
+   * value nearest to the value of this instance.
+   */
+  public long[] toIeee754Longs() {
+    final long[] result = new long[2];
+    if (exponent == EXPONENT_OF_INFINITY) {         // NaN or Infinity;
+      result[0] = (mantHi != 0 || mantLo != 0 )? IEEE754_NAN_LEAD :
+                                            negative ?
+                                                IEEE754_MINUS_INFINITY_LEAD :
+                                                IEEE754_INFINITY_LEAD;
+      return result;
+    }
+
+    final int unbiasedExponent = unbiasedExponent();
+    if (unbiasedExponent > IEEE754_MAX_EXPONENT) {
+      result[0] = negative ?  IEEE754_MINUS_INFINITY_LEAD :
+                              IEEE754_INFINITY_LEAD;
+      return result;
+    } else if (unbiasedExponent < IEEE754_MIN_EXPONENT) {
+      if (negative)
+        result[0] = IEEE754_MINUS_ZERO_LEAD;
+      return result;
+    } else if (unbiasedExponent >= IEEE754_MIN_NORMAL_EXPONENT) {
+      return makeNormal_IEEELongs(result);
+    } else {
+      return makeSubnormal_IEEELongs(result);
+    }
+  }
+
+  /**
+   * Returns the 128 bits of an IEEE-754 quadruple precision number nearest to the value
+   * of {@code this} instance as an array of 16 {@code byte}s, containing a physical representation
+   * of the standard IEEE-754 quadruple-precision floating-point number.<br>
+   * The order of bytes is big-endian, so that the sign bit and the most significant bits
+   * of the exponent is returned in result[0], and the least significant bits
+   * of the mantissa in result[15].
+   * The 128-bit significand of this instance is rounded to fit to the 112 bits of the
+   * IEEE-754 quadruple. The rounding mode is half-up, i.e. if the exact value of the instance
+   * differs from the nearest IEEE-754 quadruple value by 1/2 of LSB of the IEEE-754
+   * quadruple's significand, it gets rounded up.
+   * The values whose magnitude exceed the maximum possible value of IEEE-754 Quadruple
+   * (namely, 1.18973149535723176508575932662800702 * 10^4932) plus half of its mantissa'a LSB
+   * are converted to {@code Infinity} or {@code -Infinity}, depending on the sign,
+   * the values with magnitudes less than {@code 3.36210314311209350626267781732175260 * 10^-4932}
+   * but greater or equal to {@code 6.4751751194380251109244389582276466 * 10^-4966}
+   * are converted to subnormal IEEE-754 values,
+   * and the values whose magnitude is less than {@code 6.4751751194380251109244389582276466 * 10^-4966}
+   * (minimum positive value of of IEEE-754 Quadruple)
+   * are converted to 0 or -0, depending on the sign of {@code this} instance.
+   *
+   * @return an array of bytes containing the value of {@code this} instance
+   * as a physical representation of the nearest IEEE-745 Quadruple value,
+   * in the big-endian order.
+   */
+  public byte[] toIeee754Bytes() {
+    return splitToBytes(toIeee754Longs());
+  }
 
 
   /* ***********************************************************************************
@@ -1523,10 +1690,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     if (negative) return assignNaN();
     if (isNaN() || isInfinite()) return this;
 
-    long absExp = (exponent & LOWER_32_BITS) - EXP_OF_ONE; // unbiased exponent
+    long absExp = (exponent & LOWER_32_BITS) - EXPONENT_BIAS; // unbiased exponent
     if (exponent == 0)                                  // subnormal
       absExp  -= normalizeMantissa();                   // It returns 0 for MIN_NORMAL / 2, 1 for MIN_NORMAL / 4... no additional correction is needed
-    exponent = (int)(absExp / 2 + EXP_OF_ONE);          // the exponent of the root
+    exponent = (int)(absExp / 2 + EXPONENT_BIAS);       // the exponent of the root
 
     long thirdWord = sqrtMant();                        // puts 128 bit of the root into mantHi, mantLo
                                                         // and returns additional 64 bits of the root
@@ -1639,7 +1806,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   public static Quadruple nextNormalRandom(Random rand) {
     final long mantHi = rand.nextLong();
     final long mantLo = rand.nextLong();
-    return new Quadruple(false, EXP_OF_ONE, mantHi, mantLo).subtract(ONE);
+    return new Quadruple(false, EXPONENT_OF_ONE, mantHi, mantLo).subtract(ONE);
   } // public static Quadruple nextNormalRandom(Random rand) {
 
   /* ***********************************************************************************
@@ -1657,21 +1824,25 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private static final char[] ZEROS = "0000000000000000000000000000000000000000".toCharArray(); // 40 zeros
 
   /** Just for convenience: 0x8000_0000_0000_0000L; (== Long.MIN_VALUE) */
-  private static final long HIGH_BIT           = 0x8000_0000_0000_0000L;
+  private static final long HIGH_BIT          = 0x8000_0000_0000_0000L;
   /** Just for convenience: 0x8000_0000_0000_0000L; */
-  private static final long BIT_63             = HIGH_BIT;
+  private static final long BIT_63            = HIGH_BIT;
 
+  /** Just for convenience: 0x0000_0000_0000_7FFFL */
+  private static final long LOWER_15_BITS     = 0x0000_0000_0000_7FFFL;
   /** Just for convenience: 0x0000_0000_FFFF_FFFFL */
   private static final long LOWER_32_BITS     = 0x0000_0000_FFFF_FFFFL;
+  /** Just for convenience: 0x0000_FFFF_FFFF_FFFFL */
+  private static final long LOWER_48_BITS     = 0x0000_FFFF_FFFF_FFFFL;
   /** Just for convenience: 0xFFFF_FFFF_0000_0000L; */
-  private static final long HIGHER_32_BITS     = 0xFFFF_FFFF_0000_0000L;
+  private static final long HIGHER_32_BITS    = 0xFFFF_FFFF_0000_0000L;
   /** Just for convenience: 0x8000_0000L; // 2^31 */
-  private static final long POW_2_31_L         = 0x8000_0000L; // 2^31
+  private static final long POW_2_31_L        = 0x8000_0000L; // 2^31
 
   /** Inner structure of double: where it holds its sign */
   private static final long DOUBLE_SIGN_MASK  = HIGH_BIT;
   /** Inner structure of double: where it holds its exponent */
-  private static final long DOUBLE_EXP_MASK    = 0x7ff0_0000_0000_0000L;
+  private static final long DOUBLE_EXP_MASK   = 0x7ff0_0000_0000_0000L;
   /** Inner structure of double: where it holds its mantissa */
   private static final long DOUBLE_MANT_MASK  = 0x000f_ffff_ffff_ffffL;
 
@@ -1679,42 +1850,52 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private static final int EXP_0D             = 0x0000_03FF;
 
   /** The highest bit of Quad's mantissa that doesn't fit in double's mantissa (is lower than the lowest) */
-  private static final long HALF_DOUBLES_LSB         = 0x0000_0000_0000_0800L;
+  private static final long HALF_DOUBLES_LSB              = 0x0000_0000_0000_0800L;
   /** The implied position of the implied unity in double */
-  private static final long DOUBLE_IMPLIED_MSB = 0x0010_0000_0000_0000L;
+  private static final long DOUBLE_IMPLIED_MSB            = 0x0010_0000_0000_0000L;
 
-  /** Max value of the decimal exponent, corresponds to EXP_MAX */
-  private static final int MAX_EXP10          = 646456993;
-  /** Min value of the decimal exponent, corresponds to EXP_MIN */
-  private static final int MIN_EXP10          = -646457032;      // corresponds
+  /** Max value of the decimal exponent, corresponds to EXPONENT_OF_MAX_VALUE */
+  private static final int  MAX_EXP10                     = 646456993;
+  /** Min value of the decimal exponent, corresponds to EXPONENT_OF_MIN_NORMAL */
+  private static final int  MIN_EXP10                     = -646457032;      // corresponds
 
+  private static final int  IEEE754_EXPONENT_BIAS         = 16383; // 0x3FFF;
+  private static final int  IEEE754_MAX_EXPONENT          = IEEE754_EXPONENT_BIAS;
+  private static final int  IEEE754_MIN_NORMAL_EXPONENT   = -16382; // 0xFFFF_C002
+  private static final int  IEEE754_MIN_EXPONENT          = IEEE754_MIN_NORMAL_EXPONENT - 112; //
+
+  private static final long IEEE754_MINUS_ZERO_LEAD       = 0x8000_0000_0000_0000L;
+  private static final long IEEE754_NAN_LEAD              = 0x7FFF_8000_0000_0000L;
+  private static final long IEEE754_MINUS_INFINITY_LEAD   = 0xFFFF_0000_0000_0000L;
+  private static final long IEEE754_INFINITY_LEAD         = 0x7FFF_0000_0000_0000L;
+  private static final long IEEE754_EXPONENT_MASK         = 0x7FFF_0000_0000_0000L;
 
   /** Approximate value of log<sub>2</sub>(10) */
-  private static final double LOG2_10         = Math.log(10) / Math.log(2);
+  private static final double LOG2_10                     = Math.log(10) / Math.log(2);
   /** Approximate value of log<sub>2</sub>(e) */
-  private static final double LOG2_E          = 1/Math.log(2.0);
+  private static final double LOG2_E                      = 1/Math.log(2.0);
 
   /* */
-  private static final MathContext MC_120_HALF_EVEN = new MathContext(120, RoundingMode.HALF_EVEN);
+  private static final MathContext MC_120_HALF_EVEN       = new MathContext(120, RoundingMode.HALF_EVEN);
   /** = new MathContext(100, RoundingMode.HALF_EVEN) */
-  private static final MathContext MC_100_HALF_EVEN      = new MathContext(100, RoundingMode.HALF_EVEN);
+  private static final MathContext MC_100_HALF_EVEN       = new MathContext(100, RoundingMode.HALF_EVEN);
 
-  private static final MathContext MC_40_HALF_EVEN = new MathContext(40, RoundingMode.HALF_EVEN);
+  private static final MathContext MC_40_HALF_EVEN        = new MathContext(40, RoundingMode.HALF_EVEN);
 
   /* */
-  private static final MathContext MC_20_HALF_EVEN = new MathContext(20, RoundingMode.HALF_EVEN);
+  private static final MathContext MC_20_HALF_EVEN        = new MathContext(20, RoundingMode.HALF_EVEN);
 
   /** BigDecimal value of 0.5 */
-  private static final BigDecimal HALF_OF_ONE = new BigDecimal("0.5");
+  private static final BigDecimal HALF_OF_ONE             = new BigDecimal("0.5");
 
   /** BigDecimal value of 2 */
-  private static final BigDecimal BD_TWO      = new BigDecimal("2");
+  private static final BigDecimal BD_TWO                  = new BigDecimal("2");
 
   /** Exact BigDecimal value of 2^63 */
-  private static final BigDecimal TWO_RAISED_TO_63    = new BigDecimal( "9223372036854775808"); // 2^63
+  private static final BigDecimal TWO_RAISED_TO_63        = new BigDecimal( "9223372036854775808"); // 2^63
 
   /** Exact BigDecimal value of 2^64 */
-  private static final BigDecimal TWO_RAISED_TO_64 = new BigDecimal("18446744073709551616"); // 2^64
+  private static final BigDecimal TWO_RAISED_TO_64        = new BigDecimal("18446744073709551616"); // 2^64
 
   /** 2^100_000_000 */
   private static final BigDecimal TWO_RAISED_TO_1E8 = // 2^100_000_000 == BD_TWO.pow(100_000_000, new MathContext(80, RoundingMode.HALF_EVEN)) ==
@@ -1932,7 +2113,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   // Buffers used internally
   // The order of words in the arrays is big-endian: the highest part is in buff[0] (in buff[1] for buffers of 10 words)
-  private static final long[] BUFFER_4x32_A = new long[4];
+  private static final long[] BUFFER_4x32_A   = new long[4];
 
   private static final long[] BUFFER_4x64_A   = new long[4];
   private static final long[] BUFFER_4x64_B   = new long[4];
@@ -1942,17 +2123,17 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private static final long[] BUFFER_3x64_C   = new long[3];
   private static final long[] BUFFER_3x64_D   = new long[3];
 
-  private static final long[] BUFFER_5x32_A = new long[5];
-  private static final long[] BUFFER_5x32_B = new long[5];
+  private static final long[] BUFFER_5x32_A   = new long[5];
+  private static final long[] BUFFER_5x32_B   = new long[5];
 
-  private static final long[] BUFFER_6x32_A = new long[6];
-  private static final long[] BUFFER_6x32_B = new long[6];
-  private static final long[] BUFFER_6x32_C = new long[6];
+  private static final long[] BUFFER_6x32_A   = new long[6];
+  private static final long[] BUFFER_6x32_B   = new long[6];
+  private static final long[] BUFFER_6x32_C   = new long[6];
 
-  private static final long[] BUFFER_10x32_A   = new long[10];
-  private static final long[] BUFFER_10x32_B   = new long[10];
+  private static final long[] BUFFER_10x32_A  = new long[10];
+  private static final long[] BUFFER_10x32_B  = new long[10];
 
-  private static final long[] BUFFER_12x32   = new long[12];
+  private static final long[] BUFFER_12x32    = new long[12];
 
   /**
    * The mantissa of the Sqrt(2) in a format convenient for multiplying,
@@ -2672,7 +2853,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   private Quadruple makeQuadOfSubnormDoubleAsLong(long doubleAsLong) {
     final int numOfZeros = Long.numberOfLeadingZeros(doubleAsLong); // sign is cleared, exponent is 0 -- so it's the number of zeros to the left of the most significant bit
-    exponent = EXP_OF_ONE - EXP_0D - (numOfZeros - 12);           // bias - position of MSB relative to implied high bit in normal double
+    exponent = EXPONENT_BIAS - EXP_0D - (numOfZeros - 12);           // bias - position of MSB relative to implied high bit in normal double
     if (numOfZeros < 63)    // 19.11.25 20:17:33: To prevent using unchanged doubleAsLong that otherwise happens
                             // when numOfZeros == 63, since d << 64 does nothing
       mantHi = doubleAsLong << numOfZeros + 1;                    // msb to the normal position (to the left from the highest bit)
@@ -2725,11 +2906,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * permissible, since it may get adjusted later.
    * @param unbiasedExp the unbiased binary exponent of the value
    * @return {@code true} if the exponent, being converted to biased form, falls within the range
-   * <span class="nowrap">{@code -129 < exp < EXP_MAX + 1},</span> {@code false} otherwise
+   * <span class="nowrap">{@code -129 < exp < EXPONENT_OF_MAX_VALUE + 1},</span> {@code false} otherwise
    */
   private boolean inAcceptableRange(long unbiasedExp) {
-    final long exponent = unbiasedExp + EXP_OF_ONE;           // exp2 unbiased - bias it
-    if ((exponent   < -129) || (exponent > EXP_MAX + 1))
+    final long exponent = unbiasedExp + EXPONENT_BIAS;           // exp2 unbiased - bias it
+    if ((exponent   < -129) || (exponent > EXPONENT_OF_MAX_VALUE + 1))
       return false;
     return true;
   } // private boolean inAcceptableRange(long unbiasedExp) {
@@ -2739,15 +2920,15 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * the acceptable range, assigns to this instance corresponding boundary values -- {@code 0} or {@code Infinity) -- without affecting the sign.
    * @param unbiasedExp
    * @return this instance of Quadruple with the value of: 0 or -0 if the exponent value is less than -129,
-   * Infinity or -Infinity, if the exponent is greater than EXP_MAX + 1, and unchanged value in other cases
+   * Infinity or -Infinity, if the exponent is greater than EXPONENT_OF_MAX_VALUE + 1, and unchanged value in other cases
    * @param unbiasedExp the unbiased binary exponent of the value
    * @see #inAcceptableRange(long)
    */
   private Quadruple assignBoundaryValue(long unbiasedExp) {
-    final long exponent = unbiasedExp + EXP_OF_ONE;           // exp2 unbiased - bias it
+    final long exponent = unbiasedExp + EXPONENT_BIAS;           // exp2 unbiased - bias it
     if (exponent   < -129)
       return assignZero(false);
-    if (exponent > EXP_MAX + 1)
+    if (exponent > EXPONENT_OF_MAX_VALUE + 1)
       return assignInfinity(false);
     return this;
   } // private Quadruple assignBoundaryValue(long unbiasedExp) {
@@ -3202,7 +3383,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
         multBuffBy10(product);                // For some combinations of exp2 and exp10, additional multiplication needed (see mant2_from_M_E_e.xls)
 
       exp2 += normalizeMant(product);         // compensate possible inaccuracy of logarithms used to compute exp2
-      exp2 += EXP_OF_ONE;                     // add bias
+      exp2 += EXPONENT_BIAS;                     // add bias
 
       // For subnormal values, exp2 <= 0
       if (exp2 <= 0) {                        // subnormal
@@ -3223,7 +3404,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       }
 
       owner.exponent = (int)exp2;
-      if (owner.exponent == EXP_INF) // Infinity
+      if (owner.exponent == EXPONENT_OF_INFINITY) // Infinity
         owner.mantHi = owner.mantLo = 0;
     } // private static void findMant2(int exp10, long exp2, long[] mantissa) {
 
@@ -3401,7 +3582,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return this instance with the new value
    */
   private Quadruple assignMaxValue() {
-    negative = false; exponent = (int)EXP_MAX; mantHi = 0xFFFF_FFFF__FFFF_FFFFL; mantLo = 0xFFFF_FFFF__FFFF_FFFFL;
+    negative = false; 
+    exponent = (int)EXPONENT_OF_MAX_VALUE; 
+    mantHi = mantLo = -1;
     return this;
   } // private Quadruple assignMaxValue() {
 
@@ -3438,6 +3621,16 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   } // private Quadruple assignZero() {
 
   /**
+   * Assigns the value of -0 to this instance.
+   * @return this instance with the new value (+0)
+   */
+  private Quadruple assignMinusZero() {
+    negative = true;
+    mantHi = mantLo = exponent = 0;
+    return this;
+  } // private Quadruple assignZero() {
+
+  /**
    * Assigns the value of +1 or -1 to this instance,
    * depending on the sign of the previous value of the instance and the {@code changeSign} parameter.
    * @param changeSign if {@code true}, the instance will change its sign, if {@code false}, the sign is not changed.
@@ -3445,7 +3638,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   private Quadruple assignOne(boolean changeSign) {
     negative ^= changeSign;
-    exponent = EXP_OF_ONE;
+    exponent = EXPONENT_OF_ONE;
     mantHi = 0; mantLo = 0;
     return this;
   } // private Quadruple assignOne(boolean changeSign) {
@@ -3458,7 +3651,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   private Quadruple assignInfinity(boolean changeSign) {
     negative ^= changeSign;
-    exponent = EXP_INF;
+    exponent = EXPONENT_OF_INFINITY;
     mantHi = 0; mantLo = 0;
     return this;
   } // private Quadruple assignInfinity(boolean changeSign) {
@@ -3490,7 +3683,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * if we attempt to get a {@code BigDecimal} value of {@code NaN} or {@code Infinity}
    */
   private void checkNaNInfinity() {
-    if (exponent == EXP_INF) {
+    if (exponent == EXPONENT_OF_INFINITY) {
       throw new NumberFormatException("Can't convert "
                   + (((mantHi | mantLo) != 0)? "NaN" :
                        negative? "NEGATIVE_INFINITY" : "POSITIVE_INFINITY")
@@ -3498,6 +3691,120 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     }
   } // private void checkNaNInfinity() {
 
+  /**
+   * Converts the value of {@code this} instance to the value of the nearest IEEE-754
+   * quadruple-precision number, represented as an array of two {@code long}s,
+   * containing the 128 bits of the IEEE-754 quadruple, in the big-endian order,
+   * for the case when the value of this instance falls in the range of normal IEEE-754 quadruple values.
+   * @param result -- the array of 2 longs that is to be filled with the 128 bits of the resulting IEEE-754 quadruple
+   * @return the same input array filled with the bits of the resulting IEEE-754 quadruple
+   */
+  private long[] makeNormal_IEEELongs(long[] result) {
+    int unbiasedExponent = unbiasedExponent();
+    final long carry = (mantLo >>> 15) & 1L;              // The shifted-out bit
+    long ieeeMantLo = (mantLo >>> 16) | (mantHi << 48);   // Low-order 64 bits of the mantissa of IEEE-754 Quadruple
+    long ieeeMantHi = mantHi >>> 16;                      // High-order 48 bits
+
+    ieeeMantLo += carry;
+    if (carry != 0 && ieeeMantLo == 0) {                  // Propagate carry
+      if (++ieeeMantHi == 0x0001_0000_0000_0000L) {       // Mantissa overflow, need to adjust exponent
+        unbiasedExponent++;
+        ieeeMantHi  &= 0xFFFF_FFFF_FFFFL;                 // Clear this bit
+      }
+    }
+
+    if (unbiasedExponent > IEEE754_MAX_EXPONENT) {        // Overflow, return infinity
+      result[0] = negative ?  IEEE754_MINUS_INFINITY_LEAD :
+                              IEEE754_INFINITY_LEAD;
+      return result;
+    }
+
+    // Mantissa:
+    result[1] = ieeeMantLo;
+    result[0] = ieeeMantHi;
+    // Exponent:
+    final long biasedExponent = unbiasedExponent + IEEE754_EXPONENT_BIAS;
+    result[0] |= biasedExponent << 48;                    // To high-order 16 bits (the highest remains 0)
+    // Sign:
+    if (negative)
+      result[0] |= IEEE754_MINUS_ZERO_LEAD;               // sign bit
+
+    return result;
+  } // private long[] makeNormal_IEEELongs(long[] result) {
+
+  /**
+   * Converts the value of {@code this} instance to the value of the nearest IEEE-754
+   * quadruple-precision number, represented as an array of two {@code long}s,
+   * containing the 128 bits of the IEEE-754 quadruple, in the big-endian order,
+   * for the case when the value of this instance falls in the range of subnormal IEEE-754 quadruple values.
+   * @param result -- the array of 2 longs that is to be filled with the 128 bits of the resulting IEEE-754 quadruple
+   * @return the same input array filled with the bits of the resulting IEEE-754 quadruple
+   */
+  private long[] makeSubnormal_IEEELongs(long[] result) {
+    final int unbiasedExponent = unbiasedExponent();
+    long ieeeMantLo = (mantLo >>> 16) | (mantHi << 48);   // Low-order 64 bits of the mantissa of IEEE-754 Quadruple
+    // High-order 48 bits + implicit lead bit which is getting explicit for subnormals:
+    long ieeeMantHi = (mantHi >>> 16) | 0x0001_0000_0000_0000L;
+
+    final int shift =  IEEE754_MIN_NORMAL_EXPONENT - unbiasedExponent;
+    final long shiftedOutBit = shift > 64?  (ieeeMantHi >>> (shift - 65)) & 1L:
+                                            (ieeeMantLo >>> (shift - 1)) & 1L;
+    if (shift >= 64) {
+      ieeeMantLo = ieeeMantHi >>> (shift - 64);
+      ieeeMantHi = 0;
+    } else {
+      ieeeMantLo = (ieeeMantLo >>> shift) | (ieeeMantHi << 64 - shift);
+      ieeeMantHi = ieeeMantHi >>> shift;
+    }
+    ieeeMantLo += shiftedOutBit;
+    if (shiftedOutBit != 0 && ieeeMantLo == 0)
+      ieeeMantHi++;                           // If carry propagates to bit 0x0001_000.., it becomes the exponent, and that's all right
+                                              // A subnormal becomes min normal
+    result[1] = ieeeMantLo;
+    result[0] = ieeeMantHi;                   //
+    // Sign:
+    if (negative)
+      result[0] |= IEEE754_MINUS_ZERO_LEAD;           // sign bit
+
+    return result;
+  } // private long[] makeSubnormal_IEEELongs(long[] result) {
+
+
+  /**
+   * Splits the {@code long} items of the given array into bytes and returns
+   * an array of bytes containing the bits of the original longs, in the big-endian order.
+   * The most significant bit of {@code longs[0]} becomes the MSB of result[0], etc.
+   * @param longs an array of longs to be split
+   * @return an array of resulting bytes
+   */
+  private static byte[] splitToBytes(long[] longs) {
+    final byte[] bytes = new byte[longs.length * 8];
+    for (int i = 0; i < longs.length; i++) {
+      long currentLong = longs[i];
+      for (int j = 7; j >= 0; j--) {
+        bytes[i * 8 + j] = (byte) currentLong;
+        currentLong >>>= 8;
+      }
+    }
+    return bytes;
+  } // private static byte[] splitToBytes(long[] longs) {
+
+  /**
+   * Merges the {@code byte} items of the given array into longs, 8 bytes per each long, and returns
+   * an array of longs containing the bits of the original bytes, in the big-endian order.
+   * The most significant bit of {@code bytes[0]} becomes the MSB of result[0], etc.
+   * @param longs an array of longs to be split
+   * @return an array of resulting bytes
+   */
+  private static long[] mergeBytesToLongs(byte[] bytes) {
+    final long[] longs = new long[bytes.length / 8];
+    for (int i = 0; i < longs.length; i++) {
+      for (int j = 0; j < 8; j++) {
+        longs[i] = (longs[i] << 8) | (bytes[i * 8 + j]) & 0xFFL;
+      }
+    }
+    return longs;
+  } // private static long[] mergeBytesToLongs(byte[] bytes) {
 
   /********************************************************************************************
    *** Used_by_arithmetic *********************************************************************
@@ -3546,7 +3853,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       mantHi++;
 
     if (carryUp != 0)  mantHi |= BIT_63;        // Set the highest bit (where the carry should get)
-    if (++exponent == EXP_INF)                  // Infinity
+    if (++exponent == EXPONENT_OF_INFINITY)                  // Infinity
       mantHi = mantLo = 0;
     return this;
   } // private Quadruple addWithSameExps(Quadruple summand) {
@@ -3738,7 +4045,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Shifts the mantissa one bit right and rounds it up (unless rounding is forbidden by non-null value
    * of the {@code dontRoundUpAnyMore} parameter) and increments the exponent.
-   * If the exponent becomes equal to {@code EXP_INF}, clears the mantissa to force Infinity.
+   * If the exponent becomes equal to {@code EXPONENT_OF_INFINITY}, clears the mantissa to force Infinity.
    * @param dontRoundUpAnyMore non-zero value
    */
   private void shiftAndCorrectExponent(long dontRoundUpAnyMore) {
@@ -3746,7 +4053,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     shiftMantissaRight(1);                              // after that, the highest bit is always 0
     if (shiftedOutBit != 0)                             // Don't round up if already
       addMant(0, 1);                                    // so carry after this addition is impossible
-    if (++exponent == EXP_INF)                          // Infinity
+    if (++exponent == EXPONENT_OF_INFINITY)                          // Infinity
       mantHi = mantLo = 0;
   } // private void shiftAndCorrectExponent(long dontRoundUpAnyMore) {
 
@@ -4128,9 +4435,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     final long[] factor1 = BUFFER_5x32_A, factor2 = BUFFER_5x32_B, product = BUFFER_10x32_A;
 
     long productExponent =  Integer.toUnsignedLong(exponent)  // Preliminarily evaluate the exponent of the product (may get adjusted)
-                          + Integer.toUnsignedLong(factor.exponent) - EXP_OF_ONE;
+                          + Integer.toUnsignedLong(factor.exponent) - EXPONENT_OF_ONE;
 
-    if (exponentWouldExceedBounds(productExponent, 1, 0))         // exp < 129 || exp > EXP_MAX, assigns respectively 0 or Infinity
+    if (exponentWouldExceedBounds(productExponent, 1, 0))         // exp < 129 || exp > EXPONENT_OF_MAX_VALUE, assigns respectively 0 or Infinity
       return this;
 
     // put the mantissas into the buffers that will be used by the proper multiplication
@@ -4142,7 +4449,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     final boolean isRoundedUp = roundBuffer(product);
 
     productExponent = normalizeProduct(product, productExponent, isRoundedUp);
-    if (productExponent > EXP_MAX)                            // Overflow, return infinity
+    if (productExponent > EXPONENT_OF_MAX_VALUE)                            // Overflow, return infinity
       return assignInfinity(false);
 
     packBufferToMantissa(product);
@@ -4256,7 +4563,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private long normalizeProduct(long[] product, long productExponent, boolean isRoundedUp) {
     if (product[1] > 1) {                   // Carry to the highest (implied) bit --
       productExponent++;
-      if (productExponent <= EXP_MAX)
+      if (productExponent <= EXPONENT_OF_MAX_VALUE)
         shiftBufferRight(product, isRoundedUp);
     }
     return productExponent;
@@ -4372,9 +4679,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       return assignOne(false);
 
     long quotientExponent = Integer.toUnsignedLong(exponent) // Preliminarily evaluate the exponent of the quotient (may get adjusted)
-                          - Integer.toUnsignedLong(divisor.exponent) + EXP_OF_ONE;
+                          - Integer.toUnsignedLong(divisor.exponent) + EXPONENT_OF_ONE;
 
-    if (exponentWouldExceedBounds(quotientExponent, 0, 1)) // exp < -128 || exp > EXP_MAX + 1, Assigns respective values if exp exceeds bounds
+    if (exponentWouldExceedBounds(quotientExponent, 0, 1)) // exp < -128 || exp > EXPONENT_OF_MAX_VALUE + 1, Assigns respective values if exp exceeds bounds
       return this;
 
     boolean needToDivide = true;
@@ -4396,7 +4703,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     if (needToDivide)
       quotientExponent = doDivide(quotientExponent, divisorBuff); // *** Proper division
 
-    if (exponentWouldExceedBounds(quotientExponent, 0, 0)) // exp < -128 || exp > EXP_MAX, Assigns respective values if exp exceeds bounds
+    if (exponentWouldExceedBounds(quotientExponent, 0, 0)) // exp < -128 || exp > EXPONENT_OF_MAX_VALUE, Assigns respective values if exp exceeds bounds
       return this;
 
     if (quotientExponent <= 0)
@@ -4410,13 +4717,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Checks if the exponent of the result exceeds acceptable bounds and sets the
    * corresponding value in this case.<br>
    * If it is below {@code  -(128 + lowerBoundTolerance) }, assigns zero to this instance and returns {@code true}.
-   * If it is above {@code EXP_MAX + upperBoundTolerance}, assigns Infinity to this instance and returns {@code true}.
+   * If it is above {@code EXPONENT_OF_MAX_VALUE + upperBoundTolerance}, assigns Infinity to this instance and returns {@code true}.
    * returns {@code false} without changing the value, if the exponent is within the bounds.
    * @param exponent the exponent of the result to be examined
    * <br>Covered
    */
   private boolean exponentWouldExceedBounds(long exponent, long lowerBoundTolerance, long upperBoundTolerance) {
-    if (exponent > EXP_MAX + upperBoundTolerance) {// Overflow, return infinity
+    if (exponent > EXPONENT_OF_MAX_VALUE + upperBoundTolerance) {// Overflow, return infinity
       assignInfinity(false);
       return true;
     }
