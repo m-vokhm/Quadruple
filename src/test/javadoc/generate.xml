@@ -16,12 +16,20 @@
           	C:\Eclipse\plugins\org.junit.jupiter.api_5.0.0.v20170910-2246.jar;
           	C:\Eclipse\plugins\org.junit.platform.engine_1.0.0.v20170910-2246.jar;
           	C:\Eclipse\plugins\org.junit_4.12.0.v201504281640\junit.jar" 
-        	destdir="" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false"
+        	destdir="" 
           doctitle="Quadruple test subsystem documentation" 
+          windowtitle="Quadruple test subsystem documentation"
+        	nodeprecated="false" 
+        	nodeprecatedlist="false" 
+        	noindex="false" 
+        	nonavbar="false"
         	notree="false" 
         	packagenames="com.mvohm.quadruple.test"  
         	source="1.8" 
-        	sourcepath="../../test/java;../../main/java" splitindex="false" use="false" version="true">
+        	sourcepath="../../test/java;../../main/java" 
+        	splitindex="false" 
+        	use="false" 
+        	version="true">
             <link href="file:/F:/git/Quadruple_GH2/src/main/javadoc"/>
             <link href="https://docs.oracle.com/javase/8/docs/api/"/>
         </javadoc>

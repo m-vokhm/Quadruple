@@ -12,6 +12,7 @@
           C:\Users\misa\.m2\repository\org\junit\platform\junit-platform-engine\1.2.0\junit-platform-engine-1.2.0.jar"
           destdir="" 
           doctitle="Quadruple class documentation" 
+          windowtitle="Quadruple class documentation"
           nodeprecated="false" 
           nodeprecatedlist="false" 
           noindex="false" 

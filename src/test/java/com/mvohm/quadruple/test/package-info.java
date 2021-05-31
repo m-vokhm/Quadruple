@@ -1,6 +1,6 @@
 /**
  *
- * A test appliance for methods of the Quadruple class.
+ * A test appliance for methods of the {@link com.mvohm.quadruple.Quadruple} class.
  * The tests are performed with the specific tester classes that are descendants of the class QuadTester,
  * each operation is tested with a special descendant. The generic abstract tester classes are defined
  * in the TesterClasses.java, their specific descendants in the SpecificTesterClasses.java.
@@ -22,7 +22,9 @@
  * <li>{@link com.mvohm.quadruple.test.DataItem}              -- a container for data pertaining to a test
  * <li>{@link com.mvohm.quadruple.test.DataProviders}         -- a set of static methods that generate and collect data sets
  *                                                              for specific operations
- * <li>{@link com.mvohm.quadruple.test.QuadJUnitTest}        -- a set of test methods to be used with JUnit
+ * <li>{@link com.mvohm.quadruple.test.IeeeQuadrupleTesterClasses}  -- concrete descendants of the QuadTester class,
+ *                                                              for testing conversions to and from standard IEEE-754 quadruple-precision format
+ * <li>{@link com.mvohm.quadruple.test.QuadJUnitTest}         -- a set of test methods to be used with JUnit
  * <li>{@link com.mvohm.quadruple.test.QuadTest}              -- an autonomous executor of all the tests
  * <li>{@link com.mvohm.quadruple.test.SpecificTesterClasses} -- concrete descendants of the QuadTester class,
  *                                                              each for a specific quadruple operation

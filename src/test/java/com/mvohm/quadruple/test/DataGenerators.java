@@ -45,7 +45,7 @@ public class DataGenerators {
 
   /**
    * Takes a list of {@code Strings} and copies all the items of it into
-   * a new list, inserting {@code nulls} after each of them.
+   * a new list, inserting {@code null} after each of them.
    * The resulting list looks like {@code (v1, null, v2, null, ...)},
    * where {@code v1, v2...} are the values from the first list.
    * @param inpList a dense list with values
@@ -62,9 +62,9 @@ public class DataGenerators {
 
   /**
    * Takes a list of {@code Strings} and copies all the items of it into
-   * a new list, inserting {@code nulls} after each of them.
-   * Additionally inserts the given {@code header} in the beginning of the resulting list.
-   * The resulting list looks like {@code (h, v1, null, v2, null, ...)},
+   * a new list, inserting {@code null} after each of them.
+   * Additionally inserts the given {@code header} and {@code null} in the beginning of the resulting list.
+   * The resulting list looks like {@code (h, null, v1, null, v2, null, ...)},
    * where {@code h} is the {@code header}, and {@code v1, v2...} are the values from the
    * first list. The input list remains unchanged.
    * @param header the header to insert in the the beginning of the list
@@ -286,7 +286,6 @@ public class DataGenerators {
     return list;
   } // public static List<String> multiplyByFactors(List<String> inputList, double... factors) {
 
-
   /**
    * Generates and returns a series of sequences, each of which is a number of values,
    * successively approaching and then moving away from the base value, that is
@@ -355,7 +354,6 @@ public class DataGenerators {
     }
     return result;
   } // public static List<String> subnormalVicinities(String[] mantissas, double addition, double maxDelta, double minDelta) {
-
 
   /**
    * Generates and returns a series of sequences of values, such that in each sequences the values are successively
@@ -577,7 +575,6 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
    * The methods of this class generate random values and various random sequences,
    * including lists of pairs of random values suitable for testing binary operations
    ************************************************************************************/
-
   static class Randoms {
 
     private static Random random;
@@ -1043,7 +1040,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
    * (m + maxDelta) * MIN_VALUE,
    *
    * </pre>
-   *
+   * TODO 21.05.31 10:51:32 Continue from here
    * @param mantissa
    *          the factor to be applied to the {@code Quadruple.MIN_VALUE}
    * @param maxDelta
