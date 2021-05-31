@@ -338,7 +338,8 @@ public class DataGenerators {
    (340282366920938463463374607431768211455.5 + 3E-40) * MIN_VALUE
    (340282366920938463463374607431768211455.5 + 3E-39) * MIN_VALUE
 </pre>
-   * Used to test the precision of rounding subnormal values that are close to {@code (n + 0.5) * 2^-2147483774},
+   * Used to test the precision of rounding subnormal values that are close to
+   * <span style="white-space:nowrap">{@code (n + 0.5) * 2^-2147483774}</span>,
    * which is performed by {@code String} to {@code Quadruple} and {@code String} to {@code Quadruple} conversions.
    * @param mantissas a number of mantissas to form the base values for the subsequences
    * @param addition a constant to be added to the mantissa to form the base value of the subsequence
@@ -358,7 +359,7 @@ public class DataGenerators {
   /**
    * Generates and returns a series of sequences of values, such that in each sequences the values are successively
    * approaching and then moving away from the base value of the sequence,
-   * calculated as {@code (m[i] + (a + delta) * 2^-128)}, where {@code m[i]} is
+   * calculated as <span style="white-space:nowrap">{@code (m[i] + (a + delta) * 2^-128)}</span>, where {@code m[i]} is
    * an element of the {@code mantissas} array, {@code a} is the value of the
    * {@code addition} parameter, and {@code delta} grows from {@code -maxDelta}
    * up to {@code -minDelta} decreasing in module ten times each step, passes
@@ -376,7 +377,8 @@ public class DataGenerators {
    * </pre>
    *
    * Used to test the precision of rounding normal values whose mantissas are
-   * close to {@code 1 + (n + 0.5 * 2^-128)}, i.e. the values that differ from
+   * close to <span style="white-space:nowrap">{@code 1 + (n + 0.5 * 2^-128)}</span>,
+   * i.e. the values that differ from
    * the exact values of the nearest {@code Quadruple} values by deltas that are
    * close to the half of the least significant bit of the mantissa.
    *
@@ -614,7 +616,8 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * Generates and returns a list with string representations of
      * random {@code BigDecimal} values that fall within the range valid for @code double},
      * such that the mantissa of each value differs from the mantissa of the nearest {@code double} value by
-     * {@code 1^-53} (half of least significant bit of the double's mantissa) or by {@code 1^-53 - 1^-128}.
+     * {@code 1^-53} (half of least significant bit of the double's mantissa) or by
+     * <span style="white-space:nowrap">{@code 1^-53 - 1^-128}</span>.
      * Used to test the correctness of the rounding performed during the conversion from {@code Quadruple} to {@code double}.
      * @param count the amount of random numbers to be generated
      * @return the generated list, with nulls inserted after each item
@@ -628,15 +631,15 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * values that fall within the range valid for {@code Quadruple}.
      * The first item of each pair is a random {@code BigDecimal} value such
      * that its mantissa differs from the mantissa of the nearest
-     * {@code Quadruple} value by <br><span class="nowrap">{@code 2^-129 - 2^(-129 + expOfDelta)},</span><br>
+     * {@code Quadruple} value by <br><span style="white-space:nowrap">{@code 2^-129 - 2^(-129 + expOfDelta)},</span><br>
      * and the mantissa of the second value differs from the mantissa of the same {@code Quadruple}
-     * value by <br><span class="nowrap">{@code 2^-129}.</span><br>
+     * value by <br><span style="white-space:nowrap">{@code 2^-129}.</span><br>
      * In other words, the first value of the pair can be written as<br>
-     * <span class="nowrap">{@code (1 + (n + 0.5 - 2^(expOfDelta-1)) * 2^-128) * 2^N},</span><br> and the second one can
-     * be written as <br><span class="nowrap">{@code (1 + (n + 0.5) * 2^-128) * 2^N}.</span> <br>
+     * <span style="white-space:nowrap">{@code (1 + (n + 0.5 - 2^(expOfDelta-1)) * 2^-128) * 2^N},</span><br> and the second one can
+     * be written as <br><span style="white-space:nowrap">{@code (1 + (n + 0.5) * 2^-128) * 2^N}.</span> <br>
      * During the conversion from {@code BigDecimal} to {@code Quadruple} the first value
-     * should get rounded down to {@code (1 + n * 2^-128) * 2^N}, and the second
-     * should get rounded up to {@code (1 + (n + 1) * 2^-128) * 2^N}.<br>
+     * should get rounded down to <span style="white-space:nowrap">{@code (1 + n * 2^-128) * 2^N}</span>, and the second
+     * should get rounded up to <span style="white-space:nowrap">{@code (1 + (n + 1) * 2^-128) * 2^N}.</span><br>
      * Used to test the correctness of the rounding performed during the conversion from
      * {@code BigDecimal} to {@code Quadruple}.
      *
@@ -938,16 +941,18 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
    * Generates and returns a series of sequences of values, where each sequence
    * is a set of values in a vicinity of the base value that is calculated based
    * on a corresponding value from the {@code mantissas} array as
-   * {@code (m[i] * 2^exp + a) * MIN_VALUE}. The values of the sequence based on
+   * <span style="white-space:nowrap">{@code (m[i] * 2^exp + a) * MIN_VALUE}</span>.
+   * The values of the sequence based on
    * an i'th member of the {@code mantissas} grow from
-   * {@code (v[0] = m[i] * 2^exp + a - maxDelta) * MIN_VALUE} to
-   * {@code (v[n] = m[i] * 2^exp + a + maxDelta) * MIN_VALUE},
+   * <span style="white-space:nowrap">{@code (v[0] = m[i] * 2^exp + a - maxDelta) * MIN_VALUE}</span> to
+   * <span style="white-space:nowrap">{@code (v[n] = m[i] * 2^exp + a + maxDelta) * MIN_VALUE}</span>,
    * such that the difference {@code delta * MIN_VALUE)
    * between an element of the sequence and its base value first
    * decreases in magnitude by a factor of 10 with each step, running thru
-   * values from {@code -maxDelta * MIN_VALUE} to {@code -minDelta * MIN_VALUE},
+   * values from
+   * <span style="white-space:nowrap">{@code -maxDelta * MIN_VALUE} to {@code -minDelta * MIN_VALUE}</span>,
    * then passes 0, and then increases by a factor of 10, running thru values
-   * from {@code minDelta * MIN_VALUE} to {@code maxDelta * MIN_VALUE}, where
+   * from <span style="white-space:nowrap">{@code minDelta * MIN_VALUE} to {@code maxDelta * MIN_VALUE}</span>, where
    * {@code m[i]} is a value from the {@code mantissas} array, {@code exp} is
    * the value of the {@code exponent} parameter, {@code a} is the value of the
    * {@code addition} parameter, {@code maxDelta} and {@code minDelta} are the
@@ -1013,8 +1018,10 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /**
    * Generates and returns a sequence of values in a vicinity of the base value,
-   * {@code m * MIN_VALUE}, from {@code v[0] = (m - maxDelta) * MIN_VALUE } to
-   * {@code v[n] = (m + maxDelta) * MIN_VALUE}, such that the difference (delta)
+   * {@code m * MIN_VALUE}, from
+   * <span style="white-space:nowrap">{@code v[0] = (m - maxDelta) * MIN_VALUE}</span> to
+   * <span style="white-space:nowrap">{@code v[n] = (m + maxDelta) * MIN_VALUE}</span>,
+   * such that the difference (delta)
    * between the elements of the sequence and {@code m * MIN_VALUE} first
    * decreases in magnitude by a factor of 10 with each step, running thru
    * values from {@code -maxDelta * MIN_VALUE} to {@code -minDelta * MIN_VALUE},
@@ -1040,7 +1047,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
    * (m + maxDelta) * MIN_VALUE,
    *
    * </pre>
-   * TODO 21.05.31 10:51:32 Continue from here
+   *
    * @param mantissa
    *          the factor to be applied to the {@code Quadruple.MIN_VALUE}
    * @param maxDelta
@@ -1064,17 +1071,17 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /**
    * Computes and adds to the given list a subsequence of string representations
-   * of values from {@code (mantissa - maxDelta) * MIN_VALUE}
-   * to {@code (mantissa - minxDelta) * MIN_VALUE},
+   * of values from <span style="white-space:nowrap">{@code (mantissa - maxDelta) * MIN_VALUE}</span>
+   * to <span style="white-space:nowrap">{@code (mantissa - minxDelta) * MIN_VALUE}</span>,
    * with the delta decreasing 10 times each step.
    * @param result the list to add the generated values
-   * @param mantissa the base value to calculate the values
+   * @param mantissa the base value of the mantissa to calculate the members of the sequence
    * @param maxDelta
    *          the magnitude of the difference between the base value and
-   *          the least value of the generated sequence
+   *          the mantissa of the least value of the generated sequence
    * @param minDelta
    *          the magnitude of the difference between the base value and
-   *          the greatest value of the generated sequence
+   *          the mantissa of the greatest value of the generated sequence
    */
   private static void addDecreasingDeltas(final List<String> result, BigDecimal mantissa,
                                           double maxDelta, double minDelta) {
@@ -1090,17 +1097,17 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /**
    * Computes and adds to the given list a subsequence of string representations
-   * of values from {@code (mantissa + minDelta) * MIN_VALUE}
-   * to {@code (mantissa + minDelta) * MIN_VALUE},
+   * of values from <span style="white-space:nowrap">{@code (mantissa + minDelta) * MIN_VALUE}</span>
+   * to <span style="white-space:nowrap">{@code (mantissa + minDelta) * MIN_VALUE}</span>,
    * with the delta increasing 10 times each step.
    * @param result the list to add the generated values
-   * @param mantissa the base value to calculate the values
+   * @param mantissa the base value of the mantissa to calculate the members of the sequence
    * @param maxDelta
    *          the magnitude of the difference between the base value and
-   *          the greatest value of the generated sequence
+   *          the mantissa of the greatest value of the generated sequence
    * @param minDelta
    *          the magnitude of the difference between the base value and
-   *          the least value of the generated sequence
+   *          the mantissa of the least value of the generated sequence
    */
   private static void addIncreasingDeltas(final List<String> result, BigDecimal mantissa,
                                           double maxDelta, double minDelta) {
@@ -1115,23 +1122,29 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
   } // private static void addIncreasingDeltas(final List<String> result, BigDecimal mantissa, double maxDelta, double minDelta) {
 
   /**
-   * Returns a list containing a sequence of values of form {@code mantissa + (addition + delta) * 2^-128}, <br>
+   * Returns a list containing a sequence of values of form
+   * <span style="white-space:nowrap">{@code mantissa + (addition + delta) * 2^-128},</span> <br>
    * where {@code delta} grows from {@code -maxDelta} up to {@code -minDelta} decreasing in module ten times each step,
    * passes through 0, and then grows from {@code minDelta} up to {@code maxDelta} increasing ten times each step:<pre>
-   * mantissa + (addition - maxDelta)    * 2^-128,
-   * mantissa + (addition - maxDelta/10) * 2^-128,
+   * mantissa + (addition - maxDelta)       * 2^-128,
+   * mantissa + (addition - maxDelta/10)    * 2^-128,
    * ...
-   * mantissa + (addition - minDelta)    * 2^-128,
-   * mantissa + (addition)               * 2^-128
-   * mantissa + (addition + minDelta)    * 2^-128,
+   * mantissa + (addition - minDelta * 10)  * 2^-128,
+   * mantissa + (addition - minDelta)       * 2^-128,
+   * mantissa + (addition)                  * 2^-128
+   * mantissa + (addition + minDelta)       * 2^-128,
+   * mantissa + (addition + minDelta * 10)  * 2^-128,
    * ...
-   * mantissa + (addition + maxDelta/10) * 2^-128
-   * mantissa + (addition + maxDelta)    * 2^-128
+   * mantissa + (addition + maxDelta/10)    * 2^-128
+   * mantissa + (addition + maxDelta)       * 2^-128
    * </pre>
    * @param mantissa the base mantissa value represented as a String;
-   * @param addition the addition to the mantissa in units of 2^-128 so that 1.0 corresponds to the value of the LSB of the mantissa of Quadruple
-   * @param maxDelta the maximum magnitude of the delta to be added or subtracted to the addition before multiplying it by 2^-128;
-   * @param minDelta the minimum magnitude of the delta to be added or subtracted to the addition before multiplying it by 2^-128;
+   * @param addition the addition to the mantissa in units of 2^-128 so that
+   *        1.0 corresponds to the value of the LSB of the mantissa of Quadruple
+   * @param maxDelta the maximum magnitude of the delta to be added or subtracted
+   *        to the addition before multiplying it by 2^-128;
+   * @param minDelta the minimum magnitude of the delta to be added or subtracted
+   *        to the addition before multiplying it by 2^-128;
    * @return a new list containing String representations of the generated values
    */
   private static List<String> vicinityOfNormal(String mantissa, double addition, double maxDelta, double minDelta) {
@@ -1150,8 +1163,10 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /**
    * Computes and adds to the given list a sequence of string representations of
-   * values from {@code mantissa + (addition - maxDelta) * 2^-128} to
-   * {@code mantissa + (addition - minDelta) * 2^-128} with the delta decreasing 10 times each step.
+   * values from
+   * <span style="white-space:nowrap">{@code mantissa + (addition - maxDelta) * 2^-128}</span> to
+   * <span style="white-space:nowrap">{@code mantissa + (addition - minDelta) * 2^-128}</span>
+   * with the delta decreasing 10 times each step.
    *
    * @param list      the list to add the generated values
    * @param mantissa  the base value to calculate the values
@@ -1173,8 +1188,10 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /**
    * Computes and adds to the given list a sequence of string representations of
-   * values from {@code mantissa + (addition + minDelta) * 2^-128} to
-   * {@code mantissa + (addition + maxDelta) * 2^-128} with the delta decreasing 10 times each step.
+   * values from
+   * <span style="white-space:nowrap">{@code mantissa + (addition + minDelta) * 2^-128}</span> to
+   * <span style="white-space:nowrap">{@code mantissa + (addition + maxDelta) * 2^-128}</span>
+   * with the delta decreasing 10 times each step.
    *
    * @param list      the list to add the generated values
    * @param mantissa  the base value to calculate the values
@@ -1196,10 +1213,16 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /**
    * Generates and returns a growing sequence of values of binary exponents for generating a test sequence
-   * for testing the precision of the rounding of values in vicinity of {@code (1.0 + (n + 0.5) * 2^128) * 2^e}.<br>
-   * The values {@code (1.0 + (n + 0.49999..) * 2^128) * 2^e} must get rounded down to {@code (1.0 + n * 2^128) * 2^e},<br>
-   * while {@code (1.0 + (n + 0.5) * 2^128) * 2^e} and {@code (1.0 + (n + 0.500..01) * 2^128) * 2^e} must get rounded up to
-   * {@code (1.0 + (n + 1) * 2^128) * 2^e}.<br>
+   * for testing the precision of the rounding of values in vicinity of
+   * <span style="white-space:nowrap">{@code (1.0 + (n + 0.5) * 2^128) * 2^e}.</span><br>
+   * The values
+   * <span style="white-space:nowrap">{@code (1.0 + (n + 0.49999..) * 2^128) * 2^e}</span>
+   * must get rounded down to <span style="white-space:nowrap">{@code (1.0 + n * 2^128) * 2^e},</span><br>
+   * while
+   * <span style="white-space:nowrap">{@code (1.0 + (n + 0.5) * 2^128) * 2^e}</span>
+   * and <span style="white-space:nowrap">{@code (1.0 + (n + 0.500..01) * 2^128) * 2^e}</span>
+   * must get rounded up to
+   * <span style="white-space:nowrap">{@code (1.0 + (n + 1) * 2^128) * 2^e}.</span><br>
    * The returned list<pre>
     0x8000_0002, 0xc000_0000, 0xc000_0001, 0xe000_0000, 0xe000_0001, 0xf000_0000, 0xf000_0001,
     ...
@@ -1208,9 +1231,10 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
     ...
     0x2000_0000, 0x3fff_ffff, 0x4000_0000, 0x7fff_ffff,
     </pre>
-   * covers the entire range of valid values for exponents and includes all combinations of bits like 0x0_1000, 0x0_1111, 0x1_0000, 0x1_1111,
-   * so that the calculation of the corresponding powers uses both only a single factor from the table of powers of 2,
-   * and a product of all possible factors.
+   * covers the entire range of valid values for exponents and includes all combinations of bits
+   * like 0x0_1000, 0x0_1111, 0x1_0000, 0x1_1111,
+   * so that the calculation of the corresponding powers uses both only a single factor
+   * from the table of powers of 2, and a product of all possible factors.
    */
   private static List<Integer> allExponents() {
     final ArrayList<Integer> result = new ArrayList<>();
@@ -1229,7 +1253,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
 
   /** Returns a string representation of the value represented by the {@code value} parameter
    * multiplied by two raised to power {@code exp}: {@code value * 2^exp}
-   * @param value the value to multiply by the power of two
+   * @param value a string representation of the value to multiply by the power of two
    * @param exp the power to raise two to to get the factor
    * @return a string representation of the resulting value
    */
