@@ -8,8 +8,8 @@ An instance of the class has a value that is internally represented as a sign,
 128 bits of the fractional part of the mantissa, and 32 bits of the exponent.
 Values range from approximately `6.673e-646457032` to `1.761e+646456993`
 and include `NaN`, `-Infinty`, and `Infinity`. 
-A set of constructors with different types of arguments is provided 
-to create instances with corresponding values. 
+A set of constructors with different types of arguments, including `String`, 
+is provided to create instances with corresponding values. 
 
 A value of an instance may be converted to other numeric types 
 (namely, `int`, `long`, `double`, and `BigDecimal`) and 
@@ -26,8 +26,8 @@ Static methods that take two instances and create a new instance with
 the value of the operation result, such as `q3 = Quadruple.add(q1, q2)`,
 are also implemented.
 
-A set of of `assign(v)` instance methods replace the old value of the instance
-by a new one. The new value can be passed in as an argument of type `Quadruple`,
+A set of `assign(v)` instance methods replace the old value of the instance
+with a new one. The new value can be passed in as an argument of type `Quadruple`,
 either as a value of another numeric type, or as a `String` representing a decimal number
 in standard notation. Some special notations, such as "Quadruple.NaN", are also admittable.
 
@@ -45,19 +45,19 @@ for some resource-intensive scientific computing and simulations.
 
 Current benchmarks are as follows:
 
-    Benchmark                     Mode  Cnt  Score   Error   Units 
-    ---------------------------------------------------------------
-    a_bigDecimalAddition          avgt  5  253.467 ± 1.223   ns/op 
-    b_quadrupleAddition           avgt  5   34.701 ± 0.160   ns/op 
-    c_bigDecimalSubtraction       avgt  5  269.780 ± 0.811   ns/op 
-    d_quadrupleSubtraction        avgt  5   42.305 ± 0.145   ns/op 
-    e_bigDecimalMultiplcation     avgt  5  523.018 ± 2.519   ns/op 
-    f_quadrupleMultiplcation      avgt  5   84.208 ± 1.161   ns/op 
-    g_bigDecimalDivision          avgt  5  583.228 ± 4.580   ns/op 
-    h_quadrupleDivision           avgt  5  613.096 ± 3.492   ns/op 
+    Benchmark                    Mode  Cnt  Score   Error   Units 
+    --------------------------------------------------------------
+    BigDecimal Addition          avgt  5  253.467 ± 1.223   ns/op 
+    Quadruple  Addition          avgt  5   34.701 ± 0.160   ns/op 
+    BigDecimal Subtraction       avgt  5  269.780 ± 0.811   ns/op 
+    Quadruple  Subtraction       avgt  5   42.305 ± 0.145   ns/op 
+    BigDecimal Multiplcation     avgt  5  523.018 ± 2.519   ns/op 
+    Quadruple  Multiplcation     avgt  5   84.208 ± 1.161   ns/op 
+    BigDecimal Division          avgt  5  583.228 ± 4.580   ns/op 
+    Quadruple  Division          avgt  5  613.096 ± 3.492   ns/op 
 
 (see [the benchmarking project](https://github.com/m-vokhm/QuadrupleAddendum/tree/master/QuadBenchmarks) )    
-But some operations, especially division, are going to be optimized.    
+Some operations, especially division, are yet to be optimized.    
 
 
 #### Usage
