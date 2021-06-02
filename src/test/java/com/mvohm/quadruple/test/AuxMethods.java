@@ -25,8 +25,6 @@ import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.mvohm.quadruple.Quadruple;
 
@@ -366,7 +364,7 @@ public class AuxMethods {
    * @return a string representation of the given {@code Quadruple} value
    */
   public static String formatQuadruple(String format, Quadruple value) {
-    if (value.exponent() == Quadruple.EXP_INF)
+    if (value.exponent() == Quadruple.EXPONENT_OF_INFINITY)
       if ((value.mantHi() | value.mantLo()) != 0) // NaN
         return "NaN";
       else

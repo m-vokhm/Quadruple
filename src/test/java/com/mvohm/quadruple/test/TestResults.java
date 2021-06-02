@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.test.TesterClasses.Verbosity;
 
 /**

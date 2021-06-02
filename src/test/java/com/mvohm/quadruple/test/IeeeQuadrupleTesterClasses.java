@@ -1,20 +1,15 @@
 package com.mvohm.quadruple.test;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.mvohm.quadruple.Quadruple;
-import com.mvohm.quadruple.test.SpecificTesterClasses.QuadToStringTester;
 import com.mvohm.quadruple.test.TesterClasses.Conversion_Q2T_Tester;
 import com.mvohm.quadruple.test.TesterClasses.Conversion_T2Q_Tester;
 
 import static com.mvohm.quadruple.test.AuxMethods.*;
-import static com.mvohm.quadruple.test.DataProviders.q2dConversionDataList;
 
 /**
  * Contains concrete descendants of the abstract tester classes defined in {@link TesterClasses}

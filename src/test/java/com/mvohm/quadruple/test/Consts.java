@@ -19,7 +19,6 @@
 package com.mvohm.quadruple.test;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.HashMap;
 import java.util.Map;

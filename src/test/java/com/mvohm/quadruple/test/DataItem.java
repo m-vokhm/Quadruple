@@ -26,39 +26,46 @@ import java.math.BigDecimal;
 import com.mvohm.quadruple.Quadruple;
 
 /**
- * A {@code DataItem} is a container for a value that is used or generated when
- * testing an operation with a data sample.
- * The contained value may be the value of an input parameter, or the actual result of an operation,
- * or an expected result to compare with the actual result, etc.<br>
- * In most cases, it holds a {@code BigDecimal} value and the corresponding {@code Quadruple}
- * value that is the best possible approximation of the BigDecimal value.
- * It also may hold a value of a 'raw' type, that may be String, BigDecimal, Double, Integer or Long.
- * This capability is used when testing conversions from Quadruple to other types and
- * from other types to Quadruple, to store the results or input values, respectively.<br>
- * The value to store may be set using
- * {@link #withQuadValueOfString(String)},
- * {@link #withValueOf(Object)},
- * {@link #withRawValue(Object)}
- * {@link #withQuadruple(Quadruple)},
- * or {@link #withValueOfString(String)} methods.<br>
+ * A {@code DataItem} is a container for a value used or generated when
+ * testing an operation with a data sample, such as an argument of the tested operation,
+ * the actual result of the performed operation, or the expected value of the result
+ * to compare the actual result with.<br>
  *
- * In case of error occurring when testing, a DataItem with appropriate error message may be created with methods
- * {@link #withError(String)} or {@link #withError(String, String)}.<br>
- * A string representation of the data item or an error message can be obtained with {@link #toString()} method,
- * the values of specific fields can be obtained with
+ * {@code DataItem}s with values or errors messages are used to collect statistics
+ * on test results and to print source test data and operation results to the console
+ * during the execution of the tests (if the test execution code works in a talkative mode).<br>
+ *
+ * In most cases, a {@code DataItem} holds a {@code BigDecimal} value and the corresponding {@code Quadruple}
+ * value that is the best possible approximation of the BigDecimal value.
+ * Instead of it, it also may hold a value of a 'raw' type, that may be
+ * {@code String}, {@code BigDecimal}, {@code Double}, {@code Integer},
+ * {@code Long}, or an array of {@code long}s or {@code byte}s.
+ * This capability is used when testing conversions from Quadruple to other types and
+ * from other types to Quadruple, to store the results or the input values, respectively.<br>
+ *
+ * The value to store may be set using methods<ul>
+ * <li>{@link #withString(String)}</li>
+ * <li>{@link #withValueOfString(String)},</li>
+ * <li>{@link #withQuadValueOfString(String)},</li>
+ * <li>{@link #withValueOf(Object)},</li>
+ * <li>{@link #withQuadruple(Quadruple)}, or</li>
+ * <li>{@link #withRawValue(Object)}.</li>
+ * </ul><br>
+ *
+ * In case if an error occurs when testing, an appropriate error message may be set with
+ * methods {@link #withError(String)} or {@link #withError(String, String)}.<br>
+ *
+ * A string representation of the data item, intended to be displayed as a part
+ * of the output printed to the console during testing, can be obtained with {@link #toString()} method.<br>
+ *
+ * The values of specific fields can be obtained with
  * {@link #getBDValue()}, {@link #getQuadValue()}, {@link #getRawData()}, {@link #getStrValue()} methods.
  * The {@link #hasError()} methods indicates if the {@code DataItem} contains an error message.
- *
- * <br>
- * {@code DataItem}s with values or errors messages are used to collect statistics on test results
- * and to print them to the console while performing tests
- * (if the test execution code works in a talkative mood).
  *
  * @author M.Vokhmentsev
  *
  */
 class DataItem {
-  // Started 19.10.01 11:44:59
   private static final int DIGITS_AFTER_POINT     = 43; // to format BigDecimal values
   private static final int INTEGER_PART_LENGTH    = 3;  // including sign and decimal point, e.g. "-1."
   private static final int MAX_EXPONENT_LENGTH    = 11; // including "e", sign, and 9 digits
@@ -69,10 +76,14 @@ class DataItem {
   private static final BigDecimal MAX_VALUE_THRESHOLD    = MAX_VALUE.multiply(BD_ONE.add(BD_2$_129), MC_120_HALF_EVEN); // MAX_VALUE
 
   // used by TestResults.java
+  /**
+   * Full length of string representations of decimal numeric values to be printed
+   */
   static final int FULL_BD_LENGTH         = INTEGER_PART_LENGTH + DIGITS_AFTER_POINT + MAX_EXPONENT_LENGTH;
 
   private final String  role;       // the role this data item plays in the test: source data, result, expected result, etc.
 
+  // The fields to hold values
   private String        strValue;
   private Object        rawData;
   private BigDecimal    bdValue;
@@ -81,123 +92,52 @@ class DataItem {
   private String        errMsg;
 
 
-  /***************************************************************************************
+  /* *************************************************************************************
   ******* Constructors *******************************************************************
   ****************************************************************************************/
 
   /**
-   * Creates a new instance with the given role
+   * Creates a new instance with the given role and empty value fields
    * @param role the value to display as a role designation in the output string
    */
   public DataItem(String role) {
     this.role = role;
   }
 
-  /***************************************************************************************
-  ******* 21.01.20 New generation of the Setters *****************************************
+  /* *************************************************************************************
+  ******* 21.01.20 The new generation of the setters *************************************
   ****************************************************************************************/
 
   /**
-   * Parses the given {@code String} and assigns the corresponding {@code Quadruple} value
-   * to the {@code quadValue} field. If the value can be represented as a {@code BigDecimal} value,
-   * assigns the corresponding {@code BigDecimal} value to the {@code bdValue} field, otherwise
-   * assigns a {@code String} representation of the value to the {@code strValue} field.
-   * Unlike #{@link DataItem#withValueOfString(String)},
-   * assigns to the {@link #bdValue} field not the exact value expressed with the input string,
-   * but the exact value of the Quadruple value derived from it, that has a limited precision and may
-   * differ from the exact value expressed by the string by approximately 1.469e-39.
-   *  <br>
-   * If the input string can't be parsed, puts a relevant error message to the {@code errMsg} field
-   * and the input string to the {@code strValue} field, leaving other fields empty (i.e. with {@code null} values).
-   * <br>
-   * To be usable for DataItems with expected values, distinguish word "error" as an indication of the fact
-   * that the operation being tested, when applied to the given input data, was expected to cause an error
-   * (like for a priori illegal source strings when testing String to Quadruple conversion)
-   * @param strValue the {@code String} that's expected to signify the numeric value to be assigned
-   * @return this instance with the fields modified as described above
-   * @see DataItem#withValueOfString(String)
+   * Assigns the given string to the {@code strValue} field.
+   * @param s the string to assign
+   * @return {@code this} instance with the new value assigned to the the {@code strValue} field.
    */
-  public DataItem withQuadValueOfString(String strValue) {
-    if ("error".equals(strValue.trim().toLowerCase()))
-      return withError("Error was expected.");
-    final Quadruple quadValue = parseQuadruple(strValue);
-    return withQuadruple(quadValue);
-  }
-
-  /**
-   * Sets the fields of the instance to reflect the value
-   * numerically equal to or closest to the value of the input parameter,
-   * that can be a {@code BigDecomal}, a {@code String}, a {@code Double}, a {@code Long},
-   * or an {@code Integer} instance.
-   * Assigns the corresponding values to the {@code quadValue} and {@code bdValue} fields.
-   * In cases of values that can't be represented by a {@code BigDecimal} (like NaN or Infinity),
-   * instead of assigning to {@code bdValue}, assigns respective string designations to the
-   * {@code strValue} field. If the parameter is a {@code String} and it can't be parsed as a numeric value,
-   * the {@code quadValue} and {@code bdValue} remains empty and the {@code errMsg} field is assigned with
-   * a relevant error message. In this case, {@code strValue} field takes the value of the input string
-   * @param rawData the data whose value is to be assigned
-   * @return this instance with the fields modified as described above
-   */
-  public DataItem withValueOf(Object rawData) {
-    if (rawData == null) return this;
-    if (rawData instanceof BigDecimal) return setBDValue((BigDecimal)rawData);
-    if (rawData instanceof String)     return withValueOfString((String)rawData);
-    if (rawData instanceof Double)     return setDoubleValue((Double)rawData);
-    if (rawData instanceof Long)       return setBDValue(new BigDecimal((Long)rawData));
-    if (rawData instanceof Integer)    return setBDValue(new BigDecimal((Integer)rawData));
-    return withError("unsupported type: " + rawData.getClass().getSimpleName());
-  }
-
-  /** Assigns the given value, that may be of any type, to the {@code rawData} field of the instance.
-   * Used to hold and display source values of various types that are to be converted to
-   * {@code Quadruple} and results of converting {@code Quadruple} values to various other types.
-   * @param rawData the value to assign
-   * @return the same instance with the given value assigned to the {@code rawData} field
-   */
-  public DataItem withRawValue(Object rawData) {
-    this.rawData = rawData;
-    return this;
-  }
-
-  /** Fills the fields of the instance with values corresponding to the given {@code Quadruple} value.
-   * Assigns the given value to the {@code quadValue} field; if the value may be represented as a {@code BigDecimal},
-   * additionally assigns the corresponding {@code BigDecimal} value to the {@code bdValue} field, otherwise (in case of NaN or Infinity)
-   * sets a {@code String} string representation of the given value in the {@code strValue} field.
-   * @param value the {@code Quadruple} whose value is to be assigned to the fields of the instance
-   * @return this instance with the fields modified as described above
-   */
-  public DataItem withQuadruple(Quadruple value) {
-    if (value == null) return this;
-    quadValue = value;
-    if (value.isZero() && value.isNegative()) {// -0
-      bdValue = new BigDecimal(0);
-      strValue = getBDasString();
-    } else if (value.exponent() != Quadruple.EXP_INF)  // An ordinary numeric value
-      bdValue = bigDecimalValueOf(value);
-    else                                        // NaN or Infinity
-      strValue = quadToString43(value);           // assign the corresponding String representation
+  public DataItem withString(String s) {
+    this.strValue = s;
     return this;
   }
 
   /**
-   * Parses the given {@code String} and assigns respective values
-   * to the fields of this instance. If the value expressed with the string can be represented as a {@code BigDecimal} value,
-   * assigns the exact {@code BigDecimal} value to the {@code bdValue} field, otherwise
+   * Parses the given {@code String} and assigns respective values to the fields
+   * of this instance.<br>
+   * If the value expressed with the string can be represented as a {@code BigDecimal} value,
+   * assigns exactly this value to the {@code bdValue} field, otherwise, in case of NaN or Infinity,
    * assigns a {@code String} representation of the value to the {@code strValue} field.
-   * Assigns a {@code Quadruple} value,
-   * that can differ from the exact input value by approximately 1.469e-39 (due to limited precision of {@code Quadruple}),
-   * to the {@code quadValue} field.<br>
+   * Assigns the best possible {@code Quadruple} approximation of the exact input value
+   * to the {@code quadValue} field. Due to limited precision of {@code Quadruple}, this value
+   * may differ from the exact input value by no more than 1.469e-39.<br>
    * Unlike {@link DataItem#withQuadValueOfString(String)}, does not align the {@code BigDecimal}
    * value to make it exactly equal to the value of the {@code quadValue},
    * but assigns to the {@link #bdValue} field the exact value expressed with the input string.
-   *  <br>
+   * <br>
    * If the input string can't be parsed, puts a relevant error message to the {@code errMsg} field
    * and the input string to the {@code strValue} field, leaving other fields empty (i.e. with {@code null} values).
    * <br>
    * To be usable for DataItems with expected values, distinguish word "error" as an indication of the fact
    * that the operation being tested, when applied to the given input data, was expected to cause an error
    * (like for a priori illegal source strings when testing String to Quadruple conversion)
-   * @param strValue the {@code String} that's expected to signify the numeric value to be assigned
+   * @param strValue a {@code String} that's expected to signify the numeric value to be assigned
    * @return this instance with the fields modified as described above
    * @see DataItem#withQuadValueOfString(String)
    */
@@ -239,6 +179,89 @@ class DataItem {
     return this;
   } // public DataItem withValueOfString(String strValue) {
 
+  /**
+   * Parses the given {@code String} and assigns the corresponding {@code Quadruple} value
+   * to the {@code quadValue} field. If the value can be represented as a {@code BigDecimal} value,
+   * assigns the corresponding {@code BigDecimal} value to the {@code bdValue} field, otherwise
+   * (e.g. "NaN" or "Infinity") assigns a {@code String} representation of the value to the {@code strValue} field.
+   * Unlike #{@link DataItem#withValueOfString(String)},
+   * assigns to the {@link #bdValue} field not the exact value expressed with the input string,
+   * but the exact value of the Quadruple value derived from it, that has a limited precision and may
+   * differ from the exact value by no more than 1.469e-39.
+   *  <br>
+   * If the input string can't be parsed, puts a relevant error message to the {@code errMsg} field
+   * and the input string to the {@code strValue} field, leaving other fields empty (i.e. with {@code null} values).
+   * <br>
+   * To be usable for DataItems with expected values, distinguish word "error" as an indication of the fact
+   * that the operation being tested, when applied to the given input data, was expected to cause an error
+   * (like for a priori illegal source strings when testing String to Quadruple conversion)
+   * @param strValue a {@code String} that's expected to signify the numeric value to be assigned
+   * @return this instance with the fields modified as described above
+   * @see DataItem#withValueOfString(String)
+   */
+  public DataItem withQuadValueOfString(String strValue) {
+    if ("error".equals(strValue.trim().toLowerCase()))
+      return withError("Error was expected.");
+    final Quadruple quadValue = parseQuadruple(strValue);
+    return withQuadruple(quadValue);
+  }
+
+  /**
+   * Sets the fields of the instance to reflect the value
+   * numerically equal to or closest to the value of the input parameter,
+   * that can be a {@code BigDecomal}, a {@code String}, a {@code Double}, a {@code Long},
+   * or an {@code Integer} instance.
+   * Assigns the corresponding values to the {@code quadValue} and {@code bdValue} fields.
+   * In cases of values that can't be represented by a {@code BigDecimal} (like NaN or Infinity),
+   * instead of assigning to {@code bdValue}, assigns respective string designations to the
+   * {@code strValue} field. If the parameter is a {@code String} and it can't be parsed as a numeric value,
+   * the {@code quadValue} and {@code bdValue} remains empty and the {@code errMsg} field is assigned with
+   * a relevant error message. In this case, {@code strValue} field takes the value of the input string
+   * @param rawData the data whose value is to be assigned
+   * @return this instance with the fields modified as described above
+   */
+  public DataItem withValueOf(Object rawData) {
+    if (rawData == null) return this;
+    if (rawData instanceof BigDecimal) return setBDValue((BigDecimal)rawData);
+    if (rawData instanceof String)     return withValueOfString((String)rawData);
+    if (rawData instanceof Double)     return setDoubleValue((Double)rawData);
+    if (rawData instanceof Long)       return setBDValue(new BigDecimal((Long)rawData));
+    if (rawData instanceof Integer)    return setBDValue(new BigDecimal((Integer)rawData));
+    return withError("unsupported type: " + rawData.getClass().getSimpleName());
+  }
+
+  /** Fills the fields of the instance with values corresponding to the given {@code Quadruple} value.<br>
+   * Assigns the given value to the {@code quadValue} field; if the value may be represented
+   * as a {@code BigDecimal}, additionally assigns the corresponding {@code BigDecimal} value
+   * to the {@code bdValue} field, otherwise (in case of NaN or Infinity) sets a {@code String}
+   * representation of the given value in the {@code strValue} field.
+   * @param value the {@code Quadruple} whose value is to be assigned to the fields of the instance
+   * @return this instance with the fields modified as described above
+   */
+  public DataItem withQuadruple(Quadruple value) {
+    if (value == null) return this;
+    quadValue = value;
+    if (value.isZero() && value.isNegative()) {// -0
+      bdValue = new BigDecimal(0);
+      strValue = getBDasString();
+    } else if (value.exponent() != Quadruple.EXPONENT_OF_INFINITY)  // An ordinary numeric value
+      bdValue = bigDecimalValueOf(value);
+    else                                        // NaN or Infinity
+      strValue = quadToString43(value);           // assign the corresponding String representation
+    return this;
+  }
+
+  /** Assigns the given value, that may be of any type, to the {@code rawData} field of the instance.
+   * Used to hold and display source values of various types that are to be converted to
+   * {@code Quadruple} and results of converting {@code Quadruple} values to various other types.
+   * @param rawData the value to assign
+   * @return the same instance with the given value assigned to the {@code rawData} field
+   */
+  public DataItem withRawValue(Object rawData) {
+    this.rawData = rawData;
+    return this;
+  }
+
   /** Sets the given error message, after prepending it with "Error: ", in the {@code errMsg} field.
    * @param errMsg the message to set
    * @return this instance with the {@code errMsg} field containing the error message
@@ -260,8 +283,7 @@ class DataItem {
     return withError(errMsg);
   }
 
-
-  /***************************************************************************************
+  /* *************************************************************************************
   ******* Getters ************************************************************************
   ****************************************************************************************/
 
@@ -317,23 +339,23 @@ class DataItem {
    * Returns a string that designate the role of the item and represents the contents of the fields
    * in a form suitable for printing to console when testing operations.<br>
    * If the item contains an error message, appends it to the role,
-   * preceding it with the contents of the source string value (if it's not empty), e.g.<pre>
-   * val: '.e35': Error java.lang.NumberFormatException converting .e35 to a numeric value</pre>
-   * or <pre>
-   * res: Error: java.lang.NumberFormatException: Can't convert POSITIVE_INFINITY to BigDecimal
+   * preceding it with the contents of the source string value (if it's not empty), e.g.
+   * <pre> val: '.e35': Error java.lang.NumberFormatException converting .e35 to a numeric value</pre>
+   * or
+   * <pre> res: Error: java.lang.NumberFormatException: Can't convert POSITIVE_INFINITY to BigDecimal
    *             performing Quadruple.bigDecimalValue() on Infinity </pre>
-   * Otherwise, if the {@code rawData} field is not empty, returns the role along with a string
-   * form of the contents of the field, e.g.<pre>
-   * src:  12345.0
-   * </pre>
-   * Otherwise, builds a String from the role designation,
+   * Otherwise, if the {@code rawData} field is not empty and not an array, returns the role
+   * along with a string form of the contents of the field, e.g.
+   * <pre> src:  12345.0</pre>
+   * Otherwise, if the {@code rawData} field is an array, returns the role along the contents of
+   * the {@code strValue} field (that contains a string representation of the array in this case), e.g.
+   * <pre> res:  59d3_8fae_383c_132b 6d14_f1b6_5e9c_6dcd</pre>
+   * Otherwise, builds a string from the role designation,
    * a decimal representation of the BigDeciamal value from the {@code bdValue} field
    * or a string representation of a value in case if the value is not valid for BigDecimal,
-   * and a hexadecimal representation of the {@code Quadruple} value from the {@code quadValue} field, e.g. <pre>
-   * res:  1.2345000000000000000000000000000000000000000e+04        (+81c8_0000_0000_0000 0000_0000_0000_0000 e 8000_000c)
-   * </pre> or <pre>
-   * res: Infinity                                                  (+0000_0000_0000_0000 0000_0000_0000_0000 e ffff_ffff)
-   * </pre>
+   * and a hexadecimal representation of the {@code Quadruple} value from the {@code quadValue} field, e.g.
+   * <pre> res:  1.2345000000000000000000000000000000000000000e+04        (+81c8_0000_0000_0000 0000_0000_0000_0000 e 8000_000c)</pre> or
+   * <pre> res: Infinity                                                  (+0000_0000_0000_0000 0000_0000_0000_0000 e ffff_ffff)</pre>
    * The hexadecimal representation of the {@code Quadruple} value consists of the sign and
    * the hexadecimal forms of the {@code mantHi} and {@code mantLo} fields of the Quadruple instance,
    * followed by the hexadecimal form of its exponent after the letter 'e'.
@@ -346,7 +368,7 @@ class DataItem {
     else if (rawData != null) {
       s = rawData.toString();
       if (Character.isDigit(s.charAt(0)))
-        s = " " + s;          // Число без знака -- добавить пробел для выравнивания
+        s = " " + s;          // A number without a sign -- add space to align
       else if (s.startsWith("["))
         s = strValue;        // If rawData is an array, strValue contains its hex representation
     } else {
@@ -356,7 +378,7 @@ class DataItem {
     return role + ": " + s;
   }
 
-  /***************************************************************************************
+  /* *************************************************************************************
   ******* Private methods  ***************************************************************
   ****************************************************************************************/
 
@@ -395,23 +417,23 @@ class DataItem {
   /**
    * Sets the input value in the {@code bdValue} field, and finds and sets in the {@code quadValue} field
    * the nearest possible approximation of that value.
-   * @param bdValue the value to set
+   * @param value the value to set
    * @return this instance with the fields modified as described above
    */
-  private DataItem setBDValue(BigDecimal bdValue) { // 19.11.15 17:24:47
-    if (bdValue.compareTo(MAX_VALUE_THRESHOLD) >= 0)
+  private DataItem setBDValue(BigDecimal value) { // 19.11.15 17:24:47
+    if (value.compareTo(MAX_VALUE_THRESHOLD) >= 0)
       withQuadruple(Quadruple.positiveInfinity());
-    else if (bdValue.compareTo(MAX_VALUE_THRESHOLD.negate()) <= 0)
+    else if (value.compareTo(MAX_VALUE_THRESHOLD.negate()) <= 0)
       withQuadruple(Quadruple.negativeInfinity());
     else {
-      this.bdValue = bdValue;
-      quadValue = buildQuadruple(bdValue);
+      bdValue = value;
+      quadValue = buildQuadruple(value);
     }
     return this;
   } // private DataItem setBDValue(BigDecimal bdValue) {
 
   /**
-   * Sets the fields of the instance so that they represent the exact value of the input value
+   * Sets the fields of the instance so that they represent the exact value of the input {@code double} value
    * @param d the value to set
    * @return this instance with the fields modified as described above
    */
@@ -428,8 +450,8 @@ class DataItem {
   } // private DataItem setDoubleValue(Double d) {
 
   /**
-   * Returns an uniformly formatted BigDecimal from the {@code bdValue} field, or, if it's empty,
-   * a string representation of the Quadruple from the {@code quadValue} field (it may be NaN or Infinity that are not valid for BigDecimal)
+   * Returns an uniformly formatted string representation of the value of the {@code bdValue} field, or, if it's empty,
+   * a string representation of the value of the {@code quadValue} field (it may be NaN or Infinity that are not valid for BigDecimal)
    * @return
    */
   private String getBDasString() {
@@ -448,12 +470,12 @@ class DataItem {
   }
 
   /**
-   * Returns a string representation for a value that isn't valid for BigDecimal -- NaN or Infinity
+   * Returns a string representation of a value that isn't valid for BigDecimal -- NaN or Infinity
    */
   private String stringOfSpecQuadValue(Quadruple quadValue) {
     if (quadValue == null)
       return "---";
-    if (quadValue.exponent() == Quadruple.EXP_INF) {
+    if (quadValue.exponent() == Quadruple.EXPONENT_OF_INFINITY) {
       if ((quadValue.mantHi() | quadValue.mantLo()) != 0)
         return "NaN";
       if (quadValue.isNegative())
@@ -464,13 +486,6 @@ class DataItem {
     assert false: "Regular quad value and bdValue == null";
     return null;    // Actually should never happen, since it may be invoked only in case when bdValue could not be deduced from quadValue
   }
-
-
-  public DataItem withString(String s) {
-    this.strValue = s;
-    return this;
-  }
-
 
 }
 

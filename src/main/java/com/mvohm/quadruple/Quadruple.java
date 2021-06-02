@@ -578,7 +578,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Builds a Quadruple value from the given low-level parts and assigns it to the instance.<br>
    * Treats the {@code exponent} parameter as the biased exponent value,
-   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0xFFFF_FFFEL}) 
+   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0xFFFF_FFFEL})
    * corresponds to the {@code Quadruple} value of 1.0.
    * @param negative   the sign of the value ({@code true} for negative)
    * @param exponent  Binary exponent (biased, so that 0x7FFF_FFFF corresponds to 2^0)
@@ -615,7 +615,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Builds a non-negative Quadruple value from the given low-level parts and assigns it to the instance.<br>
    * Treats the {@code exponent} parameter as the biased exponent value,
-   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0xFFFF_FFFEL}) 
+   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0xFFFF_FFFEL})
    * corresponds to the {@code Quadruple} value of 1.0.
    * @param exponent  Binary exponent (biased, 0x7FFF_FFFF means 2^0)
    * @param mantHi  The most significant 64 bits of the fractional part of the mantissa
@@ -3582,8 +3582,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return this instance with the new value
    */
   private Quadruple assignMaxValue() {
-    negative = false; 
-    exponent = (int)EXPONENT_OF_MAX_VALUE; 
+    negative = false;
+    exponent = (int)EXPONENT_OF_MAX_VALUE;
     mantHi = mantLo = -1;
     return this;
   } // private Quadruple assignMaxValue() {
@@ -3622,8 +3622,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /**
    * Assigns the value of -0 to this instance.
-   * @return this instance with the new value (+0)
+   * @return this instance with the new value (-0)
    */
+  @SuppressWarnings("unused") // May occur helpful?
   private Quadruple assignMinusZero() {
     negative = true;
     mantHi = mantLo = exponent = 0;
