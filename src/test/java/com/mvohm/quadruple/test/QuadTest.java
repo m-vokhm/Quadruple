@@ -320,12 +320,12 @@ public class QuadTest {
     TesterClasses.setVerbosity((Verbosity)COMMAND_LINE_ARGS.get(ArgumentKeys.VERBOSITY));
     DataProviders.setRandomCount(((Long)COMMAND_LINE_ARGS.get(ArgumentKeys.RANDOM_COUNT)).intValue());
 
-    final TestResults totalResults = new TestResults(Consts.NORM_ERR_THRESH);
+    final TestResults totalResults = new TestResults(Consts.NORM_ERR_THRESH, Verbosity.SILENT);
     final boolean toStopOnError = "y".equals(COMMAND_LINE_ARGS.get(ArgumentKeys.EXIT_ON_ERROR));
     for (final QuadTester t: testers) {
       final TestResults results = t.test();
       totalResults.register(results);
-      if (   (results.getErrCount() != 0 || results.getBitDiffCount() != 0)
+      if (   (results.getErrorCount() != 0 || results.getBitDifferenceCount() != 0)
            && toStopOnError )
         break;
     }

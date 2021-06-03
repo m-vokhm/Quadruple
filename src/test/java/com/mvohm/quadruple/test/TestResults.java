@@ -25,21 +25,26 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.test.TesterClasses.Verbosity;
 
 /**
- * A device for collecting statistics on test errors and displaying the results of the performed tests.
- * An instance of this class is created by a tester class intended to test an individual {@code Quadruple} method,
- * before the tester class starts working.<br>
- * Then, after performing the test on each individual test case,
- * a set of {@linkplain DataItem} instances that contain the source data and the operation result,
- * is passed to methods {@linkplain #record(DataItem, DataItem, DataItem)}
- * or {@linkplain #record(DataItem, DataItem, DataItem, DataItem)}
- * (depending on the type of the operation being tested), which register test results.<br>
+ * A device for collecting statistics on test errors and displaying the results of the performed tests.<br>
  *
- * When the tests are finished, the summary test results, such as MSE, or mean error, or error counts,
- * can be obtained via respective getters.<br>
+ * An instance of this class is created by a tester class intended to test an individual
+ * {@code Quadruple} method, before the tester class starts executing proper tests.<br>
+ *
+ * Then, on performing the test on each individual test case, a set of {@link DataItem}
+ * instances that contain the source data, the operation result, and the expected value
+ * of the result, is passed to methods {@linkplain #record(DataItem, DataItem, DataItem)}
+ * or {@linkplain #record(DataItem, DataItem, DataItem, DataItem)} (depending on the type
+ * of the operation being tested), which register the test results.<br>
+ *
+ * When the tests are finished, the summary test results, such as mean error, MSE,
+ * and error counts, can be obtained via respective getters.<br>
+ *
  * Besides that, a brief report of the form<pre>
+
  Results of testing operand.sqrt();
  on 1203 samples with err threshold 1.470e-39
   MSE        =  3.935e-79
@@ -54,39 +59,40 @@ import com.mvohm.quadruple.test.TesterClasses.Verbosity;
 
  * can be generated and obtained using {@link #getReport(String)} method.<br>
  *
- * The test data and the results may be printed to the console, in case if the instance was created with
- * {@code verbosity} parameter that allows such output. The output includes involved data
- * in decimal and hexadecimal forms and an indication of an error (if the error presents), and looks like the following:
-
+ * During the test execution, the test data and the results for every individual test case
+ * may get printed to the console, in case if the instance was created with {@code verbosity}
+ * parameter that allows such output.
+ * The output for a test case includes involved data in decimal and hexadecimal forms and
+ * an indication of an error (if it presents), and may look like the following:
  <pre>
- * 1200: src:  6.0075035027764865517221905485888473758331471e+318423594 (+7c22_dca1_b2e1_451e 3b43_b0b0_ed29_35f5 e bf0c_723c)
- *       res:  2.4510209103099236006979103883530902996808415e+159211797 (+b92b_28a1_96a5_be40 fe4a_cb66_8df2_e5f1 e 9f86_391d)
- *       exp:  2.4510209103099236006979103883530902996813872e+159211797 (+b92b_28a1_96a5_be40 fe4a_cb66_8df2_e5f1 e 9f86_391d)
- ****      39                                          ^^^^^            (-2.226e-40)</pre>
 
- * This shows the ordinal number of the data sample (1200), the value of input argument for the operation
- * being tested (Quadruple.sqrt() in this example), marked with "src",
- * the value of the result of the operation ("res"), the value of the the expected result ("exp"),
- * and the difference between the latter two: decimal values differ in the 39-th digit after point,
- * relative error is -2.226e-40.<br>
+  1200: src:  6.0075035027764865517221905485888473758331471e+318423594 (+7c22_dca1_b2e1_451e 3b43_b0b0_ed29_35f5 e bf0c_723c)
+        res:  2.4510209103099236006979103883530902996808415e+159211797 (+b92b_28a1_96a5_be40 fe4a_cb66_8df2_e5f1 e 9f86_391d)
+        exp:  2.4510209103099236006979103883530902996813872e+159211797 (+b92b_28a1_96a5_be40 fe4a_cb66_8df2_e5f1 e 9f86_391d)
+ &#42;**      39                                          ^^^^^            (-2.226e-40)</pre>
+
+ * This shows the ordinal number of the data sample (1200 in the above example),
+ * the value of the input argument for the operation being tested (in this example it's {@link Quadruple#sqrt()}),
+ * marked with the "src" label, the value of the result of the operation (marked with "res"),
+ * the value of the the expected result ("exp"), and the difference between the latter two:
+ * decimal values differ in the 39-th digit after point, and the relative error is -2.226e-40.<br>
+ * <br>
  * In case of error the output for a test sample may look like the following:
-
  <pre>
- * 4080: src:  2.0007498742609427977136284742732350987201479e+641685196 (+9641_7ab8_731c_133a 2c21_e350_af94_2715 e ff0e_1fd0)
- *       res:  2.000749874260942797714628474273235098720e+641685196
- *       val:  2.0007498742609427977146284742732350987200000e+641685196 (+9641_7ab8_731c_133a 2fe0_c5d3_ee92_9e6e e ff0e_1fd0)
- *       exp:  2.0007498742609427977136284742732350987201479e+641685196 (+9641_7ab8_731c_133a 2c21_e350_af94_2715 e ff0e_1fd0)
- *$$$                                                                                          ^^^ ^^^^ ^^ ^ ^^^^
- *******   21                        ^                  ^^^^            (4.998e-22)</pre>
 
- * where the line starting with "$$$" shows the bitwise difference between Quadruple values,
- * and the next line shows that the values are differ in the 21st digit after point and the relative error is 4.998e-22
+  4080: src:  2.0007498742609427977136284742732350987201479e+641685196 (+9641_7ab8_731c_133a 2c21_e350_af94_2715 e ff0e_1fd0)
+        res:  2.000749874260942797714628474273235098720e+641685196
+        val:  2.0007498742609427977146284742732350987200000e+641685196 (+9641_7ab8_731c_133a 2fe0_c5d3_ee92_9e6e e ff0e_1fd0)
+        exp:  2.0007498742609427977136284742732350987201479e+641685196 (+9641_7ab8_731c_133a 2c21_e350_af94_2715 e ff0e_1fd0)
+ $$$                                                                                          ^^^ ^^^^ ^^ ^ ^^^^
+ &#42;*****   21                        ^                  ^^^^            (4.998e-22)</pre>
 
-
+ * where the line starting with "$$$" shows the bitwise difference between the {@code Quadruple} values,
+ * and the next line shows that the values are differ in the 21st digit after the point and the relative error is 4.998e-22.
+ *
  * @author M.Vokhmentsev
  */
 public class TestResults {
-
   // Output formatting
   private static final String   BAD_ERROR_MARK =        " ***** ";                            // to mark errors exceeding the threshold
   private static final String   ACCEPTABLE_ERROR_MARK = " ***   ";
@@ -104,12 +110,12 @@ public class TestResults {
   private final Verbosity verbosity;
 
 
-  // Error stats
+  // Error statistics
 	private double mse;
 	private double meanError;
 	private double maxError;
 
-	private int testCount;       // + 20.11.01 10:44:05 An amount of tests performed
+	private int testCount;       // + 20.11.01 10:44:05 The number of tests performed -- for summary results
 	private int sampleCount;
 	private int errCount;
 	private int bitDiffCount;
@@ -117,18 +123,19 @@ public class TestResults {
 
 	private boolean summarized = false;
 
-  private String expStr, resStr; // to avoid multiple calls to toString()
+  private String expStr, resStr; // To be computed once per data sample
 
 	/**
-	 * Creates a new instance with the given error threshold and verbosity mode.
-	 * The value passed in as the {@code threshold} parameter is used to distinguish an acceptable inaccuracy,
-	 * inevitable by design, from errors that are indicatives of software bugs.
+	 * Creates a new instance with the given error threshold and verbosity mode.<br>
+	 * The value passed in as the {@code threshold} parameter is used to discriminate
+	 * an acceptable inaccuracy, inevitable by design, from errors that are indicatives of software bugs.
 	 * Typically the threshold value for {@code Quadruple} is 1.470e-39,
 	 * which corresponds to half of the least significant bit of the mantissa.
 	 * The test cases with an error below the threshold don't affect the number of registered errors,
 	 * yet do affect statistics (mean error, max error and MSE).
-	 * The value of the {@code verbosity} parameter controls whether the test data will be output to the console
-	 * during testing. The only value that enables the output is {@code Verbosity.TALKATIVE}.
+	 * The value of the {@code verbosity} parameter controls whether the test data for each
+	 * data sample will be output to the console during testing. The only value that enables
+	 * the output is {@code Verbosity.TALKATIVE}.
 	 * @param threshold defines the threshold to distinguish an acceptable inaccuracy from an error
 	 * @param verbosity controls the ability of the created instance to print data to the console. {@code Verbosity.TALKATIVE} enables the output.
 	 */
@@ -138,39 +145,28 @@ public class TestResults {
 	}
 
   /**
-   * Creates a new instance with the given error threshold and the default verbosity mode, that disables the output to the console.
-   * The value passed in as the {@code threshold} parameter is used to distinguish an acceptable inaccuracy,
-   * inevitable by design, from errors that are indicatives of software bugs.
-   * Typically the threshold value for {@code Quadruple} is 1.470e-39,
-   * which corresponds to half of the least significant bit of the mantissa.
-   * The test cases with an error below the threshold don't affect the number of registered errors,
-   * yet do affect statistics (mean error, max error and MSE).
-   * @param errThreshold defines the threshold to distinguish an acceptable inaccuracy from an error
-   */
-	public TestResults(double errThreshold) {
-	  verbosity = Verbosity.MEDIUM;
-	  this.errThreshold = errThreshold;
-	}
-
-  /**
-   * Registers the result of a test of an operation on a single data instance for unary operations.
+   * Registers the result of a test of an operation on a single data instance for unary operations.<br>
+   *
    * The {@code DataItem} parameters {@code srcData}, {@code result}, and {@code expected}
    * contain data pertaining to the test -- source data value (the input parameter of the tested operation),
-   * the actual result of the operation performed on this value, and the expected result of the operation, respectively. <br>
+   * the actual result of the operation performed on this value, and the expected result of the operation,
+   * respectively. <br>
+   *
    * If the output is enabled, i.e. the instance is created with the {@code Verbosity.TALKATIVE} parameter,
    * prints decimal and hexadecimal forms of the three values to the console.
    * Then, in case if the input data is marked as erroneous and the {@code expected} parameter does not indicate that
-   * the error was foreseen, registers the source error incrementing the {@code srcErrCount} field and prints
-   * the corresponding message (if the output is enabled).<br>
+   * the error was expected for this data sample, registers the source error incrementing the {@code srcErrCount}
+   * field and prints the corresponding message (if the output is enabled).<br>
+   *
    * If the source data is error-free, compares the actual result of the operation with the expected result.
    * Checks the equality of the {@code Quadruple} values of the {@code result} and {@code expected} parameters,
    * and, if they differ, registers the difference by incrementing the value of the {@code bitDiffCount} field.
-   * Then compares the {@code BigDecimal} values of the {@code result} and {@code expected} parameters,
-   * and, if they differ, calculates the relative error and registers it by modifying
-   * {@code meanError}, {@code mse}, and {@code maxError} fields and, if the error
-   * exceeds the {@code threshold} value that was set when the instance was created, increments the {@code errCount}.
-   * If the output is enabled, prints corresponding error messages indicating the error magnitude
-   * and the positions of characters that differ in the string representations of the {@code result} and {@code expected} parameters.
+   * Then compares the {@code BigDecimal} values of these parameters, and, if they differ, calculates
+   * the relative error and registers it by modifying {@code meanError}, {@code mse}, and {@code maxError}
+   * fields, and, if the error exceeds the {@code threshold} value that was set by the constructor,
+   * increments the {@code errCount}. If the output is enabled, prints corresponding error messages
+   * indicating the error magnitude and the positions of characters that differ in the string representations
+   * of the {@code result} and {@code expected} parameters.
    *
    * @param srcData the source data that was used for the test (the argument of the operation)
    * @param result the actual result of the tested operation
@@ -189,13 +185,15 @@ public class TestResults {
   }
 
   /**
-   * Registers the result of a test of an operation on a single data instance
-   * for binary operations and conversions from {@code Quadruple} to other types and vice versa.
+   * Registers the result of a test of an operation on a single data instance for binary operations
+   * and conversions from {@code Quadruple} to other types and from other types to {@code Quadruple}.<br>
+   *
    * The {@code DataItem} parameters {@code srcData}, {@code result}, {@code resultValue} and {@code expected}
    * contain data pertaining to the test:<ul>
    * <li>source data value (the input parameter of the tested operation) or the first of the two operands for binary operations,
-   * <li>the actual result of the operation performed on this value or the second of the two operands for binary operations,
-   * <li>the numeric value of the result, <li>and the numeric value of the expected result of the operation, respectively. </ul>
+   * <li>the actual result of the conversion performed on this value or the second operand for binary operations,
+   * <li>the numeric value of the result,
+   * <li>and the numeric value of the expected result of the operation, respectively. </ul>
    *
    * The {@code srcData} and {@code result} parameters do not necessarily contain numeric values;
    * in the case of testing conversions, one of them contains a value of the type
@@ -206,23 +204,24 @@ public class TestResults {
    * If the output is enabled, i.e. the instance is created with the {@code Verbosity.TALKATIVE} parameter,
    * prints decimal and hexadecimal forms of the four values to the console.
    * For a parameter that does not contain {@code BigDecimal} and {@code Quadruple} values,
-   * the value of its {@code rawData} field is printed using its {@code toString()} method.<br>
+   * the value of its {@code strValue} field or, if it's empty, its {@code rawData} field is printed.<br>
    *
    * Then, in case if the input data is marked as erroneous and the {@code expected} parameter does not indicate that
-   * the error was foreseen, registers the source error incrementing the {@code srcErrCount} field and prints
-   * the corresponding message (if the output is enabled).<br>
+   * the error was expected for this data sample, registers the source error incrementing the {@code srcErrCount}
+   * field and prints the corresponding message (if the output is enabled).<br>
+   *
    * If the source data is error-free, compares the value of the actual result of the operation with the expected result.
    * Checks the equality of the {@code Quadruple} values of the {@code resultValue} and {@code expected} parameters,
    * and, if they differ, registers the difference by incrementing the value of the {@code bitDiffCount} field.
-   * Then compares the {@code BigDecimal} values of the {@code resultValue} and {@code expected} parameters,
-   * and, if they differ, calculates the relative error and registers it by modifying
-   * {@code meanError}, {@code mse}, and {@code maxError} fields and, if the error
-   * exceeds the {@code threshold} value that was set when the instance was created, increments the {@code errCount}.
-   * If the output is enabled, prints corresponding error messages indicating the error magnitude
-   * and the positions of characters that differ in the string representations of the {@code result} and {@code expected} parameters.
+   * Then compares the {@code BigDecimal} values of these parameters, and, if they differ, calculates
+   * the relative error and registers it by modifying {@code meanError}, {@code mse}, and {@code maxError}
+   * fields and, if the error exceeds the {@code threshold} value that was set by the constructor,
+   * increments the {@code errCount}. If the output is enabled, prints corresponding error messages
+   * indicating the error magnitude and the positions of characters that differ in the string representations
+   * of the {@code resultValue} and {@code expected} parameters.
    *
-   * @param srcData the source data that was used for the test or the first argument of the operation
-   * @param result the actual result of the tested operation or the second argument of the operation
+   * @param srcData the source data of the tested conversion or the first argument of the tested binary operation
+   * @param result the actual result of the tested conversion or the second argument of the tested binary operation
    * @param resultValue the numeric value of the actual result of the tested operation
    * @param expected the expected result of the tested operation
    * @see DataItem
@@ -240,15 +239,30 @@ public class TestResults {
   }
 
   /**
+   * Performs final calculations that must be done before using the results, such as
+   * calculation of the mean error etc.<br>
+   * Must be invoked by any of the particular tests after finishing test execution with all its test data,
+   * before the results are registered with the summary results.
+   */
+  public void summarize() {
+    meanError = meanError / sampleCount;
+    mse = mse / sampleCount;
+    summarized = true;
+  }
+
+  /**
    * Adds the results of a particular test performed on a specific operation,
-   * accumulated by the passed instance of the {@code TestResults},
+   * accumulated by the passed-in instance of the {@code TestResults},
    * to the summary results being accumulated by {@code this} instance,
-   * in order to evaluate summarized results for all tests performed.
+   * in order to evaluate summarized results for all performed tests.
    * @param testResults an instance of the {@code TestResults} containing the results of testing a specific operation
    */
   public void register(TestResults testResults) {
     if (summarized)
-      throw new IllegalArgumentException("Can't update a summarized data item");
+      throw new IllegalArgumentException("Can't update summarized results");
+    if (!testResults.summarized)
+      throw new IllegalArgumentException("Partial results must be summarized before their registration");
+
     this.testCount++;
 
     this.errCount     += testResults.errCount;
@@ -262,47 +276,41 @@ public class TestResults {
   }
 
   /**
-   * Performs final calculations that must be done before using the results
-   */
-  public void summarize() {
-    meanError = meanError / sampleCount;
-    mse = mse / sampleCount;
-    summarized = true;
-  }
-
-  /**
-   * Returns the number of cases found where the relative error has exceeded a threshold.
+   * Returns the number of data samples in which the detected relative error exceeded the
+   * threshold set for this {@code TestResults} instance.
    * @return the number of errors exceeding the threshold
    */
-  public int getErrCount()     { return errCount; }
+  public int getErrorCount()     { return errCount; }
 
   /**
-   * Returns the number of cases found where the {@code Quadruple} value of the result of an operation
-   * was not exactly equal to the {@code Quadruple} value of the expected result (i.e. binary differs by at least one bit).
+   * Returns the number of data samples in which the {@code Quadruple} value of the actual result
+   * of the tested operation was not exactly equal to the {@code Quadruple} value of the expected result,
+   * i.e. binary representations of the two {@code Quadruple} values differed by at least one bit.
    * @return the number of errors in binary representations of the results
    */
-  public int getBitDiffCount() { return bitDiffCount; }
+  public int getBitDifferenceCount() { return bitDiffCount; }
 
   /**
-   * Returns the number of cases found where input parameters for the operation being tested were invalid
-   * (could not be parsed as numeric values of the expected source type)
+   * Returns the number of data samples in which input parameters
+   * for the operation being tested were invalid, i.e. could not be parsed
+   * as numeric values of the expected source type.
    * @return the number of errors in the input data
    */
-  public int getSrcErrCount()  { return srcErrCount; }
+  public int getSourceErrorCount()  { return srcErrCount; }
 
   /**
-   * For summary results, returns the number of particular tests whose results were
-   * accumulated to evaluate the summary results contained in this instance
-   * @return test name for the summary test. Indicated the number of partial tests taken into account
+   * For summary results, returns a string containing the number of particular tests whose results were
+   * accumulated to evaluate the summary results contained in this instance.<br>
+   * The returned string reads "summary of N tests", where N is the number of performed tests.
+   * @return A test name for the summary test. Indicates the number of partial tests taken into account
    */
   public String getSummaryTestName() {
     return "summary of " + testCount + " tests";
   }
 
-
   /**
-   * Generates and returns a report containing statistics on encountered errors,
-   * of the following form:<pre>
+   * Generates and returns a brief human-readable report containing statistics on encountered errors.<br>
+   * The report looks like the following:<pre>
 
 Results of testing op1.add(Quadruple op2)
 on 3144 samples with err threshold 1.470e-39
@@ -316,7 +324,7 @@ on 3144 samples with err threshold 1.470e-39
   Src errors =      0
 
 </pre>
-   * @param testName a name of the tested operation to include to the report (in the example above, it's "op1.add(Quadruple op2)")
+   * @param testName a name of the tested operation to include to the report (in the above example, it's "op1.add(Quadruple op2)")
    * @return a string consisting of a few lines with a human-readable representation of the test results, as described above
    */
   public String getReport(String testName) {
@@ -336,7 +344,7 @@ on 3144 samples with err threshold 1.470e-39
   /**
    * If the output to the console is enabled, prints the contents of the given
    * {@code DataItem} instances, using their {@code toString()} methods.
-   * The first line preceded with the ordinal number of the data sample.
+   * The first line is prepended with the ordinal number of the data sample.
    * @param srcData
    * @param result
    * @param resultValue
@@ -346,7 +354,7 @@ on 3144 samples with err threshold 1.470e-39
     sayIfVerbose(String.format("%6d: %s", sampleCount, srcData.toString()));
     sayIfVerbose(String.format("%7s %s", "", result.toString()));
 
-    resStr = resultValue.toString();    // to avoid multiple calls to toString()
+    resStr = resultValue.toString();    // to avoid multiple calls to toString(). Next time will get it from there
     sayIfVerbose(String.format("%7s %s", "", resStr));
     expStr = expected.toString();       // to avoid multiple calls to toString()
     sayIfVerbose(String.format("%7s %s", "", expStr));
@@ -355,7 +363,7 @@ on 3144 samples with err threshold 1.470e-39
   /**
    * If the output to the console is enabled, prints the contents of the given
    * {@code DataItem} instances, using their {@code toString()} methods.
-   * The first line preceded with the ordinal number of the data sample.
+   * The first line is prepended with the ordinal number of the data sample.
    * @param srcData
    * @param resultValue
    * @param expected
@@ -371,7 +379,7 @@ on 3144 samples with err threshold 1.470e-39
 
   /**
    * Checks whether the data sample that was used for the test has an error in the input arguments.
-   * Increments the {@code srcErrCount} if an error presents where it was not foreseen
+   * Increments the {@code srcErrCount} if an error presents in a data sample where it was not foreseen
    * @param srcData
    * @param srcValue
    * @param result

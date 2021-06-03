@@ -40,7 +40,7 @@ import static com.mvohm.quadruple.test.AuxMethods.say;
 @TestInstance(Lifecycle.PER_CLASS)
 public class QuadJUnitTest {
 
-  private static final TestResults totalResults = new TestResults(Consts.NORM_ERR_THRESH);
+  private static final TestResults totalResults = new TestResults(Consts.NORM_ERR_THRESH, Verbosity.SILENT);
 
   /**
    * Prepares the testing environment.<br>
@@ -49,8 +49,6 @@ public class QuadJUnitTest {
    */
   @BeforeAll
   public static void setup() {
-    say("See -- method setup() is executed @BeforeAll");
-
     TesterClasses.setVerbosity(Verbosity.SILENT);
     DataProviders.setRandomCount(100);
     Locale.setDefault(Locale.US);
@@ -60,8 +58,6 @@ public class QuadJUnitTest {
   public void showResults() {
     say("======");
     say(totalResults.getReport(totalResults.getSummaryTestName()));
-
-    say("See -- method showResults() is executed @AfterAll");
   }
 
   /**
@@ -75,9 +71,9 @@ public class QuadJUnitTest {
     final TestResults results = new QuadToStringTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testQuadToStringConversion() {
@@ -93,9 +89,9 @@ public class QuadJUnitTest {
     final TestResults results = new QuadToDoubleTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testQuadToDoubleConversion() {
@@ -111,9 +107,9 @@ public class QuadJUnitTest {
     final TestResults results = new QuadToLongTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testQuadToLongConversion() {
@@ -129,9 +125,9 @@ public class QuadJUnitTest {
     final TestResults results = new QuadToIntTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testQuadToIntConversion() {
@@ -147,9 +143,9 @@ public class QuadJUnitTest {
     final TestResults results = new QuadToBdTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testQuadToBdConversion() {
@@ -165,9 +161,9 @@ public class QuadJUnitTest {
     final TestResults results = new StringToQuadTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testStringToQuadConversion() {
@@ -183,9 +179,9 @@ public class QuadJUnitTest {
     final TestResults results = new BdToQuadTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testBdToQuadConversion() {
@@ -201,9 +197,9 @@ public class QuadJUnitTest {
     final TestResults results = new DoubleToQuadTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testDoubleToQuadConversion() {
@@ -219,9 +215,9 @@ public class QuadJUnitTest {
     final TestResults results = new LongToQuadTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } //public void testLongToQuadConversion() {
@@ -237,9 +233,9 @@ public class QuadJUnitTest {
     final TestResults results = new InstanceAdditionTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testInstanceAddition() {
@@ -255,9 +251,9 @@ public class QuadJUnitTest {
     final TestResults results = new InstanceSubtractionTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testInstanceSubtraction() {
@@ -273,9 +269,9 @@ public class QuadJUnitTest {
     final TestResults results = new InstanceMultiplicationTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testInstanceMultiplication() {
@@ -291,9 +287,9 @@ public class QuadJUnitTest {
     final TestResults results = new InstanceDivisionTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testInstanceDivision() {
@@ -309,9 +305,9 @@ public class QuadJUnitTest {
     final TestResults results = new StaticAdditionTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testStaticAddition() {
@@ -327,9 +323,9 @@ public class QuadJUnitTest {
     final TestResults results = new StaticSubtractionTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testStaticSubtraction() {
@@ -345,9 +341,9 @@ public class QuadJUnitTest {
     final TestResults results = new StaticMultiplicationTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testStaticMultiplication() {
@@ -363,9 +359,9 @@ public class QuadJUnitTest {
     final TestResults results = new StaticDivisionTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testStaticDivision() {
@@ -382,9 +378,9 @@ public class QuadJUnitTest {
     final TestResults results = new QuadToStringToQuadTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testQuadToStringToQuad() {
@@ -401,9 +397,9 @@ public class QuadJUnitTest {
     final TestResults results = new QuadToBDToQuadTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testQuadToBDToQuad() {
@@ -419,9 +415,9 @@ public class QuadJUnitTest {
     final TestResults results = new StaticSqrtTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testStaticSqrt() {
@@ -437,9 +433,9 @@ public class QuadJUnitTest {
     final TestResults results = new InstanceSqrtTester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
-          results.getErrCount(),
-          results.getBitDiffCount(),
-          results.getSrcErrCount() },
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
         new int[] {0, 0, 0}
     );
   } // public void testInstanceSqrt() {
