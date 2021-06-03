@@ -29,7 +29,7 @@ import java.math.MathContext;
 import com.mvohm.quadruple.Quadruple;
 
 /**
- * A set of convenience methods to be used by other classes of the quadruple.test package.
+ * A set of convenience static methods to be used by other classes of the quadruple.test package.
  * Includes mainly a number of methods to convert values of various types to each other,
  * and to output values to console.
  *
@@ -41,7 +41,7 @@ public class AuxMethods {
 
   /**
    * A simplest 'logger' to write to a file certain info while debugging.
-   * Had been used for debugging. Currently not used, but may still be useful in the future.
+   * Had been used while debugging. Currently not used, but may still be useful in the future.
    */
   private static PrintStream logFile = null;
 
@@ -109,9 +109,9 @@ public class AuxMethods {
   } // public static String hexStr(long lValue) {
 
   /**
-   * Returns a hexadecimal string representation of the given double value,
-   * that separately shows its sign, mantissa, and exponent, e.g.
-   * <span class="nowrap">"-6_a09e_667f_3bcd e 3ff"</span>
+   * Returns a hexadecimal string representation of the given double value
+   * showing its sign, mantissa, and exponent separately, e.g.
+   * <span style="white-space:nowrap">"-6_a09e_667f_3bcd e 3ff"</span>
    * @param dValue the value to convert to hexadecimal string
    * @return the hexadecimal string representation of the given double value
    */
@@ -126,9 +126,9 @@ public class AuxMethods {
   } // public static  String hexStr(double dValue) {
 
   /**
-   * Returns a hexadecimal string representation of the given {@code Quadruple} value,
-   * that separately shows its sign, mantissa, and exponent, e.g.
-   * <span class="nowrap">"+3c7e_7dc8_2aef_ddf3 ab41_94a5_1831_2fce e 10ac_83b0"</span>
+   * Returns a hexadecimal string representation of the given {@code Quadruple} value
+   * showing its sign, mantissa, and exponent separately, e.g.
+   * <span style="white-space:nowrap">"+3c7e_7dc8_2aef_ddf3 ab41_94a5_1831_2fce e 10ac_83b0"</span>
    * @param qValue the value to convert to hexadecimal string
    * @return the hexadecimal string representation of the given {@code Quadruple} value
    */
@@ -140,10 +140,11 @@ public class AuxMethods {
 
 	/**
    * Returns a hexadecimal string representation of the given array of {@code long}s,
-   * with digits grouped by 4. Places each long in a new line, preceded by its index, e.g.<pre>   0: 79a5_120e_08e4_6ad2
+   * with digits grouped by 4. Places each item in a new line, preceded by its index, e.g.
+   * <pre>   0: 79a5_120e_08e4_6ad2
    1: ffff_ffff_742f_c7cb
    2: abcd_ef01_2345_6789</pre>
-   * Had been used for debugging. Currently not used, but may still be useful in the future.<br><br>
+   * Had been used while debugging. Currently not used, but may still be useful in the future.<br>
    * @param buffer the buffer of {@code long}s to be represented as hex strings
    * @return a string with hexadecimal representation of the contents of the buffer, as described above
 	 */
@@ -168,7 +169,7 @@ public class AuxMethods {
  2: abcd_ef01_2345_6789
  3: 1234_5678_fedc_ba98</pre>
  will be shown like <pre>0000_0001 2222_2222_4444_4444 2345_6789_fedc_ba98</pre>
-   * Had been used for debugging. Currently not used, but may still be useful in the future.<br><br>
+   * Had been used while debugging. Currently not used, but may still be useful in the future.<br>
    * @param buffer the buffer of {@code long}s to be represented as hex strings
    * @return a string with hexadecimal representation of the contents of the buffer, as described above
    */
@@ -186,18 +187,35 @@ public class AuxMethods {
 	 * Returns a hexadecimal string representation of the given array of {@code long}s,
    * with digits grouped by 4. Places all values in a single line, e.g.
    * <pre>  1111_1111_2222_2222 3333_3333_4444_4444 abcd_ef01_2345_6789</pre>
-   * Had been used for debugging. Currently not used, but may still be useful in the future.<br><br>
-   * @param buffer the buffer of {@code long}s to be represented as a hex string
+   * @param longs the buffer of {@code long}s to be represented as a hex string
    * @return a string with hexadecimal representation of the contents of the buffer, as described above
 	 */
-	public static String hexStr_(long[] buffer) {
+	public static String hexStr_(long[] longs) {
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < buffer.length; i++) { // Big-endian ++
+		for (int i = 0; i < longs.length; i++) { // Big-endian ++
 			if (sb.length() != 0) sb.append(" ");
-			sb.append(hexStr(buffer[i]));
+			sb.append(hexStr(longs[i]));
 		}
 		return sb.toString();
 	} // public static String hexStr_(long[] buffer) {
+
+  /**
+   * Returns a hexadecimal string representation of the given array of {@code bytes}s,
+   * with digits grouped by 4. Places all values in a single line, e.g.
+   * <pre>  1111 2222 3333 4444 abcd ef01 2345 6789</pre>
+   * @param bytes the buffer of {@code bytes}s to be represented as a hex string
+   * @return a string with hexadecimal representation of the contents of the buffer, as described above
+   */
+  public static String hexStr_(byte[] bytes) {
+    final StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < bytes.length; i++) {
+      sb.append(String.format("%02x", bytes[i]));
+      if ((i % 2 != 0) && (i < bytes.length - 1))
+        sb.append(" ");
+    }
+    return sb.toString();
+  } // public static String hexStr_(long[] buffer) {
+
 
 	/**
 	 * Returns a string representing the bits of the argument.<br>
@@ -205,7 +223,7 @@ public class AuxMethods {
 	 * <pre>0xABCD_EF01_2345_6789L</pre>
 	 * will be shown as
 	 * <pre>#_#_ #_## ##__ ##_# ###_ #### ____ ___# __#_ __## _#__ _#_# _##_ _### #___ #__#.</pre><br>
-   * Had been used for debugging. Currently not used, but may still be useful in the future.<br><br>
+   * Had been used while debugging. Currently not used, but may still be useful in the future.<br>
 	 * @param lValue the value to show
 	 * @return a string representing the bits of the argument
 	 */
@@ -265,8 +283,10 @@ public class AuxMethods {
 
   /**
    * Creates a new {@code Quadruple} instance containing the value passed in the {@code value} parameter.
+   * If the exact value of the argument can't be represented as a {@code Quadruple}, it is rounded
+   * in accordance with the 'half-up' rule.
 	 * @param value the value to assign to the newly-created {@code Quadruple} instance
-	 * @return the newly-created {@code Quadruple} instance
+	 * @return the newly-created {@code Quadruple} instance with the value of the argument, perhaps rounded.
 	 */
 	public static Quadruple buildQuadruple(BigDecimal value) {
 		return buildQuadruple(value, null);
@@ -274,12 +294,14 @@ public class AuxMethods {
 
 	/**
 	 * Constructs a Quadruple containing the value passed in the {@code value} parameter
-	 * and puts it in the {@code result}.
+	 * and puts it into the {@code result} parameter.
 	 * If the {@code result} parameter is null, creates a new {@code Quadruple} instance, otherwise
 	 * assigns the value of the {@code value} parameter to the given {@code Quadruple} instance.
+	 * If the value of the argument can't be expressed by a {@code Quadruple} exactly, it's get rounded
+	 * in accordance with the `half-up' rule.
    * @param value the value to assign to the given or a newly-created {@code Quadruple} instance
 	 * @param result an instance of {@code Quadruple} to assign the value to, or null
-   * @return the given or the newly-created {@code Quadruple} instance with the given value
+   * @return the given or a newly-created {@code Quadruple} instance with the value of the {@code value} argument, perhaps rounded.
 	 */
 	public static Quadruple buildQuadruple(BigDecimal value, Quadruple result) {
 		if (value == null) return null;
@@ -296,8 +318,8 @@ public class AuxMethods {
 		}
 
 		final int exp10 = value.precision() - value.scale() - 1;  // Decimal exponent
-		if (exceedsNormalRange(result, exp10)) 			              // May assign 0 or Infinity to result
-			return result; 					 														    // Returns true in such a case
+		if (exceedsNormalRange(result, exp10)) 			              // Assign 0 or Infinity to the result, if exp10 is too small or too large for a Quadruple
+			return result; 					 														    // It returns true in such a case
 
 		long exp2 = findBinaryExponent(value, exp10);
 
@@ -376,7 +398,7 @@ public class AuxMethods {
    * Creates a new {@code Quadruple} instance containing the value passed in the {@code value} parameter.
 	 * @param value a string representation of the value to be assigned to the new {@code Quadruple} instance
 	 * @return the newly-created instance of {@code Quadruple} with the given value
-   * @throws NumberFormatException if {@code value} is not a valid
+   * @throws NumberFormatException if {@code value} is not a valid string
    *         representation of a Quadruple.
 	 */
 	public static Quadruple buildQuadruple(String value) {
@@ -389,9 +411,9 @@ public class AuxMethods {
    * If the {@code result} parameter is null, creates a new {@code Quadruple} instance, otherwise
    * assigns the value of the {@code value} parameter to the given {@code Quadruple} instance.
    * @param value a string representation of the value to be assigned to the new {@code Quadruple} instance
-   * @param result a {@code Quadruple} instance that is assigned the new value, or {@code null} to create a new instance
+   * @param result a {@code Quadruple} instance to assign the new value to, or {@code null} to create a new instance
    * @return an instance passed in the {@code result} argument, or a newly-created instance of {@code Quadruple} with the given value
-   * @throws NumberFormatException if {@code value} is not a valid
+   * @throws NumberFormatException if {@code value} is not a valid string
    *         representation of a Quadruple.
 	 */
 	public static Quadruple buildQuadruple(String value, Quadruple result) {
@@ -470,7 +492,7 @@ public class AuxMethods {
   /**
    * Builds a {@code BigDecimal} whose value is equal to the value
    * that a Quadruple would have if it were built of the given parts,
-   * with an accuracy of 140 decimal places.
+   * with an accuracy of 140 decimal digits.
    * If the value is not convertible to {@code BigDecimal} (NaN or Infinity), {@code NumberFormatException} is thrown.
    * @param sign the sign of the corresponding {@code Quadruple}, {@code true} for negative values
    * @param mantHi the most significant 64 bits of the mantissa of the corresponding {@code Quadruple}
@@ -506,7 +528,7 @@ public class AuxMethods {
   /**
    * Builds a non-negative BigDecimal whose value is equal to the value
    * that a Quadruple would have if it were built of the given parts,
-   * with an accuracy of 140 decimal places.
+   * with an accuracy of 140 decimal digits.
    * If the value is not convertible to {@code BigDecimal} (NaN or Infinity), {@code NumberFormatException} is thrown.
    * @param mantHi the most significant 64 bits of the mantissa of the corresponding {@code Quadruple}
    * @param mantLo the least significant 64 bits of the mantissa of the corresponding {@code Quadruple}
@@ -594,29 +616,6 @@ public class AuxMethods {
 	} // public static BigDecimal mult(MathContext mc, Number... factors) {
 
   /**
-   * Calculates and returns a {@code BigDecimal} product of the given factors,
-   * with accuracy of 120 decimal digits.
-	 * @param op1 the first operand
-	 * @param op2 the second operand
-   * @return the product of the given factors
-	 */
-	public static BigDecimal mult(Number op1, Number op2) {
-		return bd(op1).multiply(bd(op2), MC_120_HALF_EVEN);
-	} // public static BigDecimal mult(Number op1, Number op2) {
-
-  /**
-   * Calculates and returns a {@code BigDecimal} product of the given factors,
-   * with the accuracy determined by the {@code mc} parameter.
-   * @param op1 the first operand
-   * @param op2 the second operand
-   * @param mc a {@code MathContest} instance that defines the precision of the calculation
-   * @return the product of the given factors
-   */
-	public static BigDecimal mult(Number op1, Number op2, MathContext mc) {
-		return bd(op1).multiply(bd(op2), mc);
-	} // public static BigDecimal mult(Number op1, Number op2, MathContext mc) {
-
-  /**
    * Calculates and returns a {@code BigDecimal} quotient of the given operands,
    * with accuracy of 120 decimal digits.
    * @param op1 the dividend
@@ -675,7 +674,7 @@ public class AuxMethods {
   } // public static String bdStr(long mantHi, long mantLo, int exponent) {
 
   /**
-   * Returns the string representation of this {@code BigDecimal}, using scientific notation if an exponent is needed.
+   * Returns a string representation of this {@code BigDecimal}, using scientific notation if an exponent is needed.
    * Simply calls {@code BigDecimal.toString()}, actually.
    * @param value the value to convert to {@code String}
    * @return a {@code String} representation of the given value
@@ -684,8 +683,8 @@ public class AuxMethods {
   public static String bdStr(BigDecimal value) { return value.toString(); }
 
   /**
-   * Returns the string representation of this {@code Number}, using scientific notation if an exponent is needed.
-   * Simply calls {@code BigDecimal.toString()}, actually.
+   * Returns a string representation of this {@code Number}, using scientific notation if an exponent is needed.
+   * Converts the given number to a {@code BigDecimal} and calls its {@code toString()} method, actually.
    * @param value the value to convert to {@code String}
    * @return a {@code String} representation of the given value
    * @see BigDecimal#toString()
@@ -695,8 +694,8 @@ public class AuxMethods {
   } // public static String bdStr(Number value) {
 
   /**
-   * Returns the string representation of this {@code Number}, using scientific notation with 50 digits after the point.
-   * @param value the value to convert to {@code String}
+   * Returns a string representation of this {@code Number}, using scientific notation with 50 digits after the point.
+   * @param value the value to convert to a {@code String}
    * @return a {@code String} representation of the given value
    */
   static String str(Number value) {
@@ -704,14 +703,14 @@ public class AuxMethods {
   }
 
   /**
-   * Returns the string representation of this {@code double} value.
+   * Returns a string representation of this {@code double} value.
    * <p>
-   * The representation is exactly the one returned by the
-   * {@code Double.toString} method of one argument.
+   * The returned representation is exactly the one returned by the
+   * {@link Double#toString()}  called with the given argument..
    *
-   * @param value the value to convert to {@code String}
+   * @param value the value to convert to a {@code String}
    * @return a {@code String} representation of the given value
-   * @see     java.lang.Double#toString(double)
+   * @see     Double#toString(double)
    */
   static String str(double value) {
     return Double.toString(value);
@@ -720,10 +719,10 @@ public class AuxMethods {
   /**
    * Returns the string representation of this {@code long} value.
    * <p>
-   * The representation is exactly the one returned by the
-   * {@link Long#toString(long)} method of one argument.
+   * The returned representation is exactly the one returned by the
+   * {@link Long#toString()} called with the given argument.
    *
-   * @param value the value to convert to {@code String}
+   * @param value the value to convert to a {@code String}
    * @return a {@code String} representation of the given value
    * @see Long#toString(long)
    */
@@ -758,16 +757,16 @@ public class AuxMethods {
       root = BigDecimal.valueOf(Math.sqrt(d));
 
     final BigDecimal eps = mult(arg, new BigDecimal("1e-85"));
-    BigDecimal delta = sub(mult(root, root, MC_100_HALF_EVEN), arg, MC_100_HALF_EVEN);
+    BigDecimal delta = sub(mult( MC_100_HALF_EVEN, root, root), arg, MC_100_HALF_EVEN);
     while (delta.abs().compareTo(eps) > 0) {
-      root = mult(add(root, div(arg, root, MC_100_HALF_EVEN), MC_100_HALF_EVEN), 0.5, MC_100_HALF_EVEN);
-      delta = sub(mult(root, root, MC_100_HALF_EVEN), arg, MC_100_HALF_EVEN);
+      root = mult(MC_100_HALF_EVEN, add(root, div(arg, root, MC_100_HALF_EVEN), MC_100_HALF_EVEN), 0.5);
+      delta = sub(mult(MC_100_HALF_EVEN, root, root), arg, MC_100_HALF_EVEN);
     }
     return root;
   } // public static BigDecimal sqrt(final BigDecimal arg) {
 
   /**
-   * Calculates {@code 2^exp} with the accuracy of 140 decimal digits.
+   * Calculates two raised to power {@code exp} with the accuracy of 140 decimal digits.
    *
    * @param exp the power to raise 2 to
    * @return the value of two raised to the given power
@@ -777,7 +776,7 @@ public class AuxMethods {
   } // public static BigDecimal powerOfTwo(int power) {
 
   /**
-   * Calculates {@code 2^exp} with the accuracy defined by the {@code mc} argument.
+   * Calculates two raised to power {@code exp} with the accuracy defined by the {@code mc} argument.
    *
    * @param exp the power to raise 2 to
    * @param mc {@code MathContext} that defines the precision
@@ -796,12 +795,13 @@ public class AuxMethods {
   } // public static BigDecimal powerOfTwo(long exp, MathContext mc) {
 
   /**
-   * Opens a simplest 'logger' (actually, a simple text file with the given name) to write something to, while debugging.
-   * Had been used for debugging. Currently not used, but may still be useful in the future.
+   * Opens a simplest 'logger' (actually, a simple text file with the given name)
+   * to write something to, while debugging. <br>
+   * Had been used while debugging. Currently not used, but may still be useful in the future.
    * @param filename the path to the file to open
    * @throws FileNotFoundException If the given file object does not denote an existing,
    *          writable regular file and a new regular file of that name cannot be created,
-   *          or if some other error occurs while opening or creating the file
+   *          or if some other error occurs while attempting to opening or to create the file
    * @see PrintStream#PrintStream(String)
    */
   public static void openLog(String filename) throws FileNotFoundException {
@@ -850,17 +850,16 @@ public class AuxMethods {
    */
   private static void checkNaNInfinity(Quadruple qValue) {
     if (qValue.exponent() == EXP_INF) {
-      throw new NumberFormatException("Can't convert "
-                  + (((qValue.mantHi() | qValue.mantLo()) != 0)?  "NaN" :
-                      qValue.isNegative()?                         "NEGATIVE_INFINITY" :
-                                                                    "POSITIVE_INFINITY")
-                  + " to BigDecimal"); // " + hexStr(testedQ));
+      throw new NumberFormatException(String.format("Can't convert %s to BigDecimal",
+                                                    (qValue.mantHi() | qValue.mantLo()) != 0? "NaN" :
+                                                      qValue.isNegative()?                    "NEGATIVE_INFINITY" :
+                                                                                              "POSITIVE_INFINITY"));
     }
   } // private static void checkNaNInfinity(Quadruple qValue) {
 
   /**
-   * Given a {@code Quadruple value}, calculates the value of the mantissa
-   * of the corresponding {@code BigDecimal} value, {@code mant = 1.0 + (mantHi() * 2^-64) + (mantLo() * 2^-128}
+   * Given a {@code Quadruple} value, calculates the {@code BigDecimal} value of its mantissa
+   * as <span style="white-space:nowrap">{@code mant = 1.0 + (mantHi() * 2^-64) + (mantLo() * 2^-128}</span>
    * @param qValue a {@code Quadriple} value being converted to a {@code BigDecimal} value
    * @return the resulting mantissa, ranged from 1.0 to 1.99999999...
    */
@@ -877,12 +876,15 @@ public class AuxMethods {
   } // private static BigDecimal buildBDMantissa(Quadruple qValue) {
 
   /**
-   * Checks that the decimal exponent of a value does not exceed the range valid for non-null Quadruple.
-   * In case it exceeds, assigns to {@code result} 0, -0, Infinity, or -Infinity,
-   * depending on the sign of {@code result} and the value of {@code exp10}, and returns {@code true},
-   * otherwise returns {@code false}.
-   * @param result
-   * @param exp10
+   * Checks that the given decimal exponent is within the range valid
+   * for an exponent of a non-zero {@code Quadruple} value.
+   * In case if it is not, assigns {@code 0, -0, Infinity, or -Infinity} to the
+   * {@code Quadruple} instance passed in as the {@code result} parameter,
+   * depending on the sign of {@code result} and the value of {@code exp10},
+   * and returns {@code true}; otherwise returns {@code false}.<br>
+   * Used by {@code buildQuadruple()}
+   * @param result the value to assign a corner value to
+   * @param exp10 the decimal exponent to check for validity
    * @return
    */
   private static boolean exceedsNormalRange(Quadruple result, int exp10) {
@@ -903,7 +905,8 @@ public class AuxMethods {
    * Given a {@code BigDecimal} value and its decimal exponent, finds the most probable value of its binary exponent.
    * Due to the limited precision of {@code double} arithmetic, the result in very rare cases
    * may differ from the true value by +/-1, so the intermediate result of binary mantissa calculated based on this value,
-   * may require an additional correction.
+   * may require an additional correction.<br>
+   * Used by {@code buildQuadruple()}
    * @param value a {@code BigDecimal} value
    * @param exp10 the decimal exponent of the {@code value}
    * @return the most probable value of the binary exponent of the {@code value}
@@ -914,7 +917,8 @@ public class AuxMethods {
   }
 
   /**
-   * Raises the {@code BigDecimal} value of {@code 10.0} to power {@code exp10}
+   * Raises the {@code BigDecimal} value of {@code 10.0} to power {@code exp10}.<br>
+   * Used by {@code buildQuadruple()}
    * @param exp10 the power to raise 10 to
    * @return a {@code BigDecimal} with the value of 10.0<sup>exp10</sup>
    */
@@ -923,10 +927,10 @@ public class AuxMethods {
   } // private static BigDecimal raise10toPower(int exp10) {
 
   /**
-   * Given a {@code BigDecimal} value and its binary exponent, finds its binary mantissa,
-   * <span class="nowrap"><code>mant2 = v / 2^exp2</code></span>.<p>
-   * The value of {@code exp2} is always non-negative here, for the values less in magnitude than 1 the {@code negExp} flag is true;
-   * in such cases multiplication performed instead of division, <span class="nowrap"><code>mant2 = v * 2^exp2</code></span>.<p>
+   * Given a {@code BigDecimal} value and its binary exponent, finds its binary mantissa as
+   * <span style="white-space:nowrap"><code>mant2 = v / 2^exp2</code></span>.<p>
+   * The value of {@code exp2} is always non-negative here, and for the values less in magnitude than 1 the {@code negExp} flag is true;
+   * in such cases multiplication is performed instead of division, <span style="white-space:nowrap"><code>mant2 = v * 2^exp2</code></span>.<br>
    * Used by {@code buildQuadruple()}
    * @param value the value whose {@code Quadruple} representation is being searched for
    * @param exp2 the binary exponent of the value
@@ -943,9 +947,12 @@ public class AuxMethods {
    * Finds the most significant 64 bits and the least significant 64 bits
    * of the fractional part of the given mantissa, the values of which are to be assigned
    * to the {@code mantHi} and {@code mantLo} fields of the {@code Quadruple} being built.
-   * If the value of the remainder of the division {@code (mant - 1.0) / 2^128} is greater than 0.5,
-   * rounds the found value up and may correct the exponent in case if rounding results in overflow of the fractional part.
-   * Assigns the resulting values to the corresponding fields of the given {@code Quadruple} instance.
+   * If the value of the remainder of the division
+   * <span style="white-space:nowrap">{@code (mant - 1.0) / 2^128}</span>  is greater than 0.5,
+   * rounds the found value up and may correct the exponent in case if rounding results
+   * in overflow of the fractional part. Assigns the resulting values to the corresponding
+   * fields of the given {@code Quadruple} instance.<br>
+   * Used by {@code buildQuadruple()}
    * @param result the {@code Quadruple} instance whose fields are to set
    * @param mant the value of the mantissa, ranged from 1.0 to 1.999...
    * @param exp2 the binary exponent of the {@code Quadruple} that may get corrected
@@ -974,12 +981,11 @@ public class AuxMethods {
 
   /**
    * Converts the given {@code Quadruple} value to the corresponding subnormal
-   * value by shifting right the bits of its mantissa and setting the bit that
+   * value by shifting the bits of its mantissa rightwards and setting the bit that
    * corresponds to its integer part (that is meant by the "implicit unity"
-   * in the normal form of {@code Quadruple}),
-   * in accordance with the value of the binary exponent.
+   * in the normal form of {@code Quadruple}), in accordance with the value of the binary exponent.
    * The rounding of the shifted-out bits of mantissa may result in overflow of the fractional part
-   * of the mantissa thus requiring the {@code exp2} be corrected.
+   * of the mantissa thus requiring the {@code exp2} to be corrected.
    * @param result the {@code Quadruple} instance to convert
    * @param exp2 the difference between the actual exponent of the number and the exponent
    *    of {@code Quadruple.MIN_NORMAL}, negative for subnormal values

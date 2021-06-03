@@ -23,7 +23,7 @@ import java.util.Locale;
 
 import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.test.SpecificTesterClasses.*;
-import com.mvohm.quadruple.test.IeeeQuadrupleTesterClasses.*;
+import com.mvohm.quadruple.test.IeeeConversionTesterClasses.*;
 import com.mvohm.quadruple.test.TesterClasses.QuadTester;
 import com.mvohm.quadruple.test.TesterClasses.Verbosity;
 

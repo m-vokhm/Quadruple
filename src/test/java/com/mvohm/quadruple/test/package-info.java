@@ -22,7 +22,7 @@
  * <li>{@link com.mvohm.quadruple.test.DataItem}              -- a container for data pertaining to a test
  * <li>{@link com.mvohm.quadruple.test.DataProviders}         -- a set of static methods that generate and collect data sets
  *                                                              for specific operations
- * <li>{@link com.mvohm.quadruple.test.IeeeQuadrupleTesterClasses}  -- concrete descendants of the QuadTester class,
+ * <li>{@link com.mvohm.quadruple.test.IeeeConversionTesterClasses}  -- concrete descendants of the QuadTester class,
  *                                                              for testing conversions to and from standard IEEE-754 quadruple-precision format
  * <li>{@link com.mvohm.quadruple.test.QuadJUnitTest}         -- a set of test methods to be used with JUnit
  * <li>{@link com.mvohm.quadruple.test.QuadTest}              -- an autonomous executor of all the tests

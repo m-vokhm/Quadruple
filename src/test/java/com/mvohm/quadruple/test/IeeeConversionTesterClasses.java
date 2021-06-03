@@ -20,7 +20,7 @@ import static com.mvohm.quadruple.test.AuxMethods.*;
  * {@link Conversion_T2Q_Tester} and others, nested in {@link TesterClasses}.
  * @author M.Vokhmentev
  */
-public class IeeeQuadrupleTesterClasses {
+public class IeeeConversionTesterClasses {
 
   private static final int  IEEE754_EXP_BIAS              = 0x3FFF;
   private static final int  IEEE754_EXP_OF_INFINITY       = 0x7FFF;
@@ -178,7 +178,8 @@ public class IeeeQuadrupleTesterClasses {
             performOp(quadValue);                 // returns 2 longs
         return result == null?
             new DataItem("res").withRawValue(null):
-            new DataItem("res").withRawValue(result).withString(" " + stringOfLongs(result)); // A string representation of 2 longs
+//            new DataItem("res").withRawValue(result).withString(" " + stringOfLongs(result)); // A string representation of 2 longs
+            new DataItem("res").withRawValue(result).withString(" " + hexStr_(result)); // A string representation of 2 longs
       } catch (final Exception x) {               // Hardly can happen, yet let it remain
         return new DataItem("res").
                     withError(String.format("%s\n%19s performing %s on %s",
@@ -251,7 +252,7 @@ public class IeeeQuadrupleTesterClasses {
         final long[] result = (quadValue == null) ? null : performOp(quadValue);
         return result == null?
             new DataItem("res").withRawValue(null):
-            new DataItem("res").withRawValue(result).withString(" " + stringOfBytes(splitLongsToBytes(result)));
+            new DataItem("res").withRawValue(result).withString(" " + hexStr_(splitLongsToBytes(result)));
       } catch (final Exception x) {
         return new DataItem("res").withError(
                                     String.format("%s\n%19s performing %s on %s",
@@ -283,7 +284,8 @@ public class IeeeQuadrupleTesterClasses {
       final DataItem di = super.makeSrcItem(s);
       final long[] rawData = (long[])di.getRawData();
       if (rawData != null)
-        di.withString(stringOfLongs(rawData));
+        // di.withString(stringOfLongs(rawData));
+        di.withString(hexStr_(rawData));
       return di;
     }
 
@@ -352,7 +354,7 @@ public class IeeeQuadrupleTesterClasses {
       final DataItem di = super.makeSrcItem(s);
       final byte[] rawData = (byte[])di.getRawData();
       if (rawData != null)
-        di.withString(stringOfBytes(rawData));
+        di.withString(hexStr_(rawData));
       return di;
     }
 
@@ -612,39 +614,23 @@ public class IeeeQuadrupleTesterClasses {
     return result;
   }
 
-  /**
-   * Returns a string hexadecimal representation of the input two longs, in form
-   * <pre>
-   *    XXXX_XXXX_XXXX_XXXX XXXX_XXXX_XXXX_XXXX
-   * </pre>, with the most significant 4 bits of {@code longs[0]} in the first position
-   * @param longs the long values to format
-   * @return a string with the hexadecimal representation of the input longs
-   */
-  private static String stringOfLongs(long[] longs) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(hexStr(longs[0]));
-    sb.append(" ");
-    sb.append(hexStr(longs[1]));
-    return sb.toString();
-  }
-
-  /**
-   * Returns a string hexadecimal representation of the input 16 bytes, in form
-   * <pre>
-   *    XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX
-   * </pre>, with the most significant 4 bits of {@code bytes[0]} in the first position
-   * @param bytes the byte array to format
-   * @return a string with the hexadecimal representation of the input bytes
-   */
-  private static String stringOfBytes(byte[] bytes) {
-    final StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < bytes.length; i++) {
-      sb.append(String.format("%02x", bytes[i]));
-      if ((i % 2 != 0) && (i < bytes.length - 1))
-        sb.append(" ");
-    }
-    return sb.toString();
-  }
+//  /**
+//   * Returns a string hexadecimal representation of the input 16 bytes, in form
+//   * <pre>
+//   *    XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX
+//   * </pre>, with the most significant 4 bits of {@code bytes[0]} in the first position
+//   * @param bytes the byte array to format
+//   * @return a string with the hexadecimal representation of the input bytes
+//   */
+//  private static String stringOfBytes(byte[] bytes) {
+//    final StringBuilder sb = new StringBuilder();
+//    for (int i = 0; i < bytes.length; i++) {
+//      sb.append(String.format("%02x", bytes[i]));
+//      if ((i % 2 != 0) && (i < bytes.length - 1))
+//        sb.append(" ");
+//    }
+//    return sb.toString();
+//  }
 
   /**
    * Returns the test data for Quadruple <-> IEEE-754 quadruple conversions,
