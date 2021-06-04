@@ -1777,7 +1777,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   public static Quadruple nextRandom(Random rand) {
     final long mantHi = rand.nextLong();
     final long mantLo = rand.nextLong();
-    return new Quadruple(false, EXPONENT_OF_ONE, mantHi, mantLo).subtract(ONE);
+    final Quadruple randQ = new Quadruple(false, EXPONENT_OF_ONE, mantHi, mantLo).subtract(ONE);
+    final int expDiff = EXPONENT_BIAS - randQ.exponent;
+    randQ.mantLo |= rand.nextLong() >>> 64 - expDiff;
+    return randQ;
   } // public static Quadruple nextNormalRandom(Random rand) {
 
   /* ***********************************************************************************
