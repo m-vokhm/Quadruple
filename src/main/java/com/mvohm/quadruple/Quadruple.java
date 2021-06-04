@@ -1759,40 +1759,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Creates a new Quadruple instance with a pseudo-random value
    * using a static randomly initialized {@code java.util.Random} instance.
-   * The generated value falls within the range from
-   * -{@linkplain Quadruple#MAX_VALUE} to {@linkplain Quadruple#MAX_VALUE} inclusive.
+   * The generated value falls within the range 0.0 (inclusive) to 1.0 (exclusive).
    * @return a new instance containing a next random value
    */
   public static Quadruple nextRandom() {
     return nextRandom(rand);
-  } // public static Quadruple nextRandom() {
-
-  /**
-   * Creates a new Quadruple instance with a pseudo-random value
-   * using the given {@code java.util.Random} instance.}<br>
-   * The generated value falls within the range from
-   * -{@linkplain Quadruple#MAX_VALUE} to {@linkplain Quadruple#MAX_VALUE} inclusive.
-   * Can be used to repeatedly generate the same pseudo-random sequence.
-   * @param rand an instance of {@code java.util.Random} to be used for generating the random value
-   * @return a new instance containing a next random value
-   */
-  public static Quadruple nextRandom(Random rand) {
-    // FIXIT 21.04.24 9:55:14 Non-uniform distribution of returned values!
-    final boolean sign = rand.nextBoolean();
-    final int exp = rand.nextInt();
-    final long mantHi = rand.nextLong();
-    final long mantLo = rand.nextLong();
-    return new Quadruple(sign, exp, mantHi, mantLo);
-  } // public static Quadruple nextRandom(Random rand) {
-
-  /**
-   * Creates a new Quadruple instance with a pseudo-random value
-   * using a static randomly initialized {@code java.util.Random} instance.
-   * The generated value falls within the range 0.0 (inclusive) to 1.0 (exclusive).
-   * @return a new instance containing a next random value
-   */
-  public static Quadruple nextNormalRandom() {
-    return nextNormalRandom(rand);
   } // public static Quadruple nextNormalRandom() {
 
   /**
@@ -1801,9 +1772,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * The generated value falls within the range 0.0 (inclusive) to 1.0 (exclusive).
    * Can be used to repeatedly generate the same pseudo-random sequence.
    * @param rand an instance of {@code java.util.Random} to be used for generating the random value
-   * @return a new instance containing a next random value
+   * @return a new instance containing the next random value
    */
-  public static Quadruple nextNormalRandom(Random rand) {
+  public static Quadruple nextRandom(Random rand) {
     final long mantHi = rand.nextLong();
     final long mantLo = rand.nextLong();
     return new Quadruple(false, EXPONENT_OF_ONE, mantHi, mantLo).subtract(ONE);
