@@ -399,8 +399,12 @@ public class IeeeConversionTesterClasses {
     }
   }
 
+  /* **********************************************************************************************
+  /*** Private methods ****************************************************************************
+  /************************************************************************************************/
+
   /**
-   * Parses a numeric value expressed by the input string and converts it into
+    * Parses a numeric value expressed by the input string and converts it into
    * an array of {@code long} containing the 128 bits of the nearest IEEE-754 quadruple value
    * @param s a string to be parsed
    * @return an array of {@code long} containing the 128 bits of the IEEE-754 quadruple value nearest to
@@ -613,24 +617,6 @@ public class IeeeConversionTesterClasses {
       }
     return result;
   }
-
-//  /**
-//   * Returns a string hexadecimal representation of the input 16 bytes, in form
-//   * <pre>
-//   *    XXXX XXXX XXXX XXXX XXXX XXXX XXXX XXXX
-//   * </pre>, with the most significant 4 bits of {@code bytes[0]} in the first position
-//   * @param bytes the byte array to format
-//   * @return a string with the hexadecimal representation of the input bytes
-//   */
-//  private static String stringOfBytes(byte[] bytes) {
-//    final StringBuilder sb = new StringBuilder();
-//    for (int i = 0; i < bytes.length; i++) {
-//      sb.append(String.format("%02x", bytes[i]));
-//      if ((i % 2 != 0) && (i < bytes.length - 1))
-//        sb.append(" ");
-//    }
-//    return sb.toString();
-//  }
 
   /**
    * Returns the test data for Quadruple <-> IEEE-754 quadruple conversions,

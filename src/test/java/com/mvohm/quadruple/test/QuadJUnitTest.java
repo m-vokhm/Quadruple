@@ -26,11 +26,11 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.mvohm.quadruple.test.SpecificTesterClasses.*;
+import com.mvohm.quadruple.test.IeeeConversionTesterClasses.*;
 import com.mvohm.quadruple.test.TesterClasses.QuadTester;
 import com.mvohm.quadruple.test.TesterClasses.Verbosity;
 import com.mvohm.quadruple.Quadruple;
 import static com.mvohm.quadruple.test.AuxMethods.say;
-
 
 
 /**
@@ -439,5 +439,85 @@ public class QuadJUnitTest {
         new int[] {0, 0, 0}
     );
   } // public void testInstanceSqrt() {
+
+  /* ********************************************************************************************
+   ***** Methods to test IEEE-754 conversions:                                              *****
+   *****    QuadToIEEELongsTester                                                           *****
+   *****    QuadToIEEEBytesTester                                                           *****
+   *****    AssignIEEELongsTester                                                           *****
+   *****    AssignIEEEBytesTester                                                           *****
+   **********************************************************************************************/
+
+  /**
+   * Tests {@link Quadruple#toIeee754Longs()} method.<br>
+   * Creates an instance of {@link QuadToIEEELongsTester}, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
+   */
+  @Test
+  public void testQuadToIEEELongs() {
+    final TestResults results = new QuadToIEEELongsTester().test();
+    totalResults.register(results);
+    assertArrayEquals( new int[] {
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
+        new int[] {0, 0, 0}
+    );
+  } // public void testQuadToIEEELongs() {
+
+  /**
+   * Tests {@link Quadruple#toIeee754Bytes()} method.<br>
+   * Creates an instance of {@link QuadToIEEEBytesTester}, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
+   */
+  @Test
+  public void testQuadToIEEEBytes() {
+    final TestResults results = new QuadToIEEEBytesTester().test();
+    totalResults.register(results);
+    assertArrayEquals( new int[] {
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
+        new int[] {0, 0, 0}
+    );
+  } // public void testQuadToIEEEBytes() {
+
+  /**
+   * Tests {@link Quadruple#assignIeee754(long[])} method.<br>
+   * Creates an instance of {@link AssignIEEELongsTester}, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
+   */
+  @Test
+  public void testAssignIEEELongs() {
+    final TestResults results = new AssignIEEELongsTester().test();
+    totalResults.register(results);
+    assertArrayEquals( new int[] {
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
+        new int[] {0, 0, 0}
+    );
+  } // public void testAssignIEEELongs() {
+
+  /**
+   * Tests {@link Quadruple#assignIeee754(byte[])} method.<br>
+   * Creates an instance of {@link AssignIEEEBytesTester}, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
+   */
+  @Test
+  public void testAssignIEEEBytes() {
+    final TestResults results = new AssignIEEEBytesTester().test();
+    totalResults.register(results);
+    assertArrayEquals( new int[] {
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
+        new int[] {0, 0, 0}
+    );
+  } // public void testAssignIEEEBytes() {
 
 }
