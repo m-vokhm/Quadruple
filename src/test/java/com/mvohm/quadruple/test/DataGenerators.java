@@ -23,8 +23,10 @@ import java.math.BigInteger;
 
 import static com.mvohm.quadruple.test.AuxMethods.*;
 import static com.mvohm.quadruple.test.Consts.*;
+import static com.mvohm.quadruple.Quadruple.*;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -428,8 +430,8 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
     final List<Integer> exponents = allExponents();
     for (final int exp: exponents) {
       result.add(exp < 0?
-                    String.format("// n * 2 ^ %s (-%s, %s -> %s)",  exp, hexStr(-exp), hexStr(exp), hexStr(exp + EXP_0Q)):
-                    String.format("// n * 2 ^ %s (%s -> %s)",       exp, hexStr(exp), hexStr(exp + EXP_0Q)));
+                    String.format("// n * 2 ^ %s (-%s, %s -> %s)",  exp, hexStr(-exp), hexStr(exp), hexStr(exp + EXPONENT_BIAS)):
+                    String.format("// n * 2 ^ %s (%s -> %s)",       exp, hexStr(exp), hexStr(exp + EXPONENT_BIAS)));
       result.add(null);
 
       for (final String value: values)
@@ -877,7 +879,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * that the value of a {@code Quadruple} with this exponent falls within the range valid for {@code double}.
      */
     private static int randomDoubleExponent() {
-      return randomIntRanged((EXP_0Q - EXP_0D) & LOWER_32_BITS, (EXP_0Q + EXP_0D) & LOWER_32_BITS);
+      return randomIntRanged((EXPONENT_BIAS - DOUBLE_EXP_BIAS) & LOWER_32_BITS, (EXPONENT_BIAS + DOUBLE_EXP_BIAS) & LOWER_32_BITS);
     } // public static int randomDoubleExponent() {
 
 
@@ -889,7 +891,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * @return the generated value of the exponent for the second value of the pair
      */
     private static int otherExpForMult(int exp) {
-      final long unbiased = Integer.toUnsignedLong(exp) - EXP_0Q;
+      final long unbiased = Integer.toUnsignedLong(exp) - EXPONENT_BIAS;
       return randomIntRanged(max(0, 1 - unbiased),
                           min(0x1_0000_0000L, 0x1_0000_0000L - unbiased));
     } // private static int otherExpForMult(int exp) {
@@ -902,7 +904,7 @@ v[0] * 2^2147483647, v[1] * 2^2147483647, ..., v[n-1] * 2^2147483647,
      * @return the generated value of the exponent for the second value of the pair
      */
     private static int otherExpForDiv(int exp) {
-      final long unbiased = Integer.toUnsignedLong(exp) - EXP_0Q;
+      final long unbiased = Integer.toUnsignedLong(exp) - EXPONENT_BIAS;
       return randomIntRanged(max(0, unbiased),
                           min(0xFFFF_FFFEL, 0xFFFF_FFFEL - 1 + unbiased));
     } // private static int otherExpForDiv(int exp) {

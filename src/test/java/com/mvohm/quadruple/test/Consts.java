@@ -40,18 +40,17 @@ public class Consts {
    * More exactly, (2^-129) * 1.0005 == ~1.4693679e-39 * 1.0005 == 1.4701e-39 */
   static final double NORM_ERR_THRESH = 1.470e-39; // 2^-129 * 1.0005
 
-  // started JavaDoc 21.02.19 10:43:13
-  /** The bits of the mantissa of a {@code double}'s bits represented as a {@code long} */
+  /** The bits of the mantissa of a {@code double} represented as a {@code long} */
   public static final long DOUBLE_MANT_MASK   = 0x000f_ffff_ffff_ffffL;
 
-  /** The first bit */
-  /** The bits of the exponent of a {@code double}'s bits represented as a {@code long} */
+  /** The bits of the exponent of a {@code double} represented as a {@code long} */
   public static final long DOUBLE_EXP_MASK    = 0x7ff0_0000_0000_0000L;
-  /** The sign bit of the exponent of a {@code double}'s bits represented as a {@code long} */
+
+  /** The sign bit of of a {@code double} represented as a {@code long} */
   public static final long DOUBLE_SIGN_MASK   = 0x8000_0000_0000_0000L;
 
-  /** The exponent of a {@code double} values falling within the range of 1.0d ... 1.999d (unbiased exponent = 0) */
-  public static final int EXP_0D              = 0x0000_03FF;
+  /** Double's exponent bias, that is the exponent of a {@code double} values falling within the range of 1.0d ... 1.999d (values with unbiased exponent = 0) */
+  public static final int DOUBLE_EXP_BIAS     = 0x0000_03FF;
 
   /** = log<sub>2</sub>(10) = 3.3219280948873626 */
   public static final double LOG2_10          = Math.log(10) / Math.log(2);
@@ -68,7 +67,7 @@ public class Consts {
   public static final long HIGH_BIT           = 0x8000_0000_0000_0000L;
 
   /**
-   * A mapping between valid string representations of {@code Quadruple} constants and their respective values
+   * A mapping between valid string representations of {@code Quadruple} constants and their respective  {@code Quadruple} values
    */
   @SuppressWarnings("serial")
   public static final Map<String, Quadruple> QUADRUPLE_CONSTS = new HashMap<String, Quadruple>() {{
@@ -89,7 +88,9 @@ public class Consts {
     put("+infinity",                    Quadruple.positiveInfinity());
   }};
 
+  /** Decimal exponent of maximum IEEE-754 value */
   public static final int MAX_IEEE754_EXPONENT      = 4932;
+  /** Decimal exponent of minimum IEEE-754 value */
   public static final int MIN_IEEE754_EXPONENT      = -4966;
 
   /** = new MathContext(40, HALF_EVEN) */
@@ -111,16 +112,10 @@ public class Consts {
   /** = new MathContext(140, FLOOR) */
   public static final MathContext MC_140_FLOOR      = new MathContext(140, FLOOR);
 
-  /** The value of the {@code Quadruple}'s exponent field for value = {@code 1.0e0} */
-  public static final int EXP_0Q              = 0x7FFF_FFFF;
-  /** The value of the {@code Quadruple}'s exponent field for Infinity */
-  public static final int EXP_INF             = 0xFFFF_FFFF;
-  /** The value of the {@code Quadruple}'s exponent field for {@code Quadruple.MAX_VALUE}*/
-  public static final int EXP_MAX             = 0xFFFF_FFFE;
 
-  /** Maximum unbiased value of the decimal exponent, corresponds to biased binary exponent value EXP_MAX */
+  /** Maximum unbiased value of the decimal exponent, corresponds to {@link Quadruple#MAX_VALUE} */
   public static final int MAX_EXP10           = 646456993;
-  /** Minimum unbiased value of the decimal exponent, corresponds to Quadruple.MIN_VALUE */
+  /** Minimum unbiased value of the decimal exponent, corresponds to {@link Quadruple#MAX_VALUE} */
   public static final int MIN_EXP10           = -646457032;      // corresponds
 
   /** {@code BigDecimal} value of 1.0 */
@@ -131,12 +126,12 @@ public class Consts {
   public static final BigDecimal BD_TWO       = new BigDecimal("2");
 
   /** {@code BigDecimal} value of 2^64 = 18446744073709551616 */
-  public static final BigDecimal POW_2_64     = new BigDecimal("18446744073709551616"); // 2^64
+  public static final BigDecimal TWO_RAISED_TO_64     = new BigDecimal("18446744073709551616"); // 2^64
   /** {@code BigDecimal} value of 2^63 = 9223372036854775808 */
-  public static final BigDecimal POW_2_63     = new BigDecimal( "9223372036854775808"); // 2^63
+  public static final BigDecimal TWO_RAISED_TO_63     = new BigDecimal( "9223372036854775808"); // 2^63
 
   /** {@code BigDecimal} value of 2^64 = 18446744073709551616 */
-  public static final BigDecimal BD_2$64      = POW_2_64;
+  public static final BigDecimal BD_2$64      = TWO_RAISED_TO_64;
   /** {@code BigDecimal} value of 2^-32 = 0.00000000023283064365386962890625*/
   public static final BigDecimal BD_2$_32     = new BigDecimal("0.00000000023283064365386962890625");
   /** {@code BigDecimal} value of 2^-64  = 0.0000000000000000000542101086242752217003726400434970855712890625*/

@@ -26,6 +26,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import com.mvohm.quadruple.Quadruple;
+import static com.mvohm.quadruple.Quadruple.*;
 
 /**
  * Statically defined data sets for testing basic public methods of {@link com.mvohm.quadruple.Quadruple}.
@@ -300,7 +301,7 @@ public class TestData {
     "-4e308",                               "-Infinity",  // Exponent out of range: q < -Double.MAX_VALUE, => -Infinity
     "1.23456e5000000",                      "Infinity",
     "-1.23456e5000000",                     "-Infinity",
-    bdStr(0, 0, EXP_MAX),                   "Infinity",   // Quadruple.MAX_VALUE
+    bdStr(0, 0, EXPONENT_OF_MAX_VALUE),     "Infinity",   // Quadruple.MAX_VALUE
 
     bdStr(mult(Double.MIN_VALUE, 0.5)),     null,         // q < Double.MIN_VALUE, 0
     bdStr(mult(Double.MIN_VALUE, -0.5)),    null,         // q < Double.MIN_VALUE, 0
@@ -329,20 +330,20 @@ public class TestData {
 
     // Some corner cases
     // Rounding up
-    bdStr(0x7FFF_FFFF_FFFF_F800L, 0, EXP_0Q), null, // One bit to the right of the allowed bits of mantissa, should get rounded up to 1.5
-    bdStr(0x7FFF_FFFF_FFFF_F7FFL, 0, EXP_0Q), null, // shouldn't get rounded up, should remain 1.49999...
+    bdStr(0x7FFF_FFFF_FFFF_F800L, 0, EXPONENT_OF_ONE), null, // One bit to the right of the allowed bits of mantissa, should get rounded up to 1.5
+    bdStr(0x7FFF_FFFF_FFFF_F7FFL, 0, EXPONENT_OF_ONE), null, // shouldn't get rounded up, should remain 1.49999...
     // Overflow of the mantissa as the result of rounding up
-    bdStr(0xFFFF_FFFF_FFFF_F800L, 0, EXP_0Q), null, // One bit to the right of the allowed bits of mantissa, should get rounded up to 2
-    bdStr(0xFFFF_FFFF_FFFF_F7FFL, 0, EXP_0Q), null, // shouldn't get rounded up, should remain 1.99999...
+    bdStr(0xFFFF_FFFF_FFFF_F800L, 0, EXPONENT_OF_ONE), null, // One bit to the right of the allowed bits of mantissa, should get rounded up to 2
+    bdStr(0xFFFF_FFFF_FFFF_F7FFL, 0, EXPONENT_OF_ONE), null, // shouldn't get rounded up, should remain 1.99999...
 
     // Double.MAX_VALUE
-    bdStr(0xFFFF_FFFF_FFFF_F000L, 0, EXP_0Q + EXP_0D),  null,
+    bdStr(0xFFFF_FFFF_FFFF_F000L, 0, EXPONENT_BIAS + DOUBLE_EXP_BIAS),  null,
     // One extra bit, rounding up to Infinity
-    bdStr(0xFFFF_FFFF_FFFF_F800L, 0, EXP_0Q + EXP_0D),  "Infinity",
+    bdStr(0xFFFF_FFFF_FFFF_F800L, 0, EXPONENT_BIAS + DOUBLE_EXP_BIAS),  "Infinity",
     // The same for the negative value
-    "-" + bdStr(0xFFFF_FFFF_FFFF_F800L, 0, EXP_0Q + EXP_0D), "-Infinity",
+    "-" + bdStr(0xFFFF_FFFF_FFFF_F800L, 0, EXPONENT_BIAS + DOUBLE_EXP_BIAS), "-Infinity",
     // MAX_VALUE + Less than 0.5 LSB, should round down to MAX_VALUE
-    bdStr(0xFFFF_FFFF_FFFF_F7FFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q + EXP_0D), null,
+    bdStr(0xFFFF_FFFF_FFFF_F7FFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_BIAS + DOUBLE_EXP_BIAS), null,
 
     // All the code is covered.
     // Some more values just to play
@@ -1578,136 +1579,136 @@ public class TestData {
   static String[] basicMultiplicationData = new String[] {
 /* */
     // Cover private Quadruple multUnsigned(Quadruple factor)
-    // productExponent > EXP_MAX
-    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, EXP_MAX - EXP_0Q / 2),
-    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXP_MAX - EXP_0Q / 2), null,
+    // productExponent > EXPONENT_OF_MAX_VALUE
+    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2),
+    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2), null,
 
-    // productExponent == EXP_MAX
-    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, EXP_MAX - EXP_0Q / 2),
-    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXP_MAX - EXP_0Q / 2 - 1), null,
+    // productExponent == EXPONENT_OF_MAX_VALUE
+    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2),
+    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2 - 1), null,
 
-    // productExponent == EXP_MAX
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_MAX - EXP_0Q / 2),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_MAX - EXP_0Q / 2 - 1), null,
+    // productExponent == EXPONENT_OF_MAX_VALUE
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2 - 1), null,
 
-    // productExponent < EXP_MAX
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_MAX - EXP_0Q / 2 - 1),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_MAX - EXP_0Q / 2 - 1), null,
+    // productExponent < EXPONENT_OF_MAX_VALUE
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2 - 1),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2 - 1), null,
 
 /* */
     // productExponent < -129 (-130)", null, null,
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, (EXP_0Q/2) - 64),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, (EXP_0Q/2) - 65), null,
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, (EXPONENT_OF_ONE/2) - 64),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, (EXPONENT_OF_ONE/2) - 65), null,
 
     // productExponent == -129", null, null,
-    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, (EXP_0Q/2) - 64),
-    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, (EXP_0Q/2) - 64), null,
+    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, (EXPONENT_OF_ONE/2) - 64),
+    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, (EXPONENT_OF_ONE/2) - 64), null,
 
     // productExponent == -129", null, null,
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, (EXP_0Q/2) - 64),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, (EXP_0Q/2) - 64), MIN_VALUE_STR,
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, (EXPONENT_OF_ONE/2) - 64),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, (EXPONENT_OF_ONE/2) - 64), MIN_VALUE_STR,
 
     // productExponent > -129 (-128)", null, null,
-    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, (EXP_0Q/2) - 64),
-    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, (EXP_0Q/2) - 63), MIN_VALUE_STR,
+    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, (EXPONENT_OF_ONE/2) - 64),
+    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, (EXPONENT_OF_ONE/2) - 63), MIN_VALUE_STR,
 
 /* */
     // after normalizeAndUnpack(factor, productExponent, factor1, factor2) ", null, null,
     // productExponent < -129 (-130)", null, null,
     bdStr(0x0000_0000_0000_0000L, 0x3FFF_FFFF_FFFF_FFFFL, 0x0000_0000),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q - 64), null,
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE - 64), null,
 
     // productExponent == -129", null, null,
     bdStr(0x0000_0000_0000_0000L, 0x3FFF_FFFF_FFFF_FFFFL, 0x0000_0000),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q - 63), MIN_VALUE_STR,
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE - 63), MIN_VALUE_STR,
 
     // productExponent == -129", null, null,
     bdStr(0x0000_0000_0000_0000L, 0x3FFF_FFFF_FFFF_FFFFL, 0x0000_0000),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q - 63), null,
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE - 63), null,
 
     // after normalizeProduct(product, productExponent, isRoundedUp);
-    // productExponent > EXP_MAX", null, null,
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_MAX - EXP_0Q / 2),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_MAX - EXP_0Q / 2 - 1), null,
+    // productExponent > EXPONENT_OF_MAX_VALUE", null, null,
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2 - 1), null,
 
-    // productExponent == EXP_MAX
-    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, EXP_MAX - EXP_0Q / 2),
-    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXP_MAX - EXP_0Q / 2 - 1), null,
+    // productExponent == EXPONENT_OF_MAX_VALUE
+    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2),
+    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2 - 1), null,
 
     // after packBufferToMantissa(product);
     "// productExponent <= 0, subnormal", null, null,
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q / 2),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q / 2), null,
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE / 2),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE / 2), null,
 
     "// productExponent > 0, normal", null, null,
-    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, EXP_0Q / 2 + 1),
-    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXP_0Q / 2 + 1), null,
+    bdStr(0x0000_0000_1230_0000L, 0x0123_0000_0000_0000L, EXPONENT_OF_ONE / 2 + 1),
+    bdStr(0x0000_0000_0000_0000L, 0x1230_0000_0000_0007L, EXPONENT_OF_ONE / 2 + 1), null,
     // private Quadruple multUnsigned(Quadruple factor) covered completely =============
 
   // Test data for normalizeAndUnpack(factor, productExponent, factor1, factor2);
     "// this is subnormal", null, null,
     bdStr(0x0000_0000_1000_1230L, 0x0000_0000_0000_0000L, 0),
-    bdStr(0x0000_0000_0000_0000L, 0x1000_1230_0000_0000L, EXP_MAX), null, // product is approx. 2^-35 (2.9e-11)
+    bdStr(0x0000_0000_0000_0000L, 0x1000_1230_0000_0000L, EXPONENT_OF_MAX_VALUE), null, // product is approx. 2^-35 (2.9e-11)
 
     "// the other factor is subnormal", null, null,
-    bdStr(0x0000_0000_0000_0000L, 0x1000_1230_0000_0000L, EXP_MAX),
+    bdStr(0x0000_0000_0000_0000L, 0x1000_1230_0000_0000L, EXPONENT_OF_MAX_VALUE),
     bdStr(0x0000_0000_1000_1230L, 0x0000_0000_0000_0000L, 0), null,
 
     "// the product is less than 1/2 MIN_VALUE", null, null,
-    bdStr(0x0000_0000_0000_0000L, 0x1000_1230_0000_0000L, EXP_0Q - 97),
+    bdStr(0x0000_0000_0000_0000L, 0x1000_1230_0000_0000L, EXPONENT_OF_ONE - 97),
     bdStr(0x0000_0000_1000_1230L, 0x0000_0000_0000_0000L, 0), "0",
 
   // Test data for roundBuffer(product);
   "// No carry no rounding up at all", null, null,
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q),
-    bdStr(0x0000_0000_0000_0001L, 0x0000_0000_0000_0000L, EXP_0Q), null,
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE),
+    bdStr(0x0000_0000_0000_0001L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE), null,
 
   "// Carry to word 5 (the lowest one) of the buffer ", null, null,
-    bdStr(0x0000_0002_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_7FFF_FFFFL, EXP_0Q), null,
+    bdStr(0x0000_0002_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_7FFF_FFFFL, EXPONENT_OF_ONE), null,
 
   "// Carry to word 4 of the buffer", null, null,
-    bdStr(0x0000_0001_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_FFFF_FFFFL, EXP_0Q), null,
+    bdStr(0x0000_0001_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_FFFF_FFFFL, EXPONENT_OF_ONE), null,
 
   "// Carry to word 3 of the buffer", null, null,
-    bdStr(0x0000_0001_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q),
-    bdStr(0x0000_0000_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q), null,
+    bdStr(0x0000_0001_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE),
+    bdStr(0x0000_0000_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE), null,
 
   "// Carry to word 2 (the higher one) of the buffer", null, null,
-    bdStr(0x1C71_C71C_71C7_1C71L, 0xC71C_71C7_1C71_C71CL, EXP_0Q),
-    bdStr(0x2000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q), null,
+    bdStr(0x1C71_C71C_71C7_1C71L, 0xC71C_71C7_1C71_C71CL, EXPONENT_OF_ONE),
+    bdStr(0x2000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE), null,
 
   "// Carry to word 1 of the buffer (integer part of the mantissa)", null, null,
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFeL, EXP_0Q), null,
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFeL, EXPONENT_OF_ONE), null,
   // roundUpBuffer(product); <br>Covered 20.05.04 18:14:16
 
 /* */
   // Test data for  normalizeProduct(product, productExponent, isRoundedUp);
     "// No normalization required", null, null,
-    bdStr(0x4000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q),
-    bdStr(0x4000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q), null,
+    bdStr(0x4000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE),
+    bdStr(0x4000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE), null,
 
     "// Normalization, exponent remains normal", null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE), null,
 
     "// Normalization, exponent overflow", null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_MAX - EXP_0Q / 2),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_MAX - EXP_0Q / 2 - 1), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_MAX_VALUE - EXPONENT_OF_ONE / 2 - 1), null,
     // normalizeProduct(product, productExponent, isRoundedUp); Covered 20.05.05 15:33:51
 
 /* */
   // Test data for  packBufferToMantissa(product); -- no special data needed
   // Test data for  normalizeSubnormal(productExponent, isRoundedUp);
     "// Normalization of a subnormal, with alreadyRounded flag set to false", null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 1), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 1), null,
 
     "// Normalization of a subnormal, with alreadyRounded flag set to true", null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q / 2 - 1),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE / 2 - 1),
     bdStr(0x4800_0000_0000_0000L, 0x0000_0000_0000_0000L, 0),                 // Error exceeds the normal threshold for subnormals
     // normalizeSubnormal(productExponent, isRoundedUp); Covered 20.05.05 16:24:33
 
@@ -1715,46 +1716,46 @@ public class TestData {
   // Test data for  makeSubnormal(long exp2) {
   // if (exp2 > 127) {
   //   exp == 129; product == 0
-    bdStr(0x4000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 64),
-    bdStr(0x4000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 64), null,
+    bdStr(0x4000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 64),
+    bdStr(0x4000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 64), null,
 
   //   exp == 128; product == MIN_VALUE
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 64),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 64), MIN_VALUE_STR,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 64),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 64), MIN_VALUE_STR,
 
     //   exp == 127; product == MIN_VALUE
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 63),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 64), MIN_VALUE_STR,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 63),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 64), MIN_VALUE_STR,
 
   // Test data for shiftMantissa(exp2)
     // if (exp2 >= 64),  exp2 == 64
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 32),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 32), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 32),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 32), null,
 
     // if (exp2 >= 64),  exp2 > 64
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 33),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 32), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 33),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 32), null,
 
     // (exp2 < 64) && exp2 > 0
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 31),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 32), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 31),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 32), null,
 
     // (exp2 < 64) && exp2 == 0
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2), null,
 
     // back to makeSubnormal(long exp2). We've seen (shiftedOutBit == 0), now let it be 1
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_FFFFL, EXP_0Q / 2 + 1),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_FFFFL, EXPONENT_OF_ONE / 2 + 1),
     bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_8000L, 0),
 
     // back to makeSubnormal(long exp2). shiftedOutBit == 01, carry to the high word
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),
-    bdStr(0xFFFE_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q / 2 + 1), null,
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),
+    bdStr(0xFFFE_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE / 2 + 1), null,
 
     // back to makeSubnormal(long exp2). now let's see mantissa overflow (turning to minNormal)
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q / 2 + 1), null,
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE / 2 + 1), null,
 
     // A few more samples of becoming / not becoming MIN_NORMAL
     bdStr(mult(MIN_NORMAL, 123456789)), bdStr(div(BD_ONE, 123456789)), null,
@@ -1763,26 +1764,26 @@ public class TestData {
 /* */
   // Test data for shiftBufferRight(product, isRoundedUp);
   "// No rounding performed before (isRoundedUp == false) ", null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE), null,
 
   "// Already rounded up (isRoundedUp == true) ", null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE), null,
     // <br>shiftBufferRight(product, isRoundedUp) Covered 20.05.05 17:29:38
 
   // Test data for shiftBuffRightWithRounding(long[] buffer)
   "// No carry propagation at all", null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 1), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 1), null,
 
   "// The LSB of the next word is 1, without carry to the next half-word", null, null,
-    bdStr(0x8000_0000_0000_0001L, 0x0000_0000_0000_0000L, EXP_0Q / 2),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 1), null,
+    bdStr(0x8000_0000_0000_0001L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 1), null,
 
   "// carry to the higher half-word", null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_AAAA_AAAA_AAAAL, EXP_0Q / 2),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 1), null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_AAAA_AAAA_AAAAL, EXPONENT_OF_ONE / 2),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 1), null,
     // shiftBuffRightWithRounding(long[] buffer) covered 20.05.06 20:35:22
 
     // unpack_To5x32(mantHi, mantLo, buffer1); already covered, it does not require special data
@@ -1876,51 +1877,51 @@ public class TestData {
   // checkBounds(), lower boundary
   "// exp is much less than < -128, exp == 0",                                      null, null,
     bdStr(0x1234_5678_0000_0000L, 0x0000_0000_0000_0000L, 0),
-    bdStr(0x8765_4321_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_MAX),                 null,
+    bdStr(0x8765_4321_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_MAX_VALUE),                 null,
 
   "// exp < -128, result approx. == (MIN_VALUE / 8), rounded down to 0",            null, null, //
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 129),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q + EXP_0Q / 2),     null, // str(div(MIN_VALUE, 8)),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 129),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2),     null, // str(div(MIN_VALUE, 8)),
 
   "// exp < -128, result == MIN_VALUE / 4, rounded down to 0",                      null, null,
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 129),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2),     null, // str(div(MIN_VALUE, 4)),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 129),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2),     null, // str(div(MIN_VALUE, 4)),
 
   "// exp < -128, result == (MIN_VALUE / 2) * (1 - 2^-129), rounded down to 0",     null, null,
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q / 2 - 129),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2),     null, // str(mult(div(MIN_VALUE, 2), sub(1, 1.4693679e-39))),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE / 2 - 129),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2),     null, // str(mult(div(MIN_VALUE, 2), sub(1, 1.4693679e-39))),
 
   "// exp == -128, result == (MIN_VALUE / 4) * (1 + 2^-129), rounded down to 0",    null, null,
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 128),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q + EXP_0Q / 2),     null, // str(mult(div(MIN_VALUE, 4), add(1, 1.4693679e-39))),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 128),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2),     null, // str(mult(div(MIN_VALUE, 4), add(1, 1.4693679e-39))),
 
   "// exp == -128, result == (MIN_VALUE / 2), rounded up to MIN_VALUE",             null, null,
-    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2 - 128),
-    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2),     MIN_VALUE_STR, // str(div(MIN_VALUE, 2)),
+    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2 - 128),
+    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2),     MIN_VALUE_STR, // str(div(MIN_VALUE, 2)),
 
   "// exp == -128, result == (MIN_VALUE * (1 - 2^-129)), rounded up to MIN_VALUE",  null, null,
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q / 2 - 128),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2),     MIN_VALUE_STR, // str(mult(MIN_VALUE, sub(1, 1.4693679e-39))),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE / 2 - 128),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2),     MIN_VALUE_STR, // str(mult(MIN_VALUE, sub(1, 1.4693679e-39))),
 
   "// exp much greater than -128",                                                  null, null,
-    bdStr(0x8765_4321_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2),
-    bdStr(0x1234_5678_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),              null,
+    bdStr(0x8765_4321_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2),
+    bdStr(0x1234_5678_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),              null,
 
   // checkBounds(), upper boundary
-  "// exp = EXP_MAX + 1, quotient of mantissas < 1, result = MAX_VALUE * (1 - 1^-129) ", null, null,
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2 + 1),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q / 2),              null,
+  "// exp = EXPONENT_OF_MAX_VALUE + 1, quotient of mantissas < 1, result = MAX_VALUE * (1 - 1^-129) ", null, null,
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2 + 1),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE / 2),              null,
 
-  "// exp = EXP_MAX + 1, quotient of mantissas == 1, result = MAX_VALUE * (1 + 1^-129) ", null, null,
-    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2 + 1),
-    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q / 2),              null,
+  "// exp = EXPONENT_OF_MAX_VALUE + 1, quotient of mantissas == 1, result = MAX_VALUE * (1 + 1^-129) ", null, null,
+    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2 + 1),
+    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE / 2),              null,
 
-  "// exp > EXP_MAX + 1, quotient of mantissas is min possible, result > MAX_VALUE", null, null,
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2 + 2),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q / 2),              null,
+  "// exp > EXPONENT_OF_MAX_VALUE + 1, quotient of mantissas is min possible, result > MAX_VALUE", null, null,
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2 + 2),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE / 2),              null,
 
-  "// exp is much greater than EXP_MAX",                                            null, null,
-    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_MAX),
+  "// exp is much greater than EXPONENT_OF_MAX_VALUE",                                            null, null,
+    bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_MAX_VALUE),
     bdStr(0x1234_0000_0000_0000L, 0x0000_0000_0000_0000L, 3),                       null,
   // exponentExceedsBounds and divideUnsigned completely covered 20.05.13 20:41:16
 
@@ -1945,12 +1946,12 @@ public class TestData {
 /* */
   // Test data for divideByBuff()
   "// Carry from the remainder of division to the lower word",                      null, null,
-    bdStr(0x0000_0000_3FFF_FFFFL, 0xFFF0_FFFF_0FFF_FFFFL, EXP_0Q ),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q ),                 null,
+    bdStr(0x0000_0000_3FFF_FFFFL, 0xFFF0_FFFF_0FFF_FFFFL, EXPONENT_OF_ONE ),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE ),                 null,
 
   "// Carry from the remainder of division reaches the higher word",                null, null,
-    bdStr(0x0000_0000_3FFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q ),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q ),                 null,
+    bdStr(0x0000_0000_3FFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE ),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE ),                 null,
     // divideByBuff()  covered 20.05.15 12:10:36
     // unpackMantissaToBuff_10x32() covered
     // shiftBufferLeft() covered
@@ -1958,7 +1959,7 @@ public class TestData {
 
   "// Test data for normalizeMantissa(), shift == 64",                              null, null,
     bdStr(0x0000_0000_0000_0000L, 0xFFFF_FFFF_FFFF_FFFFL, 0 ),
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q ),                 null,
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE ),                 null,
 
 /* */
   "// Test data for normalizeAndUnpackDivisor(), shift == 64",                      null, null,
@@ -1993,97 +1994,97 @@ public class TestData {
     // Test data for  makeSubnormal(long exp2) {
     // exp > 128 impossible in case of division
     // exp == 128; product == MIN_VALUE (0.5 LSB, actually, rounded up )
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q - 1000 - 128),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE - 1000 - 128),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   MIN_VALUE_STR,
 
     // exp == 127; product == MIN_VALUE
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q - 1000 - 127),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE - 1000 - 127),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null,
 
     // exp == 127; product == 1.5 * MIN_VALUE
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q - 1000 - 127),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE - 1000 - 127),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   bdStr(mult(2, MIN_VALUE)), // 1.5 * MIN_VALUE rounded up
 
     // to cover shiftMantissa(long exp2)
     // returning shiftedOutBit == 0
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q - 1000 - 65),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE - 1000 - 65),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null,   // exp >= 64;
 
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q - 1000 - 64),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE - 1000 - 64),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null,   // exp == 64;
 
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q - 1000 - 63),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE - 1000 - 63),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null,   // exp < 64;
 
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q - 1000),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE - 1000),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null,   // exp = 0;
 
     // to cover shiftMantissa(long exp2)
     // returning shiftedOutBit == 1
-    bdStr(0x7fff_ffff_ffff_ffffL, 0xFfff_ffff_ffff_ffffL, EXP_0Q - 1000 - 65),
+    bdStr(0x7fff_ffff_ffff_ffffL, 0xFfff_ffff_ffff_ffffL, EXPONENT_OF_ONE - 1000 - 65),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null, // exp >= 64;
 
-    bdStr(0x7fff_ffff_ffff_ffffL, 0xFfff_ffff_ffff_ffffL, EXP_0Q - 1000 - 64),
+    bdStr(0x7fff_ffff_ffff_ffffL, 0xFfff_ffff_ffff_ffffL, EXPONENT_OF_ONE - 1000 - 64),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null, // exp == 64;
 
-    bdStr(0x7fff_ffff_ffff_ffffL, 0xFfff_ffff_ffff_ffffL, EXP_0Q - 1000 - 63),
+    bdStr(0x7fff_ffff_ffff_ffffL, 0xFfff_ffff_ffff_ffffL, EXPONENT_OF_ONE - 1000 - 63),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null, // exp < 64;
 
-    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q - 1000),
+    bdStr(0x8000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE - 1000),
     bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, -1003),                   null, // exp = 0;
 
-    bdStr(0x8000_0000_0000_000fL, 0xffff_ffff_ffff_ffffL, EXP_0Q - 1000),           // exp = 0; overflow of the lower 64 bits
+    bdStr(0x8000_0000_0000_000fL, 0xffff_ffff_ffff_ffffL, EXPONENT_OF_ONE - 1000),           // exp = 0; overflow of the lower 64 bits
     bdStr(0, 0, -1002),                                                             bdStr(0xc000_0000_0000_0008L, 0, 0), // the precision of findExpectedValue() is too high for subnormals
 
-    bdStr(0xffff_ffff_ffff_ffffL, 0xffff_ffff_ffff_ffffL, EXP_0Q - 1000),
+    bdStr(0xffff_ffff_ffff_ffffL, 0xffff_ffff_ffff_ffffL, EXPONENT_OF_ONE - 1000),
     bdStr(0, 0, -1002),                                                             null, // exp = 0; turning to MIN_NORMAL
 
   /* */
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXP_0Q / 2 + 10),
-    bdStr(0xFFFF_FFFE_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q + EXP_0Q / 2),     null,
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFFL, EXPONENT_OF_ONE / 2 + 10),
+    bdStr(0xFFFF_FFFE_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE + EXPONENT_OF_ONE / 2),     null,
 
   /* */
     // 20.12.09 13:51:34 Data to cover all iterations of the loop in findNextBitOfQuotient()
 
     "// i: 0, rm: 0000_0000_0000_0000, dr: 0000_0000_0000_0001, return 0",          null, null,
-    bdStr(0x8000_0000_0000_0000L, 8, EXP_0Q ),
-    bdStr(0, 8, EXP_0Q ),                                                           null,
+    bdStr(0x8000_0000_0000_0000L, 8, EXPONENT_OF_ONE ),
+    bdStr(0, 8, EXPONENT_OF_ONE ),                                                           null,
 
     "// i: 1, rm: 0000_0000_ffff_fffc, dr: 0000_0000_ffff_ffff, return 0",          null, null,
-    bdStr(0x7FFF_FFFF_0000_0000L, 0x0000_0000_0000_0000L, EXP_0Q ),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_0000_0000L, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE ),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXPONENT_OF_ONE ),                 null,
 
     "// i: 2, rm: 0000_0000_ffff_fffc, dr: 0000_0000_ffff_ffff, return 0",          null, null,
-    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0x0000_0000_0000_0000L, EXP_0Q ),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0x0000_0000_0000_0000L, EXPONENT_OF_ONE ),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXPONENT_OF_ONE ),                 null,
 
     "// i: 3, rm: 0000_0000_ffff_fffc, dr: 0000_0000_ffff_ffff, return 0",          null, null,
-    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_0000_0000L, EXP_0Q ),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_0000_0000L, EXPONENT_OF_ONE ),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXPONENT_OF_ONE ),                 null,
 
     "// i: 4, rm: 0000_0000_ffff_fffc, dr: 0000_0000_ffff_fffe, finally return 0",  null, null,
-    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXP_0Q ),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXPONENT_OF_ONE ),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXPONENT_OF_ONE ),                 null,
 
     "// i: 0, rm: 0000_0000_0000_0003, dr: 0000_0000_0000_0001, return 1",          null, null,
-    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFCL, EXP_0Q ),
-    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFCL, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFCL, EXPONENT_OF_ONE ),
+    bdStr(0xFFFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFCL, EXPONENT_OF_ONE ),                 null,
 
     "// i: 1, rm: 0000_0000_0000_0002, dr: 0000_0000_0000_0000, return 1",          null, null,
-    bdStr(0x7FFF_FFFF_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q ),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE ),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE ),                 null,
 
     "// i: 2, rm: 0000_0000_0000_0002, dr: 0000_0000_0000_0000, return 1",          null, null,
-    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0x0000_0000_0000_0001L, EXP_0Q ),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE ),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE ),                 null,
 
     "// i: 3, rm: 0000_0000_0000_0002, dr: 0000_0000_0000_0000, return 1",          null, null,
-    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_0000_0001L, EXP_0Q ),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_0000_0001L, EXPONENT_OF_ONE ),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE ),                 null,
 
     "// i: 4, rm: 0000_0000_0000_0008, dr: 0000_0000_0000_0001, finally return 1",  null, null,
-    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXP_0Q ),
-    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXP_0Q ),                 null,
+    bdStr(0x7FFF_FFFF_FFFF_FFFFL, 0xFFFF_FFFF_FFFF_FFFEL, EXPONENT_OF_ONE ),
+    bdStr(0x0000_0000_0000_0000L, 0x0000_0000_0000_0001L, EXPONENT_OF_ONE ),                 null,
 
   /**/
   }; // static String[] basicDivisionData = new String[] {
@@ -2100,12 +2101,12 @@ public class TestData {
    */
   static String[] specialSqrtData = {
     // Long ago, there were some doubts regarding values like the following
-    bdStr(0, 1, EXP_0Q),                    null,
-    bdStr(0, 2, EXP_0Q),                    null,
-    bdStr(0, 3, EXP_0Q),                    null,
-    bdStr(0, 4, EXP_0Q),                    null,
-    bdStr(0, 5, EXP_0Q),                    null,
-    bdStr(0, 6, EXP_0Q),                    null,
+    bdStr(0, 1, EXPONENT_OF_ONE),                    null,
+    bdStr(0, 2, EXPONENT_OF_ONE),                    null,
+    bdStr(0, 3, EXPONENT_OF_ONE),                    null,
+    bdStr(0, 4, EXPONENT_OF_ONE),                    null,
+    bdStr(0, 5, EXPONENT_OF_ONE),                    null,
+    bdStr(0, 6, EXPONENT_OF_ONE),                    null,
 
 /** DONE 20.12.15 19:29:15 WTF???
  19406: src:  2.0076107111543718154590316207407593704378047e-5228835   (+1553_f434_c068_fb7f 6838_9c71_c1e7_ba7f e 7ef6_f52a)
@@ -2130,9 +2131,9 @@ public class TestData {
     had to be additionally multiplied by sqrt(2). Now sqrtMant() calculates 20 bytes.
     /**/
 
-    bdStr(0x1553_f434_c068_fb7fL, 0x6838_9c71_c1e7_ba7fL, EXP_0Q + 1), null,
-    bdStr(0x9c59_1285_a647_6880L, 0x1205_d97b_dfaf_cd67L, EXP_0Q + 1), null,
-    bdStr(0x4a43_0eac_94d9_1354L, 0xd1ba_6600_1a76_958fL, EXP_0Q + 1), ""
+    bdStr(0x1553_f434_c068_fb7fL, 0x6838_9c71_c1e7_ba7fL, EXPONENT_OF_ONE + 1), null,
+    bdStr(0x9c59_1285_a647_6880L, 0x1205_d97b_dfaf_cd67L, EXPONENT_OF_ONE + 1), null,
+    bdStr(0x4a43_0eac_94d9_1354L, 0xd1ba_6600_1a76_958fL, EXPONENT_OF_ONE + 1), ""
     /* */
   }; // static String[] specialSqrtData = {
 
@@ -2172,20 +2173,20 @@ public class TestData {
     "1.226383209228515625",                 null, // (280/256)^2
 
     // in findNextDigit(), decrement of the digit
-    bdStr(0x03f1_8000_0000_0000L, 0, EXP_0Q), null,
+    bdStr(0x03f1_8000_0000_0000L, 0, EXPONENT_OF_ONE), null,
 
     // in subtractBuff(),
     // if (minuend[i - 1] == 0), // increase subtrahend instead of decreasing minuend, to assure the borrow propagation
-    bdStr(0x33c9_a789_5c84_8113L, 0x2f87_f69a_fd9b_6257L, EXP_0Q), null,
+    bdStr(0x33c9_a789_5c84_8113L, 0x2f87_f69a_fd9b_6257L, EXPONENT_OF_ONE), null,
 
     // in multBufByDigit(),
     // if (Long.compareUnsigned(product, prodLo) < 0) carry++;
-    bdStr(0x4853_8225_c5a9_984cL, 0xd9ef_6a45_01f8_5c77L, EXP_0Q), null,
+    bdStr(0x4853_8225_c5a9_984cL, 0xd9ef_6a45_01f8_5c77L, EXPONENT_OF_ONE), null,
 
     // in public Quadruple sqrt() {
     // if ((thirdWord & HIGH_BIT) != 0)
-    bdStr(-1, -1, EXP_0Q),                  null, // if (++mantLo == 0) not satisfied
-    bdStr(0x8fff_ffff_ffff_fffDL, 0x8000_0000_0000_0000L, EXP_0Q), null,  // if (++mantLo == 0) is  satisfied
+    bdStr(-1, -1, EXPONENT_OF_ONE),                  null, // if (++mantLo == 0) not satisfied
+    bdStr(0x8fff_ffff_ffff_fffDL, 0x8000_0000_0000_0000L, EXPONENT_OF_ONE), null,  // if (++mantLo == 0) is  satisfied
 
      /* */
     // Just to play

@@ -21,6 +21,7 @@ package com.mvohm.quadruple.test;
 import static com.mvohm.quadruple.test.AuxMethods.*;
 import static com.mvohm.quadruple.test.Consts.*;
 import static com.mvohm.quadruple.test.DataProviders.*;
+import static com.mvohm.quadruple.Quadruple.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -898,13 +899,13 @@ public class SpecificTesterClasses {
 
   private static boolean isNaN(Quadruple operand) {
     return
-      operand.exponent() == EXP_INF
+      operand.exponent() == EXPONENT_OF_INFINITY
       && (operand.mantHi() | operand.mantLo()) != 0;
   }
 
   private static boolean isInfinite(Quadruple operand) {
     return
-      operand.exponent() == EXP_INF
+      operand.exponent() == EXPONENT_OF_INFINITY
       && (operand.mantHi() | operand.mantLo()) == 0;
   }
 

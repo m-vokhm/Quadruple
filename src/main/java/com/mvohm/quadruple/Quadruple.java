@@ -606,7 +606,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   public Quadruple assignWithUnbiasedExponent(boolean negative, int exponent, long mantHi, long mantLo) {
     this.negative = negative;
-    this.exponent = exponent + EXPONENT_OF_ONE;
+    this.exponent = exponent + EXPONENT_BIAS;
     this.mantHi = mantHi;
     this.mantLo = mantLo;
     return this;

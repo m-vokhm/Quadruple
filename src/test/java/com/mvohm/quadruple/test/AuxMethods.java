@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 
 import com.mvohm.quadruple.Quadruple;
+import static com.mvohm.quadruple.Quadruple.*;
 
 /**
  * A set of convenience static methods to be used by other classes of the quadruple.test package.
@@ -337,7 +338,7 @@ public class AuxMethods {
 
 		// the binary mantissa as two longs with implied unity
 		exp2 = findMantValues(result, mant2, exp2, negExp); // Assigns mantissa values, exponent remains 0
-		exp2 = (negExp? -exp2 : exp2) + EXP_0Q;
+		exp2 = (negExp? -exp2 : exp2) + EXPONENT_BIAS;
 
 		if (exp2 <= 0) exp2 = makeSubnormal(result, exp2);
 		final int exponent = (int)exp2;
@@ -516,10 +517,10 @@ public class AuxMethods {
     BigDecimal bd;
     if (exponent == 0) { // Subnormal
       bd = new BigDecimal(biMantHi).multiply(BD_2$_64).add(new BigDecimal(biMantLo).multiply(BD_2$_128));
-      bd = bd.multiply(powerOfTwo(-EXP_0Q + 1, MC_140_HALF_UP));
+      bd = bd.multiply(powerOfTwo(-EXPONENT_BIAS + 1, MC_140_HALF_UP));
     } else {
       bd = BigDecimal.ONE.add(new BigDecimal(biMantHi).multiply(BD_2$_64).add(new BigDecimal(biMantLo).multiply(BD_2$_128)));
-      bd = bd.multiply(powerOfTwo(exponent + 2 + EXP_0Q, MC_140_HALF_UP));
+      bd = bd.multiply(powerOfTwo(exponent + 2 + EXPONENT_BIAS, MC_140_HALF_UP));
     }
     bd = bd.stripTrailingZeros();
     return sign? bd.negate() : bd;
@@ -660,6 +661,21 @@ public class AuxMethods {
   } // public static String bdStr(boolean sign, long mantHi, long mantLo, int exponent) {
 
   /**
+   * Builds a {@code BigDecimal} whose value is equal to the value
+   * that a Quadruple would have if it were built of the given parts,
+   * with an accuracy of 140 decimal places, and returns its {@code String} representation.
+   * For {@code Infinity}, {@code -Infinity}, and {@code NaN} returns their respective string notations.
+   * @param sign the sign of the corresponding {@code Quadruple}, {@code true} for negative values
+   * @param mantHi the most significant 64 bits of the mantissa of the corresponding {@code Quadruple}
+   * @param mantLo the least significant 64 bits of the mantissa of the corresponding {@code Quadruple}
+   * @param exponent the exponent of the corresponding {@code Quadruple}
+   * @return a decimal {@code String} representation of the value of a {@code Quadruple} built of the given parts
+   */
+  public static String bdStr(boolean sign, long mantHi, long mantLo, long exponent) {
+    return bdStr(sign, mantHi, mantLo, (int)exponent);
+  } // public static String bdStr(boolean sign, long mantHi, long mantLo, int exponent) {
+
+  /**
    * Builds a non-negative {@code BigDecimal} whose value is equal to the value
    * that a Quadruple would have if it were built of the given parts,
    * with an accuracy of 140 decimal places, and returns its {@code String} representation.
@@ -670,6 +686,20 @@ public class AuxMethods {
    * @return a decimal {@code String} representation of the value of a {@code Quadruple} built of the given parts
    */
   public static String bdStr(long mantHi, long mantLo, int exponent) {
+    return bdStr(false, mantHi, mantLo, exponent);
+  } // public static String bdStr(long mantHi, long mantLo, int exponent) {
+
+  /**
+   * Builds a non-negative {@code BigDecimal} whose value is equal to the value
+   * that a Quadruple would have if it were built of the given parts,
+   * with an accuracy of 140 decimal places, and returns its {@code String} representation.
+   * For {@code Infinity} and {@code NaN} returns their respective string notations.
+   * @param mantHi the most significant 64 bits of the mantissa of the corresponding {@code Quadruple}
+   * @param mantLo the least significant 64 bits of the mantissa of the corresponding {@code Quadruple}
+   * @param exponent the exponent of the corresponding {@code Quadruple}
+   * @return a decimal {@code String} representation of the value of a {@code Quadruple} built of the given parts
+   */
+  public static String bdStr(long mantHi, long mantLo, long exponent) {
     return bdStr(false, mantHi, mantLo, exponent);
   } // public static String bdStr(long mantHi, long mantLo, int exponent) {
 
@@ -865,13 +895,13 @@ public class AuxMethods {
    */
   private static BigDecimal buildBDMantissa(Quadruple qValue) {
     BigDecimal mant = new BigDecimal(Long.toUnsignedString(qValue.mantHi()));  // Upper 64 bits
-    mant = mant.add(new BigDecimal(Long.toUnsignedString(qValue.mantLo())).divide(POW_2_64));
+    mant = mant.add(new BigDecimal(Long.toUnsignedString(qValue.mantLo())).divide(TWO_RAISED_TO_64));
 
     // Now it's the fractional part of the mantissa
     if (qValue.exponent() == 0) // It's subnormal
-      mant = mant.divide(POW_2_63);                           // No Implied "1.", just div by 2^63
+      mant = mant.divide(TWO_RAISED_TO_63);                           // No Implied "1.", just div by 2^63
     else
-      mant = BigDecimal.ONE.add(mant.divide(POW_2_64));   // + Implied "1.", and now we have the mantissa
+      mant = BigDecimal.ONE.add(mant.divide(TWO_RAISED_TO_64));   // + Implied "1.", and now we have the mantissa
     return mant;
   } // private static BigDecimal buildBDMantissa(Quadruple qValue) {
 
@@ -960,10 +990,10 @@ public class AuxMethods {
    * @return the value of {@code exp2}, perhaps corrected by +/-1.
    */
   private static long findMantValues(Quadruple result, BigDecimal mant, long exp2, boolean negExp) {
-    BigDecimal fractPart = mant.subtract(BigDecimal.ONE).multiply(POW_2_64); // (1.xxxx - 1.0) << 64 -- higher 64 bits
+    BigDecimal fractPart = mant.subtract(BigDecimal.ONE).multiply(TWO_RAISED_TO_64); // (1.xxxx - 1.0) << 64 -- higher 64 bits
     long mantHi = fractPart.longValue();
 
-    fractPart = fractPart.subtract(new BigDecimal(Long.toUnsignedString(mantHi))).multiply(POW_2_64); // lower 64 bits
+    fractPart = fractPart.subtract(new BigDecimal(Long.toUnsignedString(mantHi))).multiply(TWO_RAISED_TO_64); // lower 64 bits
     long mantLo = fractPart.longValue();
 
     fractPart = fractPart.subtract(new BigDecimal(Long.toUnsignedString(mantLo)), MC_40_HALF_EVEN); // Fraction left after multiplying by 2^128
