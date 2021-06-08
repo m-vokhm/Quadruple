@@ -1,0 +1,169 @@
+package com.mvohm.quadruple.test.divisionbenchmarks;
+
+import static com.mvohm.quadruple.test.AuxMethods.*;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.util.Random;
+import java.util.function.Consumer;
+
+import org.openjdk.jmh.annotations.Level;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.infra.Blackhole;
+
+import com.mvohm.quadruple.Quadruple;
+
+/**
+ * A simple Q&D hand-made benchmark for divisions,
+ * with good old nanoseconds,
+ * to estimate the reliability of a more serious benchmark
+ *
+ * Started 21.06.07 11:27:16
+ *
+ * @author M.Vokhmentev
+ *
+ */
+public class SimplrBench {
+
+  // Time to run every benchmark in seconds
+  private final static double BENCH_TIME = 20.0;
+  private final static double WARMUP_TIME = 10.0;
+
+  private final static int DATA_SIZE      = 125_000;
+
+  private static final int RAND_SEED      = 12345;
+  private static final double RAND_SCALE  = 1e39; // To provide a sensible range of operands,
+                                                  // so that the actual calculations don't get bypassed
+  private final static BigDecimal[]
+      bdOp1     = new BigDecimal[DATA_SIZE],
+      bdOp2     = new BigDecimal[DATA_SIZE],
+      bdResult  = new BigDecimal[DATA_SIZE];
+
+  private final static Quadruple[]
+      qdStorage = new Quadruple[DATA_SIZE],
+      qdOp1     = new Quadruple[DATA_SIZE],
+      qdOp2     = new Quadruple[DATA_SIZE],
+      qdResult  = new Quadruple[DATA_SIZE];
+
+  private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
+
+  public static void main(String[] args) {
+    initData();
+    say();
+    benchmarkBD();
+    benchmarkQStatic();
+    benchmarkQInstance();
+  }
+
+  private static void benchmarkBD() {
+    say("BD Division: ");
+    say_("WarmUp:");
+    runBenchmark(WARMUP_TIME, s -> execBDDivisions(), false);
+    say_("Run benchmark:");
+    final double t = runBenchmark(BENCH_TIME, s -> execBDDivisions(), false);
+    say("BD Division: %8.3f ns/op\n", t);
+  }
+
+  private static void benchmarkQStatic() {
+    say("QS Division: ");
+    say_("WarmUp:");
+    runBenchmark(WARMUP_TIME, s -> execQStaticDivisions(), false);
+    say_("Run benchmark:");
+    final double t = runBenchmark(BENCH_TIME, s -> execQStaticDivisions(), false);
+    say("QS Division: %8.3f ns/op\n", t);
+  }
+
+  private static void benchmarkQInstance() {
+    say("QI Division: ");
+    say_("WarmUp:");
+    runBenchmark(WARMUP_TIME, s -> execQInstanceDivisions(), true);
+    say_("Run benchmark:");
+    final double t = runBenchmark(BENCH_TIME, s -> execQInstanceDivisions(), true);
+    say("QI Division: %8.3f ns/op\n", t);
+  }
+
+  private static double runBenchmark(double during, Consumer<Object> divider,
+                                      boolean needToUpdate) {
+    final long startTime = System.nanoTime();
+    int iterationCount = 0;
+    double runTime = 0;
+    long t = 0;
+    do {
+      if (needToUpdate) {
+         prepareForNextIteration();
+      }
+      t -= System.nanoTime();
+      divider.accept(null);
+      t += System.nanoTime();
+      iterationCount++;
+      say_(".");
+      runTime = (System.nanoTime() - startTime) / 1e9;
+    } while (runTime < during);
+    say("\n%s iteration done.", iterationCount);
+    final double workTime = t / ((double)DATA_SIZE * iterationCount);
+    return workTime;
+  }
+
+
+  private static void execBDDivisions() {
+    for (int i = 0; i < DATA_SIZE; i++)
+      bdResult[i] = bdOp1[i].divide(bdOp2[i], MC_38);
+  }
+
+  private static void execQStaticDivisions() {
+    for (int i = 0; i < DATA_SIZE; i++)
+      qdResult[i] = Quadruple.divide(qdOp1[i], qdOp2[i]);
+  }
+
+  private static void execQInstanceDivisions() {
+    for (int i = 0; i < DATA_SIZE; i++)
+      qdOp1[i].divide(qdOp2[i]);
+  }
+
+  public static void initData() {
+    final Random rand = new Random(RAND_SEED); // for reproducibility
+    say("Rand seed: %,d ", RAND_SEED);
+    say_("Data size: %,d ", DATA_SIZE);
+    // 1/8 заполним случайными числами, а то сильно долго
+    for (int i = 0; i < DATA_SIZE / 8; i++) {
+      bdOp1[i] = randomBigDecimal(rand);
+      bdOp2[i] = randomBigDecimal(rand);
+      qdStorage[i] = randomQuadruple(rand);
+      qdOp1[i] = qdStorage[i];
+      qdOp2[i] = randomQuadruple(rand);
+      if (i % ((DATA_SIZE / 8) / 10) == 0)
+        say_(".");
+    }
+
+    // Остальные 7/8 заполним копиями первых 1/8
+    for (int i = DATA_SIZE / 8; i < DATA_SIZE; i++) {
+      bdOp1[i] = bdOp1[i % (DATA_SIZE / 8)];
+      bdOp2[i] = bdOp2[i % (DATA_SIZE / 8)]; // Этим по барабану, они Immutable
+      qdStorage[i] = new Quadruple(qdStorage[i % (DATA_SIZE / 8)]); // А эти будут изменяться в результате деления, все должны быть уникальные экземпляры
+      qdOp1[i] = qdStorage[i];
+      qdOp2[i] = qdOp2[i % (DATA_SIZE / 8)]; // Эти не меняются
+    }
+    say();
+  }
+
+  public static void prepareForNextIteration() {
+    copyArray(qdStorage, qdOp1);
+    say_("-");
+  }
+
+  private static void copyArray(Quadruple[] src, Quadruple[] dst) {
+    for (int i = 0; i < src.length; i++)
+      dst[i] = new Quadruple(src[i]);
+  }
+
+  private static Quadruple randomQuadruple(Random rand) {
+    return Quadruple.nextRandom(rand).multiply(RAND_SCALE);
+  }
+
+  private static BigDecimal randomBigDecimal(Random rand) {
+    return Quadruple.nextRandom(rand).multiply(RAND_SCALE).bigDecimalValue();
+  }
+
+
+}
