@@ -7,7 +7,7 @@ package com.mvohm.quadruple.research;
  *
  */
 
-import static com.mvohm.quadruple.test.AuxMethods.*;
 
 public class Dividers {
+
 }

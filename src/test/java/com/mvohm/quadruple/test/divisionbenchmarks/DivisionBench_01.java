@@ -40,7 +40,7 @@ public class DivisionBench_01 {
   private static final int DATA_SIZE      // = 0x80_0000;  // 8 388 608;
                                           // =  0x1_0000;  // 65536
                                           // = 0x10_0000;  // 1 048 576
-                                          = 0x20_0000;  // 2 097 152
+                                           = 0x20_0000;  // 2 097 152
 
   private static final int INDEX_MASK     = DATA_SIZE - 1;  // 0xFFFF
   private static final int RAND_SEED      = 12345;
@@ -92,13 +92,14 @@ public class DivisionBench_01 {
 
   }
 
-//  @Setup(Level.Iteration)
-//  public void initData() {
-//    say_("-");
-//    copyArray(qOp1_0, qOp1);
-//    say_("- ");
-//    invocationCount = 0;
-//  }
+  @Setup(Level.Invocation)
+  public void uplateData() {
+    if (index == 0) {
+//      say_("-");
+      copyArray(qOp1_0, qOp1);
+//      say_("- ");
+    }
+  }
 
   private void copyArray(Quadruple[] src, Quadruple[] dst) {
     for (int i = 0; i < src.length; i++)
@@ -115,29 +116,21 @@ public class DivisionBench_01 {
 
 
   @Benchmark
-  public void g_BigDecimal_Division() {
+  public void g_BigDecimal___Division() {
     bh.consume(bdResult[index] = bdOp1[index].divide(bdOp2[index], MC_38));
     index = ++index & INDEX_MASK;
-//    if (index == 0)
-//      say("%6d", invocationCount++);
-
-//      if (index < 10) System.out.format("q[%2d] = %s\n", index, bdResult[index]);
   }
 
   @Benchmark
-  public void h_Quadruple__Division() {
-
-  // Instance operation:
-  // qResult[index] = qOp1[index].divide(qOp2[index]);
-
-  // Static class operation:
+  public void h_QuadStatic___Division() {
     bh.consume(qResult[index] = Quadruple.divide(qOp1[index], qOp2[index]));
-
     index = ++index & INDEX_MASK;
-//    if (index == 0)
-//      say("%6d", invocationCount++);
+  }
 
-//      if (index < 10) System.out.format("q[%2d] = %s\n", index, qResult[index]);
+  @Benchmark
+  public void i_QuadInstance_Division() {
+    bh.consume(qOp1[index].divide(qOp2[index]));
+    index = ++index & INDEX_MASK;
   }
 
   /**
