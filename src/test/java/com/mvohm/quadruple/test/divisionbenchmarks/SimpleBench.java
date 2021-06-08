@@ -6,13 +6,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Random;
-import java.util.TreeSet;
-import java.util.function.Consumer;
-
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.infra.Blackhole;
-import org.openjdk.jmh.runner.BenchmarkException;
 
 import com.mvohm.quadruple.Quadruple;
 
@@ -32,7 +25,9 @@ public class SimpleBench {
   private final static double BENCH_TIME = 10.0;
   private final static double WARMUP_TIME = 5.0;
 
-  private final static int DATA_SIZE      = 1_000_000;
+  private final static int DATA_SIZE      = 500_000;
+                                          // = 1_000_000;
+                                          // = 0x20_0000;  // 2 097 152
 
   private static final int RAND_SEED      = 12345;
   private static final double RAND_SCALE  = 1e39; // To provide a sensible range of operands,
@@ -57,12 +52,13 @@ public class SimpleBench {
   private void run() {
     initData();
     say();
-    bdAdditionBenchmarker.execute();
-    quadStaticAdditionBenchmarker.execute();
-    quadInstanceAdditionBenchmarker.execute();
-    bdDivisionBenchmarker.execute();
-    quadStaticDivisionBenchmarker.execute();
+//    bdAdditionBenchmarker.execute();
+//    quadStaticAdditionBenchmarker.execute();
+//    quadInstanceAdditionBenchmarker.execute();
+//    bdDivisionBenchmarker.execute();
+//    quadStaticDivisionBenchmarker.execute();
     quadInstanceDivisionBenchmarker.execute();
+    quadInstanceAltDivisionBenchmarker.execute();
 //    benchmarkQStatic();
 //    benchmarkQInstance();
   }
@@ -136,6 +132,20 @@ public class SimpleBench {
         qdOp1[i].divide(qdOp2[i]);
     }
   };
+
+  Benchmarker quadInstanceAltDivisionBenchmarker = new Benchmarker() {
+    {
+      benchmarkName = "Quadruple instance ALTERNATIVE division";
+      needToUpdateData = true;
+    }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdOp1[i].divide_2(qdOp2[i]);
+    }
+  };
+
+
 
   Benchmarker bdAdditionBenchmarker = new Benchmarker() {
     { benchmarkName = "        BigDecimal Addition"; }

@@ -93,47 +93,51 @@ public class QuadTest {
   private final QuadTester[] testers = new QuadTester[] {
 
   // Conversions from Quadruple to other types
-    new QuadToStringTester(),
-    new QuadToDoubleTester(),
-    new QuadToLongTester(),
-    new QuadToIntTester(),
-    new QuadToBdTester(),               // 6 source errors testing NaNs etc
-    new QuadToIEEELongsTester(),
-    new QuadToIEEEBytesTester(),
+//    new QuadToStringTester(),
+//    new QuadToDoubleTester(),
+//    new QuadToLongTester(),
+//    new QuadToIntTester(),
+//    new QuadToBdTester(),               // 6 source errors testing NaNs etc
+//    new QuadToIEEELongsTester(),
+//    new QuadToIEEEBytesTester(),
+//
+//
+//  // Conversions from other types to Quadruple
+//    new StringToQuadTester(),             // 14 source errors testing detection of syntax errors
+//    new BdToQuadTester(),                 // 3 source errors testing detection of syntax errors
+//    new DoubleToQuadTester(),
+//    new LongToQuadTester(),
+//    new AssignIEEELongsTester(),
+//    new AssignIEEEBytesTester(),
+//
+//
+//  // Binary operations
+//    new InstanceAdditionTester(),
+//    new InstanceSubtractionTester(),
+//    new InstanceMultiplicationTester(),
 
-
-  // Conversions from other types to Quadruple
-    new StringToQuadTester(),             // 14 source errors testing detection of syntax errors
-    new BdToQuadTester(),                 // 3 source errors testing detection of syntax errors
-    new DoubleToQuadTester(),
-    new LongToQuadTester(),
-    new AssignIEEELongsTester(),
-    new AssignIEEEBytesTester(),
-
-
-  // Binary operations
-    new InstanceAdditionTester(),
-    new InstanceSubtractionTester(),
-    new InstanceMultiplicationTester(),
     new InstanceDivisionTester(),
-    new StaticAdditionTester(),
-    new StaticSubtractionTester(),
-    new StaticMultiplicationTester(),
-    new StaticDivisionTester(),
+    // 21.06.08 18:40:13 Trying to find a faster way to divide
+    new Alt_InstanceDivisionTester(),
 
-    new InstanceMaxTester(),
-    new InstanceMinTester(),
-    new StaticMaxTester(),
-    new StaticMinTester(),
-
-  // Reverse conversion Quadruple -> String -> Quadruple
-    new QuadToStringToQuadTester(),   // 14 source errors inherited from basic_S2Q_conversionData
-    new QuadToBDToQuadTester(),
-
-  // Unary operation
-    new StaticSqrtTester(),
-    new InstanceSqrtTester(),       // 37 total source errors
-
+//    new StaticAdditionTester(),
+//    new StaticSubtractionTester(),
+//    new StaticMultiplicationTester(),
+//    new StaticDivisionTester(),
+//
+//    new InstanceMaxTester(),
+//    new InstanceMinTester(),
+//    new StaticMaxTester(),
+//    new StaticMinTester(),
+//
+//  // Reverse conversion Quadruple -> String -> Quadruple
+//    new QuadToStringToQuadTester(),   // 14 source errors inherited from basic_S2Q_conversionData
+//    new QuadToBDToQuadTester(),
+//
+//  // Unary operation
+//    new StaticSqrtTester(),
+//    new InstanceSqrtTester(),       // 37 total source errors
+//
   };
 
   /** The values of the valid keys of the command-line arguments */

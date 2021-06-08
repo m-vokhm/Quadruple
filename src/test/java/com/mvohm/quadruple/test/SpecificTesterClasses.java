@@ -740,6 +740,23 @@ public class SpecificTesterClasses {
 
   } // static class InstanceDivisionTester extends StaticDivisionTester {
 
+  /** A tester class to test instance method {@link Quadruple#divide(Quadruple op2)}.<br>
+   * Obtains the test data from {@link DataProviders#divisionDataList()}
+   * and performs {@link Quadruple#divide(Quadruple op2)} as the tested operation.
+   */
+  //21.06.08 18:40:13 Trying to find a faster way to divide
+  static class Alt_InstanceDivisionTester extends StaticDivisionTester {
+
+    /** Returns the name of the tested operation, namely "{@code op1.divide(Quadruple op2)}". */
+    @Override protected String getName() { return "Experimental op1.divide(Quadruple op2)"; }
+
+    /** Performs the tested operation ({@code op1.divide(Quadruple op2)})
+     * with the given operands and returns the result. */
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return new Quadruple(op1).divide_2(op2); }
+
+  } // static class InstanceDivisionTester extends StaticDivisionTester {
+
+
   /*
    * TODO 20.10.29 12:36:03 static class RandomTester():
    * to find a way to test randoms in such a way that the results can be represented
