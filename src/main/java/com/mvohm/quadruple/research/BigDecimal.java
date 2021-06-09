@@ -1724,6 +1724,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * @since  1.5
      */
     public BigDecimal divide(BigDecimal divisor, MathContext mc) {
+
         final int mcp = mc.precision;
         if (mcp == 0)
             return divide(divisor);

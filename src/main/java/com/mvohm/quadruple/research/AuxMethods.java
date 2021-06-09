@@ -16,7 +16,7 @@
 
 */
 
-package com.mvohm.quadruple.test;
+package com.mvohm.quadruple.research;
 
 import static com.mvohm.quadruple.test.Consts.*;
 
