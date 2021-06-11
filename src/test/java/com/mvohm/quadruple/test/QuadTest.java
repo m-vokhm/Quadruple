@@ -116,15 +116,15 @@ public class QuadTest {
 //    new InstanceSubtractionTester(),
 //    new InstanceMultiplicationTester(),
 
-//    new InstanceDivisionTester(),
+    new InstanceDivisionTester(),
     // 21.06.08 18:40:13 Trying to find a faster way to divide
-    new Alt_InstanceDivisionTester(),
+//    new Alt_InstanceDivisionTester(),
 
 //    new StaticAdditionTester(),
 //    new StaticSubtractionTester(),
 //    new StaticMultiplicationTester(),
-    new StaticDivisionTester(),
-    new Alt_StaticDivisionTester(),
+//    new StaticDivisionTester(),
+//    new Alt_StaticDivisionTester(),
 //
 //    new InstanceMaxTester(),
 //    new InstanceMinTester(),

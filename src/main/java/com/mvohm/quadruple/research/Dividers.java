@@ -14,10 +14,28 @@ import static com.mvohm.quadruple.research.BigInteger.LONG_MASK;
 
 public class Dividers {
 
+  private static final boolean TALKATIVE = false;
+
   private static final long LOWER_32_BITS     = 0x0000_0000_FFFF_FFFFL;
   private static final long HIGHER_32_BITS    = 0xFFFF_FFFF_0000_0000L;
 
   private static final long[] BUFFER_10x32_B  = new long[10];
+
+  private static long qdrAddBackCounter = 0, mbiAddBackCounter = 0;
+
+  public static void clearAddBackCounters() {
+    qdrAddBackCounter = mbiAddBackCounter = 0;
+  }
+
+  public static long getQdrAddBackCounter() {
+    return qdrAddBackCounter;
+  }
+
+  public static long getMbiAddBackCounter() {
+    return mbiAddBackCounter;
+  }
+
+
 
   /**
   * Divides an unpacked value held in the 10 longs of the {@code dividend)
@@ -36,7 +54,13 @@ public class Dividers {
   * @return the next bit of the quotient (half the LSB), to be used for rounding the result
   * <br>Covered
   */
-  public static long divideArrays_old(long[] dividend, long[] divisor, long[] quotient) {
+  public static long divideArrays_1(long[] dividend, long[] divisor, long[] quotient) {
+    return TALKATIVE?
+        divideArrays_old_talkative(dividend, divisor, quotient):
+        divideArrays_old_silent(dividend, divisor, quotient);
+  }
+
+  public static long divideArrays_old_talkative(long[] dividend, long[] divisor, long[] quotient) {
     final long[] remainder = dividend;            // will contain remainder after each iteration
     Arrays.fill(quotient, 0);
 
@@ -44,42 +68,140 @@ public class Dividers {
     int offset = 0;                               // the index of the quotient word being computed
     quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
 
-//    say("\n<<< divideArrays_old");
-//    say("  r: " + hexStr_u(remainder));
-//    say("  d:           " + hexStr_u(divisor));
+    say("\n<<< divideArrays_old");
+    say("  r: " + hexStr_u(remainder));
+    say("  d:           " + hexStr_u(divisor));
     subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
-//    say("  r: " + hexStr_u(remainder));
-//    say(" ---------------");
+    say("  r: " + hexStr_u(remainder));
+    say(" ---------------");
 
     // Compute the quotient by portions by 32 bits per iterations
-    if (!isEmpty(remainder))
+    if (!isEmpty(remainder)) {
       do {
         final long remainderHigh = (remainder[offset + 1] << 32) | remainder[offset + 2]; // The most significant 64 bits of the remainder
-      long quotientWord = (remainder[offset] == 0)?
-          Long.divideUnsigned(remainderHigh, divisorHigh):
-          divide65bits(remainder[offset], remainderHigh, divisorHigh);
-
-//      say(" qw: " + hexStr(quotientWord));
-      if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
-        multipyAndSubtract(divisor, quotientWord, offset, remainder);
-//        say("  r: " + hexStr_u(remainder));
-        if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
-          quotientWord--;                               // decrease it
-//          say("+qw: " + hexStr(quotientWord));
-          addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
-//          say("+ r: " + hexStr_u(remainder));
+        long quotientWord, qRemainder;
+        if (remainder[offset] == 0) {
+          quotientWord  = Long.divideUnsigned(remainderHigh, divisorHigh);
+          qRemainder    = Long.remainderUnsigned(remainderHigh, divisorHigh);
+        } else {
+          quotientWord  = divide65bits(remainder[offset], remainderHigh, divisorHigh);
+          qRemainder    = quotientRemainder;        // set by divide65bits() called above
         }
-      }
 
-      quotient[offset++] = quotientWord;          // The next word of the quotient
-    } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
+        say(" qw: " + hexStr(quotientWord));
+        say(" qr: " + hexStr(qRemainder));
 
-//    say("  q: " + hexStr_u(quotient));
-//    say(">>> divideArrays_old");
+        // 21.06.10 15:55:38 Снизить вероятность обратного прибавления, проверить, не слишком ли велико q
+        // Проверить выполнение неравенства q * v[n-2] > b * r + u[j + n - 2]
+        /* */
+        say("mul  %s       * %s", hexStr(quotientWord), hexStr(divisor[2]));
+        final long lPart = quotientWord * divisor[2]; // [2]
+        say("add  %s << 32 + %s", hexStr(qRemainder), hexStr(remainder[offset + 3]));
+        final long rPart = (qRemainder << 32) + remainder[offset + 3];
+        say("cmp  %s, %s", hexStr(lPart), hexStr(rPart));
+        if (Long.compareUnsigned(lPart, rPart) > 0
+            && qRemainder < 0x1_0000_0000L
+            || quotientWord == 0x1_0000_0000L
+        //    || lPart == 0xFFFF_FFFF_0000_0000L
+        ) {
+          say("I'd decrease the quotient word!");
+
+          // Если оно удовлетворяется, то уменьшить q^ на 1, увеличить r^ на v[n-1]
+          quotientWord--;
+//          say("-qw: " + hexStr(quotientWord));
+//          final long qw1 = quotientWord;
+//          final long qr1 = qRemainder + divisor[1];
+//
+//          // и повторить эту проверку при r^ < b
+//          lPart = qw1 * divisor[2];
+//          rPart = (qr1 << 32) + remainder[offset + 3];
+//          say("%s, %s", hexStr(lPart), hexStr(rPart));
+//          if (Long.compareUnsigned(lPart, rPart) > 0)
+//            say("I'd decrease the quotient word once more!");
+//
+        }
+        /**/
+
+        if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
+          multipyAndSubtract(divisor, quotientWord, offset, remainder);
+          say("  r: " + hexStr_u(remainder));
+          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
+            quotientWord--;                               // decrease it
+            say("+qw: " + hexStr(quotientWord));
+            addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
+            say("+ r: " + hexStr_u(remainder));
+            qdrAddBackCounter++;
+          }
+        }
+
+        quotient[offset++] = quotientWord;          // The next word of the quotient
+      } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
+    } // if (!isEmpty(remainder)) {
+
+    say(" ---------------");
+    say("  q: " + hexStr_u(quotient));
+    say(">>> divideArrays_old\n");
 
     return findNextBitOfQuotient(remainder, divisor);
   } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
 
+  public static long divideArrays_old_silent(long[] dividend, long[] divisor, long[] quotient) {
+    final long[] remainder = dividend;            // will contain remainder after each iteration
+    Arrays.fill(quotient, 0);
+
+    final long divisorHigh = (divisor[0] << 32) | divisor[1];   // The most significant word of the divisor
+    int offset = 0;                               // the index of the quotient word being computed
+    quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
+    subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
+
+    // Compute the quotient by portions by 32 bits per iterations
+    if (!isEmpty(remainder)) {
+      do {
+        final long remainderHigh = (remainder[offset + 1] << 32) | remainder[offset + 2]; // The most significant 64 bits of the remainder
+
+        long quotientWord = (remainder[offset] == 0)?
+            Long.divideUnsigned(remainderHigh, divisorHigh):
+            divide65bits(remainder[offset], remainderHigh, divisorHigh);
+
+  //****************************************************************
+  // The performance gains aren't worth the extra cost
+  // of more accurate computation of the quotientWord
+  //****************************************************************
+  //    long quotientWord, qRemainder;
+  //
+  //    if (remainder[offset] == 0) {
+  //      quotientWord  = Long.divideUnsigned(remainderHigh, divisorHigh);
+  //      qRemainder    = Long.remainderUnsigned(remainderHigh, divisorHigh);
+  //    } else {
+  //      quotientWord  = divide65bits(remainder[offset], remainderHigh, divisorHigh);
+  //      qRemainder    = quotientRemainder;        // set by divide65bits() called above
+  //    }
+  //
+  //    if (  quotientWord == 0x1_0000_0000L
+  //          || ( qRemainder < 0x1_0000_0000L
+  //               && Long.compareUnsigned( quotientWord * divisor[2],
+  //                                       (qRemainder << 32) + remainder[offset + 3] ) > 0 )
+  //     ) {
+  //       quotientWord--;
+  //     }
+  //****************************************************************
+
+        if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
+          multipyAndSubtract(divisor, quotientWord, offset, remainder);
+          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
+            quotientWord--;                               // decrease it
+            addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
+            qdrAddBackCounter++;
+          }
+        }
+
+        quotient[offset++] = quotientWord;          // The next word of the quotient
+      } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
+    } // (!isEmpty(remainder)) {
+
+    return findNextBitOfQuotient(remainder, divisor);
+
+  } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
 
   /**
    * Subtracts the divisor from the dividend to obtain the remainder for the first iteration
@@ -121,8 +243,12 @@ public class Dividers {
     final long quotientHi = shiftedDividend / divisor;                  // The most significant 32 bits of the quotient
     final long remainder = ((shiftedDividend % divisor) << 16) | (dividendLo & 0xFFFF);
     final long quotientLo = remainder / divisor;                        // The least significant 16 bits of the quotient
+    quotientRemainder = remainder % divisor;
     return quotientHi << 16 | quotientLo;
   } // private static long divide65bits(long dividendHi, long dividendLo, long divisor) {
+
+  private static long quotientRemainder;
+
 
   /**
    * Multiplies the divisor by a newly found word of quotient,
@@ -138,10 +264,33 @@ public class Dividers {
    * @param remainder the remainder to subtract the product from
    */
   private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
+    // 21.06.11 14:07:25
+    // Сделаем временный дублёр с новым алгоритмом, чтобы проверить, эквивалентен ли он
+    final long[] tmpRemainder = remainder;
+
     offset++;
-    final long[] partialProduct = BUFFER_10x32_B;
-    multDivisorBy(divisor, quotientWord, partialProduct, offset); // multiply divisor by qW with the given offset
-    subtractProduct(partialProduct, remainder, offset);           // and subtract the product from the remainder
+
+//    final long[] partialProduct = BUFFER_10x32_B;
+//    multDivisorBy(divisor, quotientWord, partialProduct, offset); // multiply divisor by qW with the given offset
+//    subtractProduct(partialProduct, remainder, offset);           // and subtract the product from the remainder
+
+    long prod = 0;
+    for (int i = divisor.length - 1; i >= 0; i--) {         // product[offset..offset+4]
+      prod = quotientWord * divisor[i];
+      final long tmpRem = tmpRemainder[i + offset] - (prod & 0xFFFF_FFFFL);
+      tmpRemainder[i + offset - 1] -= (prod >>> 32) - (tmpRem >>> 32);
+      tmpRemainder[i + offset] = tmpRem & 0xFFFF_FFFFL;
+    }
+    if ((int)tmpRemainder[offset] < 0) {
+      for (int i = offset - 1; i > 0; i--)
+        tmpRemainder[i] = 0xFFFF_FFFFL;
+      tmpRemainder[0] = -1L;
+    }
+
+//    if (!Arrays.equals(tmpRemainder, remainder))
+//      say("Reminder differs: \n  old: %s\n  new: %s", hexStr_u(remainder), hexStr_u(tmpRemainder));
+//    else
+//      say("Reminders OK!");
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
   /**
@@ -200,9 +349,9 @@ public class Dividers {
         product[i + offset] = divisor[i];
     else {
       for (int i = 0; i < 5; i++)
-        product[i + offset] = divisor[i] * quotientWord;   // product[offset..offset+4]
-      for (int i = 4 + offset; i >= offset; i--) {         // propagate carry
-        product[i - 1] += product[i] >>> 32;
+        product[i + offset] = divisor[i] * quotientWord;
+      for (int i = 4 + offset; i >= offset; i--) {         // product[offset..offset+4]
+        product[i - 1] += product[i] >>> 32;               // propagate carry
         product[i] &= LOWER_32_BITS;
       }
     }
@@ -239,7 +388,7 @@ public class Dividers {
    * @param quotient
    * @return the next bit of the quotient (0 or 1)
    */
-  public static long divideArrays_alt(long[] dividend, long[] divisor, long[] quotient) {
+  public static long divideArrays_2(long[] dividend, long[] divisor, long[] quotient) {
 //    // Temporarily use the old one
 //    return divideArrays_old(dividend, divisor, quotient);
     final int[] dividend1 = longsToInts(dividend, 1);
@@ -353,21 +502,21 @@ public class Dividers {
     final int dlen = mbiDivisor.intLen;
     int[] divisor;
 
-    MutableBigInteger rem; // Remainder starts as dividend with space for a leading zero
+    MutableBigInteger mbiRemainder; // Remainder starts as dividend with space for a leading zero
     if (shift > 0) {
       divisor = new int[dlen];
       copyAndShift(mbiDivisor.value, mbiDivisor.offset, dlen, divisor, 0, shift);
       if (Integer.numberOfLeadingZeros(value[offset]) >= shift) {
         final int[] remarr = new int[intLen + 1];
-        rem = new MutableBigInteger(remarr);
-        rem.intLen = intLen;
-        rem.offset = 1;
+        mbiRemainder = new MutableBigInteger(remarr);
+        mbiRemainder.intLen = intLen;
+        mbiRemainder.offset = 1;
         copyAndShift(value,offset,intLen,remarr,1,shift);
       } else {
         final int[] remarr = new int[intLen + 2];
-        rem = new MutableBigInteger(remarr);
-        rem.intLen = intLen+1;
-        rem.offset = 1;
+        mbiRemainder = new MutableBigInteger(remarr);
+        mbiRemainder.intLen = intLen+1;
+        mbiRemainder.offset = 1;
         int rFrom = offset;
         int c=0;
         final int n2 = 32 - shift;
@@ -380,13 +529,13 @@ public class Dividers {
       }
     } else {
       divisor = Arrays.copyOfRange(mbiDivisor.value, mbiDivisor.offset, mbiDivisor.offset + mbiDivisor.intLen);
-      rem = new MutableBigInteger(new int[intLen + 1]);
-      System.arraycopy(value, offset, rem.value, 1, intLen);
-      rem.intLen = intLen;
-      rem.offset = 1;
+      mbiRemainder = new MutableBigInteger(new int[intLen + 1]);
+      System.arraycopy(value, offset, mbiRemainder.value, 1, intLen);
+      mbiRemainder.intLen = intLen;
+      mbiRemainder.offset = 1;
     }
 
-    final int nlen = rem.intLen;
+    final int nlen = mbiRemainder.intLen;
 
     // Set the quotient size
     final int limit = nlen - dlen + 1;
@@ -398,40 +547,41 @@ public class Dividers {
     final int[] q = mbiQuotient.value;
 
     // Must insert leading 0 in rem if its length did not change
-    if (rem.intLen == nlen) {
-      rem.offset = 0;
-      rem.value[0] = 0;
-      rem.intLen++;
+    if (mbiRemainder.intLen == nlen) {
+      mbiRemainder.offset = 0;
+      mbiRemainder.value[0] = 0;
+      mbiRemainder.intLen++;
     }
 
 //    say("  r: " + hexStr_(rem.value));
 
-    final int dh = divisor[0];
-    final long dhLong = dh & LONG_MASK;
+    final int divisorHighWord = divisor[0];
+    final long divisorHighLong = divisorHighWord & LONG_MASK;
     final int dl = divisor[1];
 
     // D2 Initialize j
     for (int j=0; j < limit-1; j++) {
+
       // D3 Calculate qhat
       // estimate qhat
       int qhat = 0;
       int qrem = 0;
       boolean skipCorrection = false;
-      final int nh = rem.value[j+rem.offset];
-      final int nh2 = nh + 0x80000000;
-      final int nm = rem.value[j+1+rem.offset];
+      final int remainderHighWord = mbiRemainder.value[j + mbiRemainder.offset];
+      final int nh2 = remainderHighWord + 0x80000000;
+      final int remainderNextWord = mbiRemainder.value[j + 1 + mbiRemainder.offset];
 
-      if (nh == dh) {
+      if (remainderHighWord == divisorHighWord) {
         qhat = ~0;
-        qrem = nh + nm;
+        qrem = remainderHighWord + remainderNextWord;
         skipCorrection = qrem + 0x80000000 < nh2;
       } else {
-        final long nChunk = (((long)nh) << 32) | (nm & LONG_MASK);
+        final long nChunk = (((long)remainderHighWord) << 32) | (remainderNextWord & LONG_MASK);
         if (nChunk >= 0) {
-          qhat = (int) (nChunk / dhLong);
-          qrem = (int) (nChunk - (qhat * dhLong));
+          qhat = (int) (nChunk / divisorHighLong);
+          qrem = (int) (nChunk - (qhat * divisorHighLong));
         } else {
-          final long tmp = divWord(nChunk, dh);
+          final long tmp = divWord(nChunk, divisorHighWord);
           qhat = (int) (tmp & LONG_MASK);
           qrem = (int) (tmp >>> 32);
         }
@@ -441,14 +591,14 @@ public class Dividers {
         continue;
 
       if (!skipCorrection) { // Correct qhat
-        final long nl = rem.value[j+2+rem.offset] & LONG_MASK;
+        final long nl = mbiRemainder.value[j + 2 + mbiRemainder.offset] & LONG_MASK;
         long rs = ((qrem & LONG_MASK) << 32) | nl;
         long estProduct = (dl & LONG_MASK) * (qhat & LONG_MASK);
 
         if (unsignedLongCompare(estProduct, rs)) {
           qhat--;
-          qrem = (int)((qrem & LONG_MASK) + dhLong);
-          if ((qrem & LONG_MASK) >=  dhLong) {
+          qrem = (int)((qrem & LONG_MASK) + divisorHighLong);
+          if ((qrem & LONG_MASK) >=  divisorHighLong) {
             estProduct -= (dl & LONG_MASK);
             rs = ((qrem & LONG_MASK) << 32) | nl;
             if (unsignedLongCompare(estProduct, rs))
@@ -459,15 +609,16 @@ public class Dividers {
 //      say(" qw: " + hexStr(qhat));
 
       // D4 Multiply and subtract
-      rem.value[j+rem.offset] = 0;
-      final int borrow = mulsub(rem.value, divisor, qhat, dlen, j+rem.offset);
+      mbiRemainder.value[j+mbiRemainder.offset] = 0;
+      final int borrow = mulsub(mbiRemainder.value, divisor, qhat, dlen, j+mbiRemainder.offset);
 //      say("  r: " + hexStr_(rem.value));
 
       // D5 Test remainder
       if (borrow + 0x80000000 > nh2) {
         // D6 Add back
-        divadd(divisor, rem.value, j+1+rem.offset);
+        divadd(divisor, mbiRemainder.value, j+1+mbiRemainder.offset);
         qhat--;
+        mbiAddBackCounter++;
 //        say("+qw: " + hexStr(qhat));
 //        say("+ r: " + hexStr_(rem.value));
       }
@@ -481,21 +632,21 @@ public class Dividers {
     int qhat = 0;
     int qrem = 0;
     boolean skipCorrection = false;
-    final int nh = rem.value[limit - 1 + rem.offset];
+    final int nh = mbiRemainder.value[limit - 1 + mbiRemainder.offset];
     final int nh2 = nh + 0x80000000;
-    final int nm = rem.value[limit + rem.offset];
+    final int nm = mbiRemainder.value[limit + mbiRemainder.offset];
 
-    if (nh == dh) {
+    if (nh == divisorHighWord) {
       qhat = ~0;
       qrem = nh + nm;
       skipCorrection = qrem + 0x80000000 < nh2;
     } else {
       final long nChunk = (((long) nh) << 32) | (nm & LONG_MASK);
       if (nChunk >= 0) {
-          qhat = (int) (nChunk / dhLong);
-          qrem = (int) (nChunk - (qhat * dhLong));
+          qhat = (int) (nChunk / divisorHighLong);
+          qrem = (int) (nChunk - (qhat * divisorHighLong));
       } else {
-          final long tmp = divWord(nChunk, dh);
+          final long tmp = divWord(nChunk, divisorHighWord);
           qhat = (int) (tmp & LONG_MASK);
           qrem = (int) (tmp >>> 32);
       }
@@ -503,14 +654,14 @@ public class Dividers {
 
     if (qhat != 0) {
       if (!skipCorrection) { // Correct qhat
-        final long nl = rem.value[limit + 1 + rem.offset] & LONG_MASK;
+        final long nl = mbiRemainder.value[limit + 1 + mbiRemainder.offset] & LONG_MASK;
         long rs = ((qrem & LONG_MASK) << 32) | nl;
         long estProduct = (dl & LONG_MASK) * (qhat & LONG_MASK);
 
         if (unsignedLongCompare(estProduct, rs)) {
           qhat--;
-          qrem = (int) ((qrem & LONG_MASK) + dhLong);
-          if ((qrem & LONG_MASK) >= dhLong) {
+          qrem = (int) ((qrem & LONG_MASK) + divisorHighLong);
+          if ((qrem & LONG_MASK) >= divisorHighLong) {
             estProduct -= (dl & LONG_MASK);
             rs = ((qrem & LONG_MASK) << 32) | nl;
             if (unsignedLongCompare(estProduct, rs))
@@ -523,19 +674,20 @@ public class Dividers {
 //      say(" qw: " + hexStr(qhat));
       // D4 Multiply and subtract
       int borrow;
-      rem.value[limit - 1 + rem.offset] = 0;
+      mbiRemainder.value[limit - 1 + mbiRemainder.offset] = 0;
       if(needRemainder)
-        borrow = mulsub(rem.value, divisor, qhat, dlen, limit - 1 + rem.offset);
+        borrow = mulsub(mbiRemainder.value, divisor, qhat, dlen, limit - 1 + mbiRemainder.offset);
       else
-        borrow = mulsubBorrow(rem.value, divisor, qhat, dlen, limit - 1 + rem.offset);
+        borrow = mulsubBorrow(mbiRemainder.value, divisor, qhat, dlen, limit - 1 + mbiRemainder.offset);
 
 //      say("  r: " + hexStr_(rem.value));
       // D5 Test remainder
       if (borrow + 0x80000000 > nh2) {
         // D6 Add back
         if(needRemainder)
-            divadd(divisor, rem.value, limit - 1 + 1 + rem.offset);
+            divadd(divisor, mbiRemainder.value, limit - 1 + 1 + mbiRemainder.offset);
         qhat--;
+        mbiAddBackCounter++;
 //        say("+qw: " + hexStr(qhat));
 //        say("+ r: " + hexStr_(rem.value));
       }
@@ -550,13 +702,13 @@ public class Dividers {
     if (needRemainder) {
         // D8 Unnormalize
         if (shift > 0)
-            rem.rightShift(shift);
-        rem.normalize();
+            mbiRemainder.rightShift(shift);
+        mbiRemainder.normalize();
     }
     mbiQuotient.normalize();
 //    say("  q: " + hexStr_(mbiQuotient.value));
 //    say(">>> exiting divideMagnitude");
-    return needRemainder ? rem : null;
+    return needRemainder ? mbiRemainder : null;
   } // divideMagnitude(MutableBigInteger div, ...
 
   private static void copyAndShift(int[] src, int srcFrom, int srcLen, int[] dst, int dstFrom, int shift) {
@@ -666,6 +818,8 @@ public class Dividers {
       }
       return (int)carry;
   }
+
+
 
 
 }

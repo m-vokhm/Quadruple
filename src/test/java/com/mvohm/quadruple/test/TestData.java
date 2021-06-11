@@ -1851,8 +1851,8 @@ public class TestData {
   };
 
   /**
-   * A data set for testing {@link Quadruple#divide(Quadruple divisor)} and
-   * {@link Quadruple#divide(Quadruple dividend, Quadruple divisor)} methods.<br>
+   * A data set for testing {@link Quadruple#divide_1(Quadruple divisor)} and
+   * {@link Quadruple#divide_1(Quadruple dividend, Quadruple divisor)} methods.<br>
    * Each data sample consists of three strings: string representations of the two operands,
    * and the expected value of their quotient.<br>
    * For most of the pairs of the operands, the corresponding result can be evaluated

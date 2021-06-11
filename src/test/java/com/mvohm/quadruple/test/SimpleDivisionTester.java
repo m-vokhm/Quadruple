@@ -6,7 +6,10 @@ import com.mvohm.quadruple.research.RoundingMode;
 import com.mvohm.quadruple.research.BigDecimal;
 
 import static com.mvohm.quadruple.test.AuxMethods.*;
+import static com.mvohm.quadruple.test.DataGenerators.Randoms.randomsForDivision;
+import static com.mvohm.quadruple.research.Dividers.*;
 
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -32,17 +35,41 @@ public class SimpleDivisionTester {
     final Quadruple qd1 = new Quadruple("1.9876543210987654321098765432109876543");
     final Quadruple qd2 = new Quadruple("1.2345678901234567890123456789012345678");
 
-    testDivisions(qd1, qd2);
-    testDivisions(qv(5), qv(3));
-    testDivisions(qv(3), qv(5));
+//    testDivisions(qd1, qd2);
+//    testDivisions(qv(5), qv(3));
+//    testDivisions(qv(3), qv(5));
+
+//    final List<String> list = randomsForDivision(10000);
+//    final Iterator<String> i = list.iterator();
+//    while (i.hasNext()) {
+//      final String s1 = i.next(), s2 = i.next(), s3 = i.next();
+//      if (!s1.trim().startsWith("//"))
+//        testDivisions(qv(s1), qv(s2));
+//    }
+
+
+    int count = 0;
     final List<String[]> dataList = DataProviders.divisionDataList();
     for (final String[] dataSample: dataList) {
-      if (!dataSample[0].trim().startsWith("//"))
+      if (!dataSample[0].trim().startsWith("//")) {
+        say("Count = " + count++);
         testDivisions(qv(dataSample[0]), qv(dataSample[1]));
+      }
     }
 
-//    testDivisions()
+    say();
+    final long qdrAddBackCounter = getQdrAddBackCounter();
+    final long mbiAddBackCounter = getMbiAddBackCounter(); //  / 2; if both instance and static divisions are performed
+    final double qdrAddBackPercent = 100.0 * qdrAddBackCounter / divCounter;
+    final double mbiAddBackPercent = 100.0 * mbiAddBackCounter / divCounter;
+
+    say("Division counter  = " + divCounter);
+    say("qdrAddBackCounter = %6d (%6.3f)", qdrAddBackCounter, qdrAddBackPercent);
+    say("mbiAddBackCounter = %6d (%6.3f)", mbiAddBackCounter, mbiAddBackPercent);
+
   }
+
+  private static long divCounter = 0;
 
   private static Quadruple qv(String s) {
     return new Quadruple(s);
@@ -58,13 +85,18 @@ public class SimpleDivisionTester {
    */
   private static void testDivisions(final Quadruple qd1, final Quadruple qd2) {
     say();
+    final long c1 = getMbiAddBackCounter();
     say("%s / %s =", qd1, qd2);
-    final Quadruple qdQuotient1 = Quadruple.divide(qd1, qd2);
+    final Quadruple qdQuotient1 = Quadruple.divide_1(qd1, qd2);
     final Quadruple qdQuotient2 = Quadruple.divide_2(qd1, qd2);
-    final Quadruple qdQuotient3 = qd1.divide_2(qd2);
+//    final Quadruple qdQuotient3 = qd1.divide_2(qd2);
     say("q1 = " + qdQuotient1);
     say("q2 = " + qdQuotient2);
-    say("q3 = " + qdQuotient3);
+//    say("q3 = " + qdQuotient3);
+    final long c2 = getMbiAddBackCounter();
+    if (c2 != c1)
+      say("Counter = %s -> %s", c1, c2);
+    divCounter++;
   }
 
 }

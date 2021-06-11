@@ -37,10 +37,11 @@ public class DivisionBench_01 {
   // To do BigDecimal arithmetic with the precision close to this of Quadruple
   private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
 
-  private static final int DATA_SIZE      // = 0x80_0000;  // 8 388 608;
-                                          // =  0x1_0000;  // 65536
-                                          // = 0x10_0000;  // 1 048 576
-                                           = 0x20_0000;  // 2 097 152
+  private static final int DATA_SIZE
+                                            =  0x1_0000;  // 65536
+                                            // = 0x10_0000;  // 1 048 576
+                                            // = 0x20_0000;  // 2 097 152
+                                            // = 0x80_0000;  // 8 388 608;
 
   private static final int INDEX_MASK     = DATA_SIZE - 1;  // 0xFFFF
   private static final int RAND_SEED      = 12345;
@@ -66,6 +67,7 @@ public class DivisionBench_01 {
 
   @Setup(Level.Trial)
   public void initPatterns(Blackhole bh) {
+    say("Data size = " + DATA_SIZE);
     this.bh = bh;
     final Random rand = new Random(RAND_SEED); // for reproducibility
 
@@ -93,7 +95,7 @@ public class DivisionBench_01 {
   }
 
   @Setup(Level.Invocation)
-  public void uplateData() {
+  public void updateData() {
     if (index == 0) {
 //      say_("-");
       copyArray(qOp1_0, qOp1);
@@ -122,16 +124,30 @@ public class DivisionBench_01 {
   }
 
   @Benchmark
-  public void h_QuadStatic___Division() {
-    bh.consume(qResult[index] = Quadruple.divide(qOp1[index], qOp2[index]));
+  public void h_QuadStatic_1_Division() {
+    bh.consume(qResult[index] = Quadruple.divide_1(qOp1[index], qOp2[index]));
     index = ++index & INDEX_MASK;
   }
 
   @Benchmark
-  public void i_QuadInstance_Division() {
-    bh.consume(qOp1[index].divide(qOp2[index]));
+  public void i_QuadInstan_1_Division() {
+    bh.consume(qOp1[index].divide_1(qOp2[index]));
     index = ++index & INDEX_MASK;
   }
+
+@Benchmark
+public void i_QuadInstan_0_Division() {
+  bh.consume(qOp1[index].divide_0(qOp2[index]));
+  index = ++index & INDEX_MASK;
+}
+
+  @Benchmark
+  public void h_QuadStatic_0_Division() {
+    bh.consume(qResult[index] = Quadruple.divide_0(qOp1[index], qOp2[index]));
+    index = ++index & INDEX_MASK;
+  }
+
+
 
   /**
    * @param args

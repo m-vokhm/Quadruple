@@ -1613,15 +1613,20 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return this;
   } // public Quadruple divide(Quadruple divisor) {
 
-  private static int divideMethod = 1;
+  private static int divisionMethod = 1;
 
-  public Quadruple divide(Quadruple divisor) {
-    divideMethod = 1;
+  public Quadruple divide_0(Quadruple divisor) {
+    divisionMethod = 0;
+    return divide_(divisor);
+  }
+
+  public Quadruple divide_1(Quadruple divisor) {
+    divisionMethod = 1;
     return divide_(divisor);
   }
 
   public Quadruple divide_2(Quadruple divisor) {
-    divideMethod = 2;
+    divisionMethod = 2;
     return divide_(divisor);
   }
 
@@ -1634,7 +1639,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * the quotient of the previous value of this Quadruple divided by the given divisor
    */
   public Quadruple divide(long divisor) {
-    return divide(new Quadruple(divisor));
+    return divide_1(new Quadruple(divisor));
   } // public Quadruple divide(long divisor) {
 
   /**
@@ -1646,7 +1651,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * the quotient of the previous value of this Quadruple divided by the given divisor
    */
   public Quadruple divide(double divisor) {
-    return divide(new Quadruple(divisor));
+    return divide_1(new Quadruple(divisor));
   } // public Quadruple divide(double divisor) {
 
   /**
@@ -1662,13 +1667,18 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return dividend.divide_(divisor);
   } // public static Quadruple divide(Quadruple dividend, Quadruple divisor) {
 
-  public static Quadruple divide(Quadruple dividend, Quadruple divisor) {
-    divideMethod = 1;
+  public static Quadruple divide_0(Quadruple dividend, Quadruple divisor) {
+    divisionMethod = 0;
+    return divide_(dividend, divisor);
+  }
+
+  public static Quadruple divide_1(Quadruple dividend, Quadruple divisor) {
+    divisionMethod = 1;
     return divide_(dividend, divisor);
   }
 
   public static Quadruple divide_2(Quadruple dividend, Quadruple divisor) {
-    divideMethod = 2;
+    divisionMethod = 2;
     return divide_(dividend, divisor);
   }
 
@@ -4899,9 +4909,23 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   private void divideBuffers(long[] dividend, long[] divisor, long quotientExponent) {
     final long[] quotientBuff = BUFFER_5x32_B;  // Will be used to hold unpacked quotient
-    final long nextBit = divideMethod == 1?
-        divideArrays_old(dividend, divisor, quotientBuff):    // Proper division of the arrays, returns the next bit of the quotient
-        divideArrays_alt(dividend, divisor, quotientBuff);   // Proper division of the arrays, returns the next bit of the quotient
+
+    long nextBit;
+//    nextBit = divisionMethod == 1?
+//        divideArrays_old(dividend, divisor, quotientBuff):    // Proper division of the arrays, returns the next bit of the quotient
+//        divideArrays_alt(dividend, divisor, quotientBuff);   // Proper division of the arrays, returns the next bit of the quotient
+
+    switch (divisionMethod) {
+      case 0: nextBit = divideArrays(dividend, divisor, quotientBuff);
+              break;
+      case 1: nextBit = com.mvohm.quadruple.research.Dividers.divideArrays_1(dividend, divisor, quotientBuff);
+              break;
+      case 2: nextBit = divideArrays_2(dividend, divisor, quotientBuff);
+              break;
+      default: throw new IllegalArgumentException(
+                            String.format("division method %s not provided", divisionMethod));
+    }
+
     packMantissaFromWords_1to4(quotientBuff);   // Pack unpacked quotient into the mantissa fields of this instance
 
     if (quotientExponent > 0           // Not rounding for subnormals, since the rounding will be done by makeSubnormal()
@@ -4911,53 +4935,88 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   } // private void divideBuffers(long[] dividend, long[] divisor, long quotientExponent) {
 
   // Temporarily moved to reseach.dividers to experiment with division algorithms
-//  /**
-//   * Divides an unpacked value held in the 10 longs of the {@code dividend)
-//   * by the value held in the 5 longs of the {@code divisor}
-//   * and fills 5 longs of the {@code quotient} with the quotient value.
-//   * All values are unpacked 129-bit values, containing integer parts
-//   * (implicit unities, always 1) in LSB of buff[0] (buff[1] for dividend)
-//   * and 128 bits of the fractional part in lower halves of buff[1] -- buff[4] (buff[2] -- buff[5] for dividend).
-//   * It uses the principle of the standard long division algorithm, with the difference
-//   * that instead of one decimal digit of the quotient at each step, the next 32 bits are calculated.
-//   * <br>Uses static arrays
-//   * <b><i>BUFFER_10x32_B</i></b>
-//   * @param dividend an unpacked value of the mantissa of the dividend (10 x 32 bits: 0, 1, dd1, dd2, dd3, dd4, 0, 0, 0, 0)
-//   * @param divisor an unpacked value of the mantissa of the divisor (5 x 32 bits: 1, dr1, dr2, dr3, dr4)
-//   * @param quotient a buffer that gets filled with the mantissa of the quotient
-//   * @return the next bit of the quotient (half the LSB), to be used for rounding the result
-//   * <br>Covered
-//   */
-//  private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
-//    final long[] remainder = dividend;            // will contain remainder after each iteration
-//    Arrays.fill(quotient, 0);
-//
-//    final long divisorHigh = (divisor[0] << 32) | divisor[1];   // The most significant word of the divisor
-//    int offset = 0;                               // the index of the quotient word being computed
-//    quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
-//    subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
-//
-//    // Compute the quotient by portions by 32 bits per iterations
-//    if (!isEmpty(remainder))
-//      do {
-//        final long remainderHigh = (remainder[offset + 1] << 32) | remainder[offset + 2]; // The most significant 64 bits of the remainder
-//        long quotientWord = (remainder[offset] == 0)?
-//            Long.divideUnsigned(remainderHigh, divisorHigh):
-//            divide65bits(remainder[offset], remainderHigh, divisorHigh);
-//
-//        if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
-//          multipyAndSubtract(divisor, quotientWord, offset, remainder);
-//          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
-//            quotientWord--;                               // decrease it
-//            addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
-//          }
-//        }
-//
-//        quotient[offset++] = quotientWord;          // The next word of the quotient
-//      } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
-//
-//    return findNextBitOfQuotient(remainder, divisor);
-//  } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
+  /**
+   * Divides an unpacked value held in the 10 longs of the {@code dividend)
+   * by the value held in the 5 longs of the {@code divisor}
+   * and fills 5 longs of the {@code quotient} with the quotient value.
+   * All values are unpacked 129-bit values, containing integer parts
+   * (implicit unities, always 1) in LSB of buff[0] (buff[1] for dividend)
+   * and 128 bits of the fractional part in lower halves of buff[1] -- buff[4] (buff[2] -- buff[5] for dividend).
+   * It uses the principle of the standard long division algorithm, with the difference
+   * that instead of one decimal digit of the quotient at each step, the next 32 bits are calculated.
+   * <br>Uses static arrays
+   * <b><i>BUFFER_10x32_B</i></b>
+   * @param dividend an unpacked value of the mantissa of the dividend (10 x 32 bits: 0, 1, dd1, dd2, dd3, dd4, 0, 0, 0, 0)
+   * @param divisor an unpacked value of the mantissa of the divisor (5 x 32 bits: 1, dr1, dr2, dr3, dr4)
+   * @param quotient a buffer that gets filled with the mantissa of the quotient
+   * @return the next bit of the quotient (half the LSB), to be used for rounding the result
+   * <br>Covered
+   */
+  private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
+    final long[] remainder = dividend;            // will contain remainder after each iteration
+    Arrays.fill(quotient, 0);
+
+    final long divisorHigh = (divisor[0] << 32) | divisor[1];   // The most significant word of the divisor
+    int offset = 0;                               // the index of the quotient word being computed
+    quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
+    subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
+
+    // Compute the quotient by portions by 32 bits per iterations
+    if (!isEmpty(remainder)) {
+      do {
+        final long remainderHigh = (remainder[offset + 1] << 32) | remainder[offset + 2]; // The most significant 64 bits of the remainder
+        long quotientWord = (remainder[offset] == 0)?
+            Long.divideUnsigned(remainderHigh, divisorHigh):
+            divide65bits(remainder[offset], remainderHigh, divisorHigh);
+
+        if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
+          multipyAndSubtract(divisor, quotientWord, offset, remainder);
+          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
+            quotientWord--;                               // decrease it
+            addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
+          }
+        }
+
+        quotient[offset++] = quotientWord;          // The next word of the quotient
+      } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
+    } // (!isEmpty(remainder)) {
+
+    return findNextBitOfQuotient(remainder, divisor);
+  } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
+
+
+  public static long divideArrays_1(long[] dividend, long[] divisor, long[] quotient) {
+    final long[] remainder = dividend;            // will contain remainder after each iteration
+    Arrays.fill(quotient, 0);
+
+    final long divisorHigh = (divisor[0] << 32) | divisor[1];   // The most significant word of the divisor
+    int offset = 0;                               // the index of the quotient word being computed
+    quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
+    subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
+
+    // Compute the quotient by portions by 32 bits per iterations
+    if (!isEmpty(remainder)) {
+      do {
+        final long remainderHigh = (remainder[offset + 1] << 32) | remainder[offset + 2]; // The most significant 64 bits of the remainder
+        long quotientWord = (remainder[offset] == 0)?
+            Long.divideUnsigned(remainderHigh, divisorHigh):
+            divide65bits(remainder[offset], remainderHigh, divisorHigh);
+
+        if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
+          multipyAndSubtract(divisor, quotientWord, offset, remainder);
+          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
+            quotientWord--;                               // decrease it
+            addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
+          }
+        }
+
+        quotient[offset++] = quotientWord;          // The next word of the quotient
+      } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
+    } // (!isEmpty(remainder)) {
+
+    return findNextBitOfQuotient(remainder, divisor);
+  } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
+
 
   /**
    * Subtracts the divisor from the dividend to obtain the remainder for the first iteration
@@ -4987,8 +5046,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     final long quotientHi = shiftedDividend / divisor;                  // The most significant 32 bits of the quotient
     final long remainder = ((shiftedDividend % divisor) << 16) | (dividendLo & 0xFFFF);
     final long quotientLo = remainder / divisor;                        // The least significant 16 bits of the quotient
+    quotientRemainder = remainder % divisor;
     return quotientHi << 16 | quotientLo;
   } // private static long divide65bits(long dividendHi, long dividendLo, long divisor) {
+
+  private static long quotientRemainder;
+
+
 
   /**
    * Multiplies the divisor by a newly found word of quotient,

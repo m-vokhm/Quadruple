@@ -654,9 +654,9 @@ public class SpecificTesterClasses {
 
   } // static class InstanceMultiplicationTester extends StaticMultiplicationTester {
 
-  /** A tester class to test static method {@link Quadruple#divide(Quadruple op1, Quadruple op2)}.<br>
+  /** A tester class to test static method {@link Quadruple#divide_1(Quadruple op1, Quadruple op2)}.<br>
    * Obtains the test data from {@link DataProviders#divisionDataList()}
-   * and performs {@link Quadruple#divide(Quadruple op1, Quadruple op2)} as the tested operation.
+   * and performs {@link Quadruple#divide_1(Quadruple op1, Quadruple op2)} as the tested operation.
    */
   static class StaticDivisionTester extends BinaryFunctionTester {
 
@@ -669,7 +669,7 @@ public class SpecificTesterClasses {
 
     /** Performs the tested operation ({@code Quadruple.divide(Quadruple op1, Quadruple op2)})
      * with the given operands, and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return Quadruple.divide(op1, op2); }
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return Quadruple.divide_1(op1, op2); }
 
     /**
      * Calculates a {@code BigDecimal} value equal to the expected result
@@ -736,9 +736,9 @@ public class SpecificTesterClasses {
 
   } // static class StaticDivisionTester extends BinaryFunctionTester {
 
-  /** A tester class to test instance method {@link Quadruple#divide(Quadruple op2)}.<br>
+  /** A tester class to test instance method {@link Quadruple#divide_1(Quadruple op2)}.<br>
    * Obtains the test data from {@link DataProviders#divisionDataList()}
-   * and performs {@link Quadruple#divide(Quadruple op2)} as the tested operation.
+   * and performs {@link Quadruple#divide_1(Quadruple op2)} as the tested operation.
    */
   static class InstanceDivisionTester extends StaticDivisionTester {
 
@@ -747,13 +747,13 @@ public class SpecificTesterClasses {
 
     /** Performs the tested operation ({@code op1.divide(Quadruple op2)})
      * with the given operands and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return new Quadruple(op1).divide(op2); }
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return new Quadruple(op1).divide_1(op2); }
 
   } // static class InstanceDivisionTester extends StaticDivisionTester {
 
-  /** A tester class to test instance method {@link Quadruple#divide(Quadruple op2)}.<br>
+  /** A tester class to test instance method {@link Quadruple#divide_1(Quadruple op2)}.<br>
    * Obtains the test data from {@link DataProviders#divisionDataList()}
-   * and performs {@link Quadruple#divide(Quadruple op2)} as the tested operation.
+   * and performs {@link Quadruple#divide_1(Quadruple op2)} as the tested operation.
    */
   //21.06.08 18:40:13 Trying to find a faster way to divide
   static class Alt_InstanceDivisionTester extends StaticDivisionTester {
@@ -765,13 +765,13 @@ public class SpecificTesterClasses {
      * with the given operands and returns the result. */
     @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
 //      final Quadruple q1 = Quadruple.divide(op1, op2);
-      say("div %s by %s", op1, op2);
-      final Quadruple q2 = Quadruple.divide_2(op1, op2);
-      return q2;
+//      say("div %s by %s", op1, op2);
+//      final Quadruple q2 = Quadruple.divide_2(op1, op2);
+//      return q2;
 //      final Quadruple q3 = new Quadruple(op1).divide_2(op2);
 //      return q3;
 
-//      return new Quadruple(op1).divide_2(op2);
+      return new Quadruple(op1).divide_2(op2);
     }
 
   } // static class InstanceDivisionTester extends StaticDivisionTester {

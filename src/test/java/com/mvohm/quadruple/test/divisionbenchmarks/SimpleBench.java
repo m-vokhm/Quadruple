@@ -8,6 +8,7 @@ import java.math.RoundingMode;
 import java.util.Random;
 
 import com.mvohm.quadruple.Quadruple;
+import com.mvohm.quadruple.research.Dividers;
 
 /**
  * A simple Q&D hand-made benchmark for divisions,
@@ -25,7 +26,8 @@ public class SimpleBench {
   private final static double BENCH_TIME = 10.0;
   private final static double WARMUP_TIME = 5.0;
 
-  private final static int DATA_SIZE      = 500_000;
+  private final static int DATA_SIZE      = 250_000;
+                                          // = 500_000;
                                           // = 1_000_000;
                                           // = 0x20_0000;  // 2 097 152
 
@@ -55,10 +57,15 @@ public class SimpleBench {
 //    bdAdditionBenchmarker.execute();
 //    quadStaticAdditionBenchmarker.execute();
 //    quadInstanceAdditionBenchmarker.execute();
-//    bdDivisionBenchmarker.execute();
-//    quadStaticDivisionBenchmarker.execute();
-    quadInstanceDivisionBenchmarker.execute();
-    quadInstanceAltDivisionBenchmarker.execute();
+    bdDivisionMeter.execute();
+    quadStaticDivision_0_Meter.execute();
+    Dividers.clearAddBackCounters();
+    quadStaticDivision_1_Meter.execute();
+    say("Add back counter: %s\n", Dividers.getQdrAddBackCounter());
+    quadStaticDivision_2_Meter.execute();
+//    say("Add back counter: %s\n", Dividers.getMbiAddBackCounter());
+//    quadInstanceDivisionBenchmarker.execute();
+//    quadInstanceAltDivisionBenchmarker.execute();
 //    benchmarkQStatic();
 //    benchmarkQInstance();
   }
@@ -71,9 +78,9 @@ public class SimpleBench {
 
     private void execute() {
       say(benchmarkName);
-      say("Warming up:");
+      say_("Warming up:  ");
       runBenchmark(WARMUP_TIME);
-      say("Running benchmark:");
+      say_("Benchmarking:");
       time = runBenchmark(BENCH_TIME);
       say("%s: %8.3f ns/op\n", benchmarkName, time);
     }
@@ -94,7 +101,7 @@ public class SimpleBench {
         say_(".");
         runTime = (System.nanoTime() - startTime) / 1e9;
       } while (runTime < during);
-      say("\n%s iteration done.", iterationCount);
+      say(" %s done.", iterationCount);
       final double workTime = t / ((double) DATA_SIZE * iterationCount);
       return workTime;
     }
@@ -103,7 +110,7 @@ public class SimpleBench {
 
   } // static abstract class Benchmarker {
 
-  Benchmarker bdDivisionBenchmarker = new Benchmarker() {
+  Benchmarker bdDivisionMeter = new Benchmarker() {
     { benchmarkName = "        BigDecimal division"; }
 
     @Override void doBenchmark() {
@@ -112,30 +119,60 @@ public class SimpleBench {
     }
   };
 
-  Benchmarker quadStaticDivisionBenchmarker = new Benchmarker() {
-    { benchmarkName = "  Quadruple static division"; }
+  Benchmarker quadStaticDivision_0_Meter = new Benchmarker() {
+    { benchmarkName = "  Quadruple static division 0"; }
 
     @Override void doBenchmark() {
       for (int i = 0; i < DATA_SIZE; i++)
-        qdResult[i] = Quadruple.divide(qdOp1[i], qdOp2[i]);
+        qdResult[i] = Quadruple.divide_0(qdOp1[i], qdOp2[i]);
     }
   };
 
-  Benchmarker quadInstanceDivisionBenchmarker = new Benchmarker() {
+  Benchmarker quadStaticDivision_1_Meter = new Benchmarker() {
+    { benchmarkName = "  Quadruple static division 1"; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdResult[i] = Quadruple.divide_1(qdOp1[i], qdOp2[i]);
+    }
+  };
+
+  Benchmarker quadStaticDivision_2_Meter = new Benchmarker() {
+    { benchmarkName = "  Quadruple static division 2"; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdResult[i] = Quadruple.divide_2(qdOp1[i], qdOp2[i]);
+    }
+  };
+
+  Benchmarker quadInstanDivision_0_Meter = new Benchmarker() {
     {
-      benchmarkName = "Quadruple instance division";
+      benchmarkName = "Quadruple instance division 0";
       needToUpdateData = true;
     }
 
     @Override void doBenchmark() {
       for (int i = 0; i < DATA_SIZE; i++)
-        qdOp1[i].divide(qdOp2[i]);
+        qdOp1[i].divide_0(qdOp2[i]);
     }
   };
 
-  Benchmarker quadInstanceAltDivisionBenchmarker = new Benchmarker() {
+  Benchmarker quadInstanDivision_1_Meter = new Benchmarker() {
     {
-      benchmarkName = "Quadruple instance ALTERNATIVE division";
+      benchmarkName = "Quadruple instance division 1";
+      needToUpdateData = true;
+    }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdOp1[i].divide_1(qdOp2[i]);
+    }
+  };
+
+  Benchmarker quadInstanDivision_2_Meter = new Benchmarker() {
+    {
+      benchmarkName = "Quadruple instance division 2";
       needToUpdateData = true;
     }
 
@@ -177,26 +214,6 @@ public class SimpleBench {
     }
   };
 
-/*
-  Benchmarker bdBenchmarker = new Benchmarker() {
-    { benchmarkName = "BigDecimal division"; }
-
-    @Override
-    void doBenchmark() {
-      for (int i = 0; i < DATA_SIZE; i++)
-        bdResult[i] = bdOp1[i].divide(bdOp2[i], MC_38);
-    }
-  };
-
-  Benchmarker bdBenchmarker = new Benchmarker() {
-    { benchmarkName = "BigDecimal division"; }
-
-    @Override
-    void doBenchmark() {
-      for (int i = 0; i < DATA_SIZE; i++)
-        bdResult[i] = bdOp1[i].divide(bdOp2[i], MC_38);
-    }
-  };
 
 /* */
 

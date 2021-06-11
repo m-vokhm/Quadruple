@@ -18,7 +18,8 @@
 
 package com.mvohm.quadruple.research;
 
-import static com.mvohm.quadruple.test.Consts.*;
+// import static com.mvohm.quadruple.test.Consts.*;
+import static com.mvohm.quadruple.research.Consts.*;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;

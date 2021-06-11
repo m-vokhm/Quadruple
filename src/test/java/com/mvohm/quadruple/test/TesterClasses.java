@@ -654,7 +654,7 @@ public class TesterClasses {
 
   /**
    * An abstract tester class whose descendants perform testing of binary operations with {@code Quadruple}s,
-   * such as {@link Quadruple#add(Quadruple, Quadruple)} or {@link Quadruple#divide(Quadruple, Quadruple)}.<br>
+   * such as {@link Quadruple#add(Quadruple, Quadruple)} or {@link Quadruple#divide_1(Quadruple, Quadruple)}.<br>
    * <br>
    * Implements protected methods:<ul style="list-style-position: outside">
    * <li>{@link UnaryFunctionTester#testOp(String[])} -- tests the operation with the given arguments

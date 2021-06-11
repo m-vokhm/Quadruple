@@ -277,7 +277,7 @@ public class QuadJUnitTest {
   } // public void testInstanceMultiplication() {
 
   /**
-   * Tests {@link Quadruple#divide(Quadruple)} method.<br>
+   * Tests {@link Quadruple#divide_1(Quadruple)} method.<br>
    * Creates an instance of {@link InstanceDivisionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
@@ -349,7 +349,7 @@ public class QuadJUnitTest {
   } // public void testStaticMultiplication() {
 
   /**
-   * Tests {@link Quadruple#divide(Quadruple, Quadruple)}method.<br>
+   * Tests {@link Quadruple#divide_1(Quadruple, Quadruple)}method.<br>
    * Creates an instance of {@link StaticDivisionTester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
