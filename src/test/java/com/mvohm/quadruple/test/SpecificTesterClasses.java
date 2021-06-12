@@ -669,7 +669,9 @@ public class SpecificTesterClasses {
 
     /** Performs the tested operation ({@code Quadruple.divide(Quadruple op1, Quadruple op2)})
      * with the given operands, and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return Quadruple.divide_1(op1, op2); }
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
+      return Quadruple.divide_1(op1, op2);
+    }
 
     /**
      * Calculates a {@code BigDecimal} value equal to the expected result
@@ -732,7 +734,9 @@ public class SpecificTesterClasses {
 
     /** Performs the tested operation ({@code Quadruple.divide(Quadruple op1, Quadruple op2)})
      * with the given operands, and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return Quadruple.divide_2(op1, op2); }
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
+      return Quadruple.divide_2(op1, op2);
+    }
 
   } // static class StaticDivisionTester extends BinaryFunctionTester {
 
@@ -747,7 +751,9 @@ public class SpecificTesterClasses {
 
     /** Performs the tested operation ({@code op1.divide(Quadruple op2)})
      * with the given operands and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) { return new Quadruple(op1).divide_1(op2); }
+    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
+      return new Quadruple(op1).divide_1(op2);
+    }
 
   } // static class InstanceDivisionTester extends StaticDivisionTester {
 

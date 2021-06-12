@@ -186,6 +186,8 @@ public class Dividers {
   //     }
   //****************************************************************
 
+        if (quotientWord == 0x1_0000_0000L)
+          quotientWord--;
         if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
           multipyAndSubtract(divisor, quotientWord, offset, remainder);
           if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
@@ -266,32 +268,49 @@ public class Dividers {
   private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
     // 21.06.11 14:07:25
     // Сделаем временный дублёр с новым алгоритмом, чтобы проверить, эквивалентен ли он
-    final long[] tmpRemainder = remainder;
+//    final long[] tmpRemainder = remainder;
+//    final long[] tmpRemainder = Arrays.copyOf(remainder, remainder.length);
 
     offset++;
 
 //    final long[] partialProduct = BUFFER_10x32_B;
 //    multDivisorBy(divisor, quotientWord, partialProduct, offset); // multiply divisor by qW with the given offset
 //    subtractProduct(partialProduct, remainder, offset);           // and subtract the product from the remainder
+//    say("  old: %s", hexStr_u(remainder));
 
-    long prod = 0;
+    long carry = 0;
     for (int i = divisor.length - 1; i >= 0; i--) {         // product[offset..offset+4]
-      prod = quotientWord * divisor[i];
-      final long tmpRem = tmpRemainder[i + offset] - (prod & 0xFFFF_FFFFL);
-      tmpRemainder[i + offset - 1] -= (prod >>> 32) - (tmpRem >>> 32);
-      tmpRemainder[i + offset] = tmpRem & 0xFFFF_FFFFL;
+      final long product = quotientWord * divisor[i] + carry;
+      final long difference = remainder[i + offset] - product;
+      remainder[i + offset] = difference & 0xFFFF_FFFFL;
+//      say("Diff: %s", hexStr(difference));
+      carry = (product >>> 32)
+              + ((difference & LONG_MASK) > ( (~(int)product) & LONG_MASK)  ? 1 : 0);
+//      say("Add  " + ((difference & LONG_MASK) > ( (~(int)product) & LONG_MASK)  ? 1 : 0));
     }
-    if ((int)tmpRemainder[offset] < 0) {
+
+    if ((int)remainder[offset] < 0) {
       for (int i = offset - 1; i > 0; i--)
-        tmpRemainder[i] = 0xFFFF_FFFFL;
-      tmpRemainder[0] = -1L;
+        remainder[i] = 0xFFFF_FFFFL;
+      remainder[0] = -1L;
+    } else {
+      for (int i = offset - 1; i >= 0; i--)
+        remainder[i] = 0L;
     }
 
 //    if (!Arrays.equals(tmpRemainder, remainder))
-//      say("Reminder differs: \n  old: %s\n  new: %s", hexStr_u(remainder), hexStr_u(tmpRemainder));
+//      say("***\n  new: %s",  hexStr_u(tmpRemainder));
 //    else
 //      say("Reminders OK!");
+//    say();
+
+//    copyBuffer(tmpRemainder, remainder);
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
+
+  private static void copyBuffer(long[] src, long[] dst) {
+    for (int i = 0; i < src.length; i++)
+      dst[i] = src[i];
+  }
 
   /**
    * Adds the divisor, shifted by offset words, back to remainder, to correct the remainder in case when
@@ -423,7 +442,6 @@ public class Dividers {
     return 0;
   }
 
-
   private static boolean greaterThanHalfOfDivisor(int[] remainder, int[] divisor, int offset) {
     final boolean result = false;
     for (int i = 0; i < 6; i++) {
@@ -438,7 +456,6 @@ public class Dividers {
     }
     return true;
   }
-
 
   private static int[] longsToInts(long[] longs) {
     final int[] ints = new int[longs.length];
@@ -768,18 +785,19 @@ public class Dividers {
    * word input x, and subtracts the n word product from q. This is needed
    * when subtracting qhat*divisor from dividend.
    */
-  private static int mulsub(int[] q, int[] a, int x, int len, int offset) {
-      final long xLong = x & LONG_MASK;
+  private static int mulsub(int[] remainder, int[] divisor, int quotWord, int len, int offset) {
+      final long qwLong = quotWord & LONG_MASK;
       long carry = 0;
       offset += len;
 
-      for (int j=len-1; j >= 0; j--) {
-          final long product = (a[j] & LONG_MASK) * xLong + carry;
-          final long difference = q[offset] - product;
-          q[offset--] = (int)difference;
+      for (int j = len - 1; j >= 0; j--) {
+          final long product = (divisor[j] & LONG_MASK) * qwLong + carry;
+          final long difference = remainder[offset] - product;
+          remainder[offset--] = (int)difference;
           carry = (product >>> 32)
-                   + (((difference & LONG_MASK) >
-                       (((~(int)product) & LONG_MASK))) ? 1:0);
+                   + (
+                       (difference & LONG_MASK) > ( (~(int)product) & LONG_MASK ) ? 1 : 0
+                     );
       }
       return (int)carry;
   }

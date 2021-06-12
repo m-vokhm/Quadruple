@@ -111,7 +111,7 @@ public class SimpleBench {
   } // static abstract class Benchmarker {
 
   Benchmarker bdDivisionMeter = new Benchmarker() {
-    { benchmarkName = "        BigDecimal division"; }
+    { benchmarkName = "          BigDecimal division"; }
 
     @Override void doBenchmark() {
       for (int i = 0; i < DATA_SIZE; i++)

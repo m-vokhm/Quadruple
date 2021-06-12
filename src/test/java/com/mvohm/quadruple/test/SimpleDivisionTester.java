@@ -54,6 +54,8 @@ public class SimpleDivisionTester {
       if (!dataSample[0].trim().startsWith("//")) {
         say("Count = " + count++);
         testDivisions(qv(dataSample[0]), qv(dataSample[1]));
+      } else {
+        say(dataSample[0]);
       }
     }
 
@@ -66,10 +68,12 @@ public class SimpleDivisionTester {
     say("Division counter  = " + divCounter);
     say("qdrAddBackCounter = %6d (%6.3f)", qdrAddBackCounter, qdrAddBackPercent);
     say("mbiAddBackCounter = %6d (%6.3f)", mbiAddBackCounter, mbiAddBackPercent);
+    say("Error counter  =    " + errCount);
 
   }
 
   private static long divCounter = 0;
+  private static long errCount = 0;
 
   private static Quadruple qv(String s) {
     return new Quadruple(s);
@@ -84,19 +88,23 @@ public class SimpleDivisionTester {
    * @param qd2
    */
   private static void testDivisions(final Quadruple qd1, final Quadruple qd2) {
-    say();
     final long c1 = getMbiAddBackCounter();
     say("%s / %s =", qd1, qd2);
-    final Quadruple qdQuotient1 = Quadruple.divide_1(qd1, qd2);
-    final Quadruple qdQuotient2 = Quadruple.divide_2(qd1, qd2);
+    final Quadruple qdQuotient1 = Quadruple.divide_0(qd1, qd2);
+    final Quadruple qdQuotient2 = Quadruple.divide_1(qd1, qd2);
 //    final Quadruple qdQuotient3 = qd1.divide_2(qd2);
-    say("q1 = " + qdQuotient1);
-    say("q2 = " + qdQuotient2);
+    say("q0 = %s (%s)", qdQuotient1, hexStr(qdQuotient1));
+    say("q1 = %s (%s)", qdQuotient2, hexStr(qdQuotient2));
+    if (!qdQuotient1.equals(qdQuotient2) && (!qdQuotient1.isNaN() || !qdQuotient2.isNaN())) {
+      say("###########################################");
+      errCount++;
+    }
 //    say("q3 = " + qdQuotient3);
     final long c2 = getMbiAddBackCounter();
     if (c2 != c1)
       say("Counter = %s -> %s", c1, c2);
     divCounter++;
+    say();
   }
 
 }
