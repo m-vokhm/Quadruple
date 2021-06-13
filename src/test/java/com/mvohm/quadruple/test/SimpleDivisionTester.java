@@ -27,9 +27,23 @@ public class SimpleDivisionTester {
 
   public static void main(String[] args) {
 
-//    final Quadruple qd1 = qv("1.9876543210987654321098765432109876543");
-//    final Quadruple qd2 = qv("1.2345678901234567890123456789012345678");
-//    testDivisions(qd1, qd2);
+//    testDivisions(
+//        qv("1.230919777131638002153391684099464616718e-646457012"),
+//        qv("5.286760186856926392516918077820158268184e-646457003")
+//    );
+//    exit();
+//
+
+
+//    testDivisions(qv(5), qv(30));
+//    exit();
+//
+//    testDivisions(qv(6), qv(1));
+//    testDivisions(qv(5), qv(6));
+//
+//    testDivisions(qv(30), qv(1));
+//    testDivisions(qv(5), qv(1));
+//    testDivisions(qv(30), qv(5));
 
     testWithDataList();
 
@@ -71,6 +85,10 @@ public class SimpleDivisionTester {
     return new Quadruple(d);
   }
 
+  private static Quadruple qv(long mantHi, long mantLo, int exponent) {
+    return new Quadruple(exponent, mantHi, mantLo);
+  }
+
   /**
    * @param qd1
    * @param qd2
@@ -78,12 +96,12 @@ public class SimpleDivisionTester {
   private static void testDivisions(final Quadruple qd1, final Quadruple qd2) {
     final long c1 = getMbiAddBackCounter();
     say("%s / %s =", qd1, qd2);
-    final Quadruple qdQuotient1 = Quadruple.divide_0(qd1, qd2);
-    final Quadruple qdQuotient2 = Quadruple.divide_1(qd1, qd2);
+    final Quadruple qdQuotient0 = Quadruple.divide_1(qd1, qd2);
+    final Quadruple qdQuotient3 = Quadruple.divide_3(qd1, qd2);
 //    final Quadruple qdQuotient3 = qd1.divide_2(qd2);
-    say("q0 = %s (%s)", qdQuotient1, hexStr(qdQuotient1));
-    say("q1 = %s (%s)", qdQuotient2, hexStr(qdQuotient2));
-    if (!qdQuotient1.equals(qdQuotient2) && (!qdQuotient1.isNaN() || !qdQuotient2.isNaN())) {
+    say("q0 = %s (%s)", qdQuotient0, hexStr(qdQuotient0));
+    say("q3 = %s (%s)", qdQuotient3, hexStr(qdQuotient3));
+    if (!qdQuotient0.equals(qdQuotient3) && (!qdQuotient0.isNaN() || !qdQuotient3.isNaN())) {
       say("###########################################");
       errCount++;
     }

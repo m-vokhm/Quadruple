@@ -56,11 +56,11 @@ public class Dividers {
   */
   public static long divideArrays_1(long[] dividend, long[] divisor, long[] quotient) {
     return TALKATIVE?
-        divideArrays_old_talkative(dividend, divisor, quotient):
-        divideArrays_old_silent(dividend, divisor, quotient);
+        divideArrays_1_talkative(dividend, divisor, quotient):
+        divideArrays_1_silent(dividend, divisor, quotient);
   }
 
-  public static long divideArrays_old_talkative(long[] dividend, long[] divisor, long[] quotient) {
+  public static long divideArrays_1_talkative(long[] dividend, long[] divisor, long[] quotient) {
     final long[] remainder = dividend;            // will contain remainder after each iteration
     Arrays.fill(quotient, 0);
 
@@ -145,13 +145,14 @@ public class Dividers {
     return findNextBitOfQuotient(remainder, divisor);
   } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
 
-  public static long divideArrays_old_silent(long[] dividend, long[] divisor, long[] quotient) {
+  public static long divideArrays_1_silent(long[] dividend, long[] divisor, long[] quotient) {
     final long[] remainder = dividend;            // will contain remainder after each iteration
     Arrays.fill(quotient, 0);
 
     final long divisorHigh = (divisor[0] << 32) | divisor[1];   // The most significant word of the divisor
     int offset = 0;                               // the index of the quotient word being computed
     quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
+
     subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
 
     // Compute the quotient by portions by 32 bits per iterations
@@ -168,6 +169,7 @@ public class Dividers {
 
         if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
           multipyAndSubtract(divisor, quotientWord, offset, remainder);
+
           if ((int)remainder[offset + 1] < 0) {           // The quotiendWord occurred to be too great
             quotientWord--;                               // decrease it
             addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
@@ -181,6 +183,51 @@ public class Dividers {
     return findNextBitOfQuotient(remainder, divisor);
 
   } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
+
+
+  public static long divideArrays_3(int[] dividend, int[] divisor, int[] quotient) {
+    final int[] remainder = dividend;            // will contain remainder after each iteration
+    Arrays.fill(quotient, 0);
+
+    final long divisorHigh = ((long)divisor[0] << 32) | (divisor[1] & LOWER_32_BITS);   // The most significant word of the divisor
+    int offset = 0;                               // the index of the quotient word being computed
+    quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
+    subtractDivisor_3(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
+
+    // Compute the quotient by portions by 32 bits per iterations
+    if (!isEmpty_3(remainder)) {
+      do {
+        final long remainderHigh = ((long)remainder[offset + 1] << 32) | (remainder[offset + 2] & LOWER_32_BITS); // The most significant 64 bits of the remainder
+
+        long quotientWord = (remainder[offset] == 0)?
+            Long.divideUnsigned(remainderHigh, divisorHigh):
+            divide65bits(remainder[offset], remainderHigh, divisorHigh);
+
+        if (quotientWord == 0x1_0000_0000L)
+          quotientWord--;
+
+        if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
+          multipyAndSubtract_3(divisor, quotientWord, offset, remainder);
+
+          if (remainder[offset + 1] < 0) {           // The quotiendWord occurred to be too great
+            quotientWord--;                               // decrease it
+            addDivisorBack_3(divisor, remainder, offset);   // Add divisor * 1 back
+          }
+        }
+
+        quotient[offset++] = (int)quotientWord;          // The next word of the quotient
+      } while (offset <= 4 && !isEmpty_3(remainder));    // TODO here - не ходить по всему, а проверять только ту часть, которая м.б. != 0
+      // while the 5 half-words of the quotient are not filled and the remainder !=0
+    } // (!isEmpty(remainder)) {
+
+    if (greaterThanHalfOfDivisor_3(remainder, divisor, offset))
+      return 1;
+
+    return 0;
+
+  } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
+
+
 
   /**
    * Subtracts the divisor from the dividend to obtain the remainder for the first iteration
@@ -197,12 +244,28 @@ public class Dividers {
     }
   } // private static void subtractDivisor(long[] divisor, long[] remainder) {
 
+  private static void subtractDivisor_3(int[] divisor, int[] remainder) {
+    long carry = 0;
+    for (int i = 5; i >= 1; i--) {
+      final long difference = (remainder[i] & LOWER_32_BITS) - (divisor[i - 1] & LOWER_32_BITS) + carry;;
+      remainder[i] = (int)difference;
+      carry = difference >> 32;
+    }
+  } // private static void subtractDivisor(long[] divisor, long[] remainder) {
+
   /**
    * Checks if the buffer is empty (contains nothing but zeros)
    * @param buffer the buffer to check
    * @return {@code true} if the buffer is empty, {@code false} otherwise
    */
   private static boolean isEmpty(long[] buffer) {
+    for (int i = 0; i < buffer.length; i++)
+      if (buffer[i] != 0)
+        return false;
+    return true;
+  } // private static boolean isEmpty(long[] buffer) {
+
+  private static boolean isEmpty_3(int[] buffer) {
     for (int i = 0; i < buffer.length; i++)
       if (buffer[i] != 0)
         return false;
@@ -258,6 +321,20 @@ public class Dividers {
 
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
+  private static void multipyAndSubtract_3(int[] divisor, long quotientWord, int offset, int[] remainder) {
+    offset += 5;
+    long carry = 0;
+
+    for (int i = 4; i >= 0; i--) {
+      final long product = quotientWord * (divisor[i] & LOWER_32_BITS) + carry;
+      final long difference = remainder[offset] - product;
+      remainder[offset--] = (int)difference;
+      carry = product >>> 32;
+      if ( (difference & LONG_MASK) > ( ~(int)product & LONG_MASK ) )
+         carry++;
+    }
+  } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
+
   private static void copyBuffer(long[] src, long[] dst) {
     for (int i = 0; i < src.length; i++)
       dst[i] = src[i];
@@ -281,6 +358,19 @@ public class Dividers {
     }
   } // private static void addDivisorBack(long[] divisor, long[] remainder, int offset) {
 
+  // Trying to use int[] instead of long[]
+  private static void addDivisorBack_3(int[] divisor, int[] remainder, int offset) {
+    offset += 5;                          // Index in reminder remainder
+    long carry = 0;
+
+    for (int idx = 4; idx >= 0; idx--) {  // Index in the divisor
+      final long sum = (remainder[offset] & LOWER_32_BITS) + (divisor[idx] & LOWER_32_BITS) + carry;
+      remainder[offset--] = (int)sum;
+      carry = sum >>> 32;
+    }
+
+  } // private static void addDivisorBack(long[] divisor, long[] remainder, int offset) {
+
   /**
    * After the basic division, finds the next bit of the quotient
    * (corresponding to 2^-129, i.e. half the least significant bit of the mantissa), to round up the quotient if this bit isn't 0.
@@ -290,6 +380,17 @@ public class Dividers {
    * @return 1 if the remainder is equal to or greater than half the divisor
    */
   private static long findNextBitOfQuotient(long[] remainder, long[] divisor) {
+    for (int i = 0; i < divisor.length - 1; i++) {
+      final long rw = (remainder[i + 5] * 2 & LOWER_32_BITS) // a current word of the remainder multiplied by 2
+                    + (remainder[i + 6] >> 31);              // MSB of the next word as the LSB
+      if (rw > divisor[i]) return 1;
+      if (rw < divisor[i]) return 0;
+    }
+    if ((remainder[9] * 2 & LOWER_32_BITS) < divisor[4]) return 0;
+    return 1;
+  } // private static long findNextBitOfQuotient(long[] remainder, long[] divisor) {
+
+  private static long findNextBitOfQuotient_3(int[] remainder, int[] divisor) {
     for (int i = 0; i < divisor.length - 1; i++) {
       final long rw = (remainder[i + 5] * 2 & LOWER_32_BITS) // a current word of the remainder multiplied by 2
                     + (remainder[i + 6] >> 31);              // MSB of the next word as the LSB
@@ -394,7 +495,6 @@ public class Dividers {
   }
 
   private static boolean greaterThanHalfOfDivisor(int[] remainder, int[] divisor, int offset) {
-    final boolean result = false;
     for (int i = 0; i < 6; i++) {
       final int cmp = Integer.compareUnsigned(
             (remainder[4 + i + offset] << 1) + (remainder[5 + i + offset] >>> 31),  // Doubled remainder
@@ -405,6 +505,26 @@ public class Dividers {
       if (cmp < 0)
         return false;
     }
+    return true;
+  }
+
+  private static boolean greaterThanHalfOfDivisor_3(int[] remainder, int[] divisor, int offset) {
+    for (int idx = 0; idx < 4; idx++) {
+      final int cmp = Integer.compareUnsigned(
+            (remainder[offset] << 1) + (remainder[++offset] >>> 31),      // Doubled remainder
+            divisor[idx]                                                              // Greater than divisor
+          );
+      if (cmp > 0)
+        return true;
+      if (cmp < 0)
+        return false;
+    }
+    final int cmp = Integer.compareUnsigned(
+        (remainder[offset] << 1),      // Doubled remainder
+        divisor[4]                                                              // Greater than divisor
+      );
+    if (cmp < 0)
+      return false;
     return true;
   }
 

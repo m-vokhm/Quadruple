@@ -116,10 +116,15 @@ public class DivisionBench_01 {
     return Quadruple.nextRandom(rand).multiply(RAND_SCALE).bigDecimalValue();
   }
 
-
   @Benchmark
   public void g_BigDecimal___Division() {
     bh.consume(bdResult[index] = bdOp1[index].divide(bdOp2[index], MC_38));
+    index = ++index & INDEX_MASK;
+  }
+
+  @Benchmark
+  public void h_QuadStatic_0_Division() {
+    bh.consume(qResult[index] = Quadruple.divide_0(qOp1[index], qOp2[index]));
     index = ++index & INDEX_MASK;
   }
 
@@ -130,38 +135,46 @@ public class DivisionBench_01 {
   }
 
   @Benchmark
+  public void h_QuadStatic_2_Division() {
+    bh.consume(qResult[index] = Quadruple.divide_2(qOp1[index], qOp2[index]));
+    index = ++index & INDEX_MASK;
+  }
+
+  @Benchmark
+  public void h_QuadStatic_3_Division() {
+    bh.consume(qResult[index] = Quadruple.divide_3(qOp1[index], qOp2[index]));
+    index = ++index & INDEX_MASK;
+  }
+
+  @Benchmark
+  public void i_QuadInstan_0_Division() {
+    bh.consume(qOp1[index].divide_0(qOp2[index]));
+    index = ++index & INDEX_MASK;
+  }
+
+  @Benchmark
   public void i_QuadInstan_1_Division() {
     bh.consume(qOp1[index].divide_1(qOp2[index]));
     index = ++index & INDEX_MASK;
   }
 
-@Benchmark
-public void i_QuadInstan_0_Division() {
-  bh.consume(qOp1[index].divide_0(qOp2[index]));
-  index = ++index & INDEX_MASK;
-}
-
   @Benchmark
-  public void h_QuadStatic_0_Division() {
-    bh.consume(qResult[index] = Quadruple.divide_0(qOp1[index], qOp2[index]));
+  public void i_QuadInstan_2_Division() {
+    bh.consume(qOp1[index].divide_2(qOp2[index]));
     index = ++index & INDEX_MASK;
   }
 
-
+  @Benchmark
+  public void i_QuadInstan_3_Division() {
+    bh.consume(qOp1[index].divide_3(qOp2[index]));
+    index = ++index & INDEX_MASK;
+  }
 
   /**
    * @param args
    * @throws IOException
    */
   private void run(String... args) throws IOException, RunnerException {
-//    final Random rand = new Random(123);
-//    for (int i = 0; i < 20; i++) {
-//      final BigDecimal bd1 =  randomBigDecimal(rand);
-//      final BigDecimal bd2 =  randomBigDecimal(rand);
-//      final BigDecimal bd = bd1.divide(bd2, MC_38);
-//      System.out.printf("%s / %s = %s\n", bd1, bd2, bd);
-//    }
-//    System.exit(0);
     final Options opt = new OptionsBuilder()
         .include(DivisionBench_01.class.getSimpleName())
         .forks(1)

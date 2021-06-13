@@ -28,6 +28,8 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.mvohm.quadruple.research.Dividers;
+
 import static com.mvohm.quadruple.research.Dividers.*;
 
 /**
@@ -1630,6 +1632,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return divide_(divisor);
   }
 
+  public Quadruple divide_3(Quadruple divisor) {          // 21.06.13 17:02:33 Использует int[] вместо long[]
+    divisionMethod = 3;
+    return divide_(divisor);
+  }
+
   /**
    * Divides the value of this Quadruple by the value of the given {@code long} divisor.
    * The instance acquires a new value that equals the quotient.
@@ -1679,6 +1686,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   public static Quadruple divide_2(Quadruple dividend, Quadruple divisor) {
     divisionMethod = 2;
+    return divide_(dividend, divisor);
+  }
+
+  public static Quadruple divide_3(Quadruple dividend, Quadruple divisor) {
+    divisionMethod = 3;
     return divide_(dividend, divisor);
   }
 
@@ -2132,13 +2144,16 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private static final long[] BUFFER_3x64_D   = new long[3];
 
   private static final long[] BUFFER_5x32_A   = new long[5];
+  private static final int[]  BUFFER_5x32_A_INT   = new int[5];
   private static final long[] BUFFER_5x32_B   = new long[5];
+  private static final int[] BUFFER_5x32_B_INT   = new int[5];
 
   private static final long[] BUFFER_6x32_A   = new long[6];
   private static final long[] BUFFER_6x32_B   = new long[6];
   private static final long[] BUFFER_6x32_C   = new long[6];
 
   private static final long[] BUFFER_10x32_A  = new long[10];
+  private static final int[] BUFFER_10x32_A_INT  = new int[10];
   private static final long[] BUFFER_10x32_B  = new long[10];
 
   private static final long[] BUFFER_12x32    = new long[12];
@@ -4666,6 +4681,16 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return buffer;
   } // private static long[] unpack_To5x32(long factHi, long factLo, long[] buffer) {
 
+  private static int[] unpack_To5x32_3(long mantHi, long mantLo, int[] buffer) {
+    // TODO 21.06.13 17:08:11
+    buffer[0] = 1;
+    buffer[1] = (int)(mantHi >>> 32);
+    buffer[2] = (int)(mantHi);
+    buffer[3] = (int)(mantLo >>> 32);
+    buffer[4] = (int)(mantLo);
+    return buffer;
+  } // private static long[] unpack_To5x32(long factHi, long factLo, long[] buffer) {
+
   protected void ____Used_By_division____() {} // Just to put a visible mark of the section in the outline view of the IDE
 
   /* **********************************************************************************
@@ -4682,6 +4707,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * <br>Covered
    */
   private Quadruple divideUnsigned(Quadruple divisor) { // 20.10.17 10:26:36
+    // 21.06.13 17:01:21 Экспериментальный метод с использованием int[] вместо long[]
+    if (divisionMethod == 3)
+      return divideUnsigned_3(divisor);
+
     if (divisor.compareMagnitudeTo(ONE) == 0)       // x / 1 = x;
       return this;
     if (compareMagnitudeTo(divisor) == 0)           // x / x = 1;
@@ -4721,6 +4750,49 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     exponent = (int)quotientExponent;
     return this;
   } // private Quadruple divideUnsigned(Quadruple divisor) { // 20.10.17 10:26:36
+
+  private Quadruple divideUnsigned_3(Quadruple divisor) {
+    // Экспериментальный метод, использующий int[] вместо long[]
+    if (divisor.compareMagnitudeTo(ONE) == 0)       // x / 1 = x;
+      return this;
+    if (compareMagnitudeTo(divisor) == 0)           // x / x = 1;
+      return assignOne(false);
+
+    long quotientExponent = Integer.toUnsignedLong(exponent) // Preliminarily evaluate the exponent of the quotient (may get adjusted)
+                          - Integer.toUnsignedLong(divisor.exponent) + EXPONENT_OF_ONE;
+
+    if (exponentWouldExceedBounds(quotientExponent, 0, 1)) // exp < -128 || exp > EXPONENT_OF_MAX_VALUE + 1, Assigns respective values if exp exceeds bounds
+      return this;
+
+    boolean needToDivide = true;
+//    final long[] divisorBuff = BUFFER_5x32_A; // 21.06.13 17:06:32
+    final int[] divisorBuff = BUFFER_5x32_A_INT;
+    if (exponent != 0 & divisor.exponent != 0) {    // both are normal
+      if (mantHi == divisor.mantHi && mantLo == divisor.mantLo) { // Mantissas are equal, result. mantissa = 1
+        mantHi = mantLo = 0;                        // will return 2 ^ (exp1 - exp2)
+        needToDivide = false;                       // Mark that actual division not needed
+      } else {                                      // Mantissas differ, division may be needed
+        if (divisor.mantHi == 0 && divisor.mantLo == 0) // Divisor == 2^n, mantissa remains unchanged
+          needToDivide = false;                     // Mark that actual division not needed
+        else                                        // divisor != 2^n
+          unpack_To5x32_3(divisor.mantHi, divisor.mantLo, divisorBuff);  // divisor as an array of long containing the unpacked mantissa
+      }
+    } else {                                        // At least one is subnormal
+      quotientExponent = normalizeAndUnpackSubnormals_3(quotientExponent, divisor, divisorBuff);
+    }
+
+    if (needToDivide)
+      quotientExponent = doDivide_3(quotientExponent, divisorBuff); // *** Proper division
+
+    if (exponentWouldExceedBounds(quotientExponent, 0, 0)) // exp < -128 || exp > EXPONENT_OF_MAX_VALUE, Assigns respective values if exp exceeds bounds
+      return this;
+
+    if (quotientExponent <= 0)
+      quotientExponent = makeSubnormal(quotientExponent);
+
+    exponent = (int)quotientExponent;
+    return this;
+  }
 
   /**
    * Checks if the exponent of the result exceeds acceptable bounds and sets the
@@ -4764,6 +4836,18 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     } else                                       // Divisor is normal
       unpack_To5x32(divisor.mantHi, divisor.mantLo, divisorBuff); // just unpack
 
+    return quotientExponent;
+  } // private long normalizeAndUnpackSubnormals(long quotientExponent, Quadruple divisor, long[] divisorBuff) {
+
+  // 21.06.13 17:10:37 Trying to use int[] instead of long[]
+  private long normalizeAndUnpackSubnormals_3(long quotientExponent, Quadruple divisor, int[] divisorBuff) {
+    if (exponent == 0)                           // Dividend is subnormal
+      quotientExponent -= normalizeMantissa();
+
+    if (divisor.exponent == 0) {                // Divisor is subnormal
+      quotientExponent += normalizeAndUnpackDivisor_3(divisor, divisorBuff);  // normalize and unpack
+    } else                                       // Divisor is normal
+      unpack_To5x32_3(divisor.mantHi, divisor.mantLo, divisorBuff); // just unpack
     return quotientExponent;
   } // private long normalizeAndUnpackSubnormals(long quotientExponent, Quadruple divisor, long[] divisorBuff) {
 
@@ -4812,6 +4896,26 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return result; // exp correction = shift value - 1, it's 0 for MIN_NORMAL / 2
   } // private static long normalizeAndUnpackDivisor(Quadruple divisor, long[] buffer) {
 
+  /// 21.06.13 17:11:40 Trying to use int[] instead of long[]
+  private static long normalizeAndUnpackDivisor_3(Quadruple divisor, int[] buffer) {
+    long mantHi = divisor.mantHi, mantLo = divisor.mantLo;
+    int shift = Long.numberOfLeadingZeros(mantHi); // the highest 1 will be the implied unity -- shift-out it
+    if (shift == 64)
+      shift += Long.numberOfLeadingZeros(mantLo);
+    final long result = shift; shift++;
+
+    if (shift <= 64) {
+      mantHi = (mantHi << shift) + (mantLo >>> 64 - shift);
+      mantLo <<= shift;
+    } else {
+      mantHi = mantLo << shift - 64;
+      mantLo = 0;
+    }
+
+    unpack_To5x32_3(mantHi, mantLo, buffer);
+    return result; // exp correction = shift value - 1, it's 0 for MIN_N/ORMAL / 2
+  } // private static long normalizeAndUnpackDivisor(Quadruple divisor, long[] buffer) {
+
   /** Divides preliminarily normalized mantissa of this instance by the mantissa of the divisor
    * given as an unpacked value in {@code divisor}.
    * @param quotientExponent a preliminarily evaluated exponent of the quotient, may get adjusted
@@ -4823,6 +4927,14 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     final long[] dividend = BUFFER_10x32_A; // Will hold dividend with integer part in buff[1] and mantissa in buff[2] -- buff[5]
     quotientExponent = unpackMantissaTo(quotientExponent, divisor, dividend);
     divideBuffers(dividend, divisor, quotientExponent); // proper division
+    return quotientExponent;
+  } // private long doDivide(long quotientExponent, final long[] divisor) {
+
+  // 21.06.13 17:15:30 Trying to use int[] instead of long[]
+  private long doDivide_3(long quotientExponent, final int[] divisor) {
+    final int[] dividend = BUFFER_10x32_A_INT; // Will hold dividend with integer part in buff[1] and mantissa in buff[2] -- buff[5]
+    quotientExponent = unpackMantissaTo_3(quotientExponent, divisor, dividend);
+    divideBuffers_3(dividend, divisor, quotientExponent); // proper division
     return quotientExponent;
   } // private long doDivide(long quotientExponent, final long[] divisor) {
 
@@ -4846,6 +4958,17 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return quotientExponent;
   } // private long unpackMantissaTo(long quotientExponent, final long[] divisor, final long[] dividend) {
 
+  // 21.06.13 17:15:30 Trying to use int[] instead of long[]
+  private long unpackMantissaTo_3(long quotientExponent, final int[] divisor, final int[] dividend) {
+    // The mantissa of this is normalized, the normalized mantissa of the divisor is in divisorBuff
+    if (compareMantissaWith_3(divisor) < 0) {
+      unpackDoubledMantissaToBuff_10x32_3(dividend);
+      quotientExponent--;
+    } else
+      unpackMantissaToBuff_10x32_3(dividend);
+    return quotientExponent;
+  } // private long unpackMantissaTo(long quotientExponent, final long[] divisor, final long[] dividend) {
+
   /**
    * Compares the mantissa of this instance with the unpacked mantissa of another Quadruple value.
    * Returns
@@ -4863,6 +4986,12 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return cmp == 0? Long.compareUnsigned(mantLo, (divisor[3] << 32) | divisor[4] ) : cmp;
   } // private int compareMantissaWith(long[] divisor) {
 
+  // 21.06.13 17:15:30 Trying to use int[] instead of long[]
+  private int compareMantissaWith_3(int[] divisor) {
+    final int cmp = Long.compareUnsigned(mantHi, ((long)divisor[1] << 32) | (divisor[2] & LOWER_32_BITS));
+    return cmp == 0? Long.compareUnsigned(mantLo, ((long)divisor[3] << 32) | (divisor[4] & LOWER_32_BITS)) : cmp;
+  } // private int compareMantissaWith(long[] divisor) {
+
   /**
    * Unpacks the mantissa of this instance into the given buffer and multiplies it by 2 (shifts left),
    * integer part (may be up to 3) in buffer[1], fractional part in lower halves of buffer[2] -- buffer[5]
@@ -4878,6 +5007,19 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     buffer[5] = mantLo << 1 & LOWER_32_BITS;
   }; // private void unpackDoubledMantissaToBuff_10x32(long[] buffer) { //
 
+  // 21.06.13 17:15:30 Trying to use int[] instead of long[]
+  private void unpackDoubledMantissaToBuff_10x32_3(int[] buffer) { //
+//    Arrays.fill(buffer, 0);
+    buffer[0] = 0;
+    buffer[1] = (int)(2 + (mantHi >>> 63));
+    buffer[2] = (int)(mantHi >>> 31 & LOWER_32_BITS);
+    buffer[3] = (int)(((mantHi << 1) + (mantLo >>> 63)) & LOWER_32_BITS);
+    buffer[4] = (int)(mantLo >>> 31 & LOWER_32_BITS);
+    buffer[5] = (int)(mantLo << 1 & LOWER_32_BITS);
+    for (int i = 6; i < 10; i++)
+      buffer[i] = 0;
+  }; // private void unpackDoubledMantissaToBuff_10x32(long[] buffer) { //
+
   /**
    * Unpacks the mantissa of this instance into the given buffer,
    * integer part (implicit unity) in buffer[1], fractional part in lower halves of buffer[2] -- buffer[5]
@@ -4891,6 +5033,19 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     buffer[3] = mantHi & LOWER_32_BITS;
     buffer[4] = mantLo >>> 32;
     buffer[5] = mantLo & LOWER_32_BITS;
+  } // private void unpackMantissaToBuff_10x32(long[] buffer) {
+
+  // 21.06.13 17:15:30 Trying to use int[] instead of long[]
+  private void unpackMantissaToBuff_10x32_3(int[] buffer) {
+//    Arrays.fill(buffer, 0);
+    buffer[0] = 0;
+    buffer[1] = 1;
+    buffer[2] = (int)(mantHi >>> 32);
+    buffer[3] = (int)(mantHi & LOWER_32_BITS);
+    buffer[4] = (int)(mantLo >>> 32);
+    buffer[5] = (int)(mantLo & LOWER_32_BITS);
+    for (int i = 6; i < 10; i++)
+      buffer[i] = 0;
   } // private void unpackMantissaToBuff_10x32(long[] buffer) {
 
   /**
@@ -4911,14 +5066,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     final long[] quotientBuff = BUFFER_5x32_B;  // Will be used to hold unpacked quotient
 
     long nextBit;
-//    nextBit = divisionMethod == 1?
-//        divideArrays_old(dividend, divisor, quotientBuff):    // Proper division of the arrays, returns the next bit of the quotient
-//        divideArrays_alt(dividend, divisor, quotientBuff);   // Proper division of the arrays, returns the next bit of the quotient
 
     switch (divisionMethod) {
-      case 0: nextBit = divideArrays(dividend, divisor, quotientBuff);
+      case 0: nextBit = Quadruple.divideArrays(dividend, divisor, quotientBuff);
               break;
-      case 1: nextBit = com.mvohm.quadruple.research.Dividers.divideArrays_1(dividend, divisor, quotientBuff);
+      case 1: nextBit = divideArrays_1(dividend, divisor, quotientBuff);
               break;
       case 2: nextBit = divideArrays_2(dividend, divisor, quotientBuff);
               break;
@@ -4933,6 +5085,21 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
         && ++mantLo == 0)              // and mantLo was FFFF_FFFF_FFFF_FFFF, now became 0
       ++mantHi;                        // carry to the higher word
   } // private void divideBuffers(long[] dividend, long[] divisor, long quotientExponent) {
+
+  // 21.06.13 17:15:30 Trying to use int[] instead of long[]
+  private void divideBuffers_3(int[] dividend, int[] divisor, long quotientExponent) {
+    final int[] quotientBuff = BUFFER_5x32_B_INT;  // Will be used to hold unpacked quotient
+
+    final long nextBit = Dividers.divideArrays_3(dividend, divisor, quotientBuff);
+
+    packMantissaFromWords_1to4_3(quotientBuff);   // Pack unpacked quotient into the mantissa fields of this instance
+
+    if (quotientExponent > 0           // Not rounding for subnormals, since the rounding will be done by makeSubnormal()
+        && nextBit  != 0               // if remainder >= (LSB_of_the_quotient * 0.5)
+        && ++mantLo == 0)              // and mantLo was FFFF_FFFF_FFFF_FFFF, now became 0
+      ++mantHi;                        // carry to the higher word
+  } // private void divideBuffers(long[] dividend, long[] divisor, long quotientExponent) {
+
 
   // Temporarily moved to reseach.dividers to experiment with division algorithms
   /**
@@ -4985,38 +5152,37 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
 
 
-  public static long divideArrays_1(long[] dividend, long[] divisor, long[] quotient) {
-    final long[] remainder = dividend;            // will contain remainder after each iteration
-    Arrays.fill(quotient, 0);
-
-    final long divisorHigh = (divisor[0] << 32) | divisor[1];   // The most significant word of the divisor
-    int offset = 0;                               // the index of the quotient word being computed
-    quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
-    subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
-
-    // Compute the quotient by portions by 32 bits per iterations
-    if (!isEmpty(remainder)) {
-      do {
-        final long remainderHigh = (remainder[offset + 1] << 32) | remainder[offset + 2]; // The most significant 64 bits of the remainder
-        long quotientWord = (remainder[offset] == 0)?
-            Long.divideUnsigned(remainderHigh, divisorHigh):
-            divide65bits(remainder[offset], remainderHigh, divisorHigh);
-
-        if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
-          multipyAndSubtract(divisor, quotientWord, offset, remainder);
-          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
-            quotientWord--;                               // decrease it
-            addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
-          }
-        }
-
-        quotient[offset++] = quotientWord;          // The next word of the quotient
-      } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
-    } // (!isEmpty(remainder)) {
-
-    return findNextBitOfQuotient(remainder, divisor);
-  } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
-
+//  public static long divideArrays_1(long[] dividend, long[] divisor, long[] quotient) {
+//    final long[] remainder = dividend;            // will contain remainder after each iteration
+//    Arrays.fill(quotient, 0);
+//
+//    final long divisorHigh = (divisor[0] << 32) | divisor[1];   // The most significant word of the divisor
+//    int offset = 0;                               // the index of the quotient word being computed
+//    quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
+//    subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
+//
+//    // Compute the quotient by portions by 32 bits per iterations
+//    if (!isEmpty(remainder)) {
+//      do {
+//        final long remainderHigh = (remainder[offset + 1] << 32) | remainder[offset + 2]; // The most significant 64 bits of the remainder
+//        long quotientWord = (remainder[offset] == 0)?
+//            Long.divideUnsigned(remainderHigh, divisorHigh):
+//            divide65bits(remainder[offset], remainderHigh, divisorHigh);
+//
+//        if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
+//          multipyAndSubtract(divisor, quotientWord, offset, remainder);
+//          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
+//            quotientWord--;                               // decrease it
+//            addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
+//          }
+//        }
+//
+//        quotient[offset++] = quotientWord;          // The next word of the quotient
+//      } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
+//    } // (!isEmpty(remainder)) {
+//
+//    return findNextBitOfQuotient(remainder, divisor);
+//  } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
 
   /**
    * Subtracts the divisor from the dividend to obtain the remainder for the first iteration
@@ -5167,6 +5333,12 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private void packMantissaFromWords_1to4(long[] buffer) {
     mantLo = buffer[4] | (buffer[3] << 32);
     mantHi = buffer[2] | (buffer[1] << 32);
+  } // private void packMantissaFromWords_1to4(long[] buffer) {
+
+  // 21.06.13 17:33:07 Trying to use int[] instead of long[]
+  private void packMantissaFromWords_1to4_3(int[] buffer) {
+    mantLo = (buffer[4] & LOWER_32_BITS) | ((long)buffer[3] << 32);
+    mantHi = (buffer[2] & LOWER_32_BITS) | ((long)buffer[1] << 32);
   } // private void packMantissaFromWords_1to4(long[] buffer) {
 
   protected void ____Used_By_sqrt____() {} // Just to put a visible mark of the section in the outline view of the IDE

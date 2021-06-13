@@ -23,8 +23,8 @@ import com.mvohm.quadruple.research.Dividers;
 public class SimpleBench {
 
   // Time to run every benchmark in seconds
-  private final static double BENCH_TIME = 10.0;
   private final static double WARMUP_TIME = 5.0;
+  private final static double BENCH_TIME  = 10.0;
 
   private final static int DATA_SIZE      = 250_000;
                                           // = 500_000;
@@ -61,6 +61,7 @@ public class SimpleBench {
 //    quadStaticDivision_0_Meter.execute();
     quadStaticDivision_1_Meter.execute();
     quadStaticDivision_2_Meter.execute();
+    quadStaticDivision_3_Meter.execute();
 //    say("Add back counter: %s\n", Dividers.getMbiAddBackCounter());
 //    quadInstanceDivisionBenchmarker.execute();
 //    quadInstanceAltDivisionBenchmarker.execute();
@@ -144,6 +145,15 @@ public class SimpleBench {
     }
   };
 
+  Benchmarker quadStaticDivision_3_Meter = new Benchmarker() {
+    { benchmarkName = "  Quadruple static division 3"; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdResult[i] = Quadruple.divide_3(qdOp1[i], qdOp2[i]);
+    }
+  };
+
   Benchmarker quadInstanDivision_0_Meter = new Benchmarker() {
     {
       benchmarkName = "Quadruple instance division 0";
@@ -177,6 +187,18 @@ public class SimpleBench {
     @Override void doBenchmark() {
       for (int i = 0; i < DATA_SIZE; i++)
         qdOp1[i].divide_2(qdOp2[i]);
+    }
+  };
+
+  Benchmarker quadInstanDivision_3_Meter = new Benchmarker() {
+    {
+      benchmarkName = "Quadruple instance division 3";
+      needToUpdateData = true;
+    }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdOp1[i].divide_3(qdOp2[i]);
     }
   };
 
