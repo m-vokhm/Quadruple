@@ -190,7 +190,7 @@ public class Dividers {
           quotientWord--;
         if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
           multipyAndSubtract(divisor, quotientWord, offset, remainder);
-          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
+          if ((int)remainder[offset + 1] < 0) {           // The quotiendWord occurred to be too great
             quotientWord--;                               // decrease it
             addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
 //            qdrAddBackCounter++;
@@ -266,9 +266,7 @@ public class Dividers {
    * @param remainder the remainder to subtract the product from
    */
   private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
-
     int offset1 = offset + divisor.length;
-
     long carry = 0;
     for (int i = divisor.length - 1; i >= 0; i--) {         // product[offset..offset+4]
       final long product = quotientWord * divisor[i] + carry;
@@ -277,13 +275,6 @@ public class Dividers {
       carry = (product >>> 32)
               + ((difference & LONG_MASK) > ( (~(int)product) & LONG_MASK)  ? 1 : 0);
     }
-
-    if ((int)remainder[offset + 1] < 0) {
-      for (int i = offset; i > 0; i--)
-        remainder[i] = 0xFFFF_FFFFL;
-      remainder[0] = -1L;
-    }
-
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
   private static void copyBuffer(long[] src, long[] dst) {
@@ -299,12 +290,12 @@ public class Dividers {
    * @param offset
    */
   private static void addDivisorBack(long[] divisor, long[] remainder, int offset) {
-    offset++;
-    for (int i = 4 + offset; i >= 1; i--) {
-      remainder[i] += i < offset? 0 : divisor[i - offset];
-      if ((remainder[i] & HIGHER_32_BITS) != 0) {
-        remainder[i - 1]++;
-        remainder[i] &= LOWER_32_BITS;
+    offset += 5;                          // Index in reminder remainder
+    for (int idx = 4; idx >= 0; idx--) {  // Index in the divisor
+      remainder[offset] += divisor[idx];
+      if ((remainder[offset--] & HIGHER_32_BITS) != 0) {
+        remainder[offset]++;
+        remainder[offset + 1] &= LOWER_32_BITS;
       }
     }
   } // private static void addDivisorBack(long[] divisor, long[] remainder, int offset) {
