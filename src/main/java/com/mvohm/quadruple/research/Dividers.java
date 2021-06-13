@@ -193,7 +193,7 @@ public class Dividers {
           if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
             quotientWord--;                               // decrease it
             addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
-            qdrAddBackCounter++;
+//            qdrAddBackCounter++;
           }
         }
 
@@ -266,45 +266,24 @@ public class Dividers {
    * @param remainder the remainder to subtract the product from
    */
   private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
-    // 21.06.11 14:07:25
-    // Сделаем временный дублёр с новым алгоритмом, чтобы проверить, эквивалентен ли он
-//    final long[] tmpRemainder = remainder;
-//    final long[] tmpRemainder = Arrays.copyOf(remainder, remainder.length);
 
-    offset++;
-
-//    final long[] partialProduct = BUFFER_10x32_B;
-//    multDivisorBy(divisor, quotientWord, partialProduct, offset); // multiply divisor by qW with the given offset
-//    subtractProduct(partialProduct, remainder, offset);           // and subtract the product from the remainder
-//    say("  old: %s", hexStr_u(remainder));
+    int offset1 = offset + divisor.length;
 
     long carry = 0;
     for (int i = divisor.length - 1; i >= 0; i--) {         // product[offset..offset+4]
       final long product = quotientWord * divisor[i] + carry;
-      final long difference = remainder[i + offset] - product;
-      remainder[i + offset] = difference & 0xFFFF_FFFFL;
-//      say("Diff: %s", hexStr(difference));
+      final long difference = remainder[offset1] - product;
+      remainder[offset1--] = difference & 0xFFFF_FFFFL;
       carry = (product >>> 32)
               + ((difference & LONG_MASK) > ( (~(int)product) & LONG_MASK)  ? 1 : 0);
-//      say("Add  " + ((difference & LONG_MASK) > ( (~(int)product) & LONG_MASK)  ? 1 : 0));
     }
 
-    if ((int)remainder[offset] < 0) {
-      for (int i = offset - 1; i > 0; i--)
+    if ((int)remainder[offset + 1] < 0) {
+      for (int i = offset; i > 0; i--)
         remainder[i] = 0xFFFF_FFFFL;
       remainder[0] = -1L;
-    } else {
-      for (int i = offset - 1; i >= 0; i--)
-        remainder[i] = 0L;
     }
 
-//    if (!Arrays.equals(tmpRemainder, remainder))
-//      say("***\n  new: %s",  hexStr_u(tmpRemainder));
-//    else
-//      say("Reminders OK!");
-//    say();
-
-//    copyBuffer(tmpRemainder, remainder);
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
   private static void copyBuffer(long[] src, long[] dst) {

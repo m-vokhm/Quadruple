@@ -59,9 +59,7 @@ public class SimpleBench {
 //    quadInstanceAdditionBenchmarker.execute();
     bdDivisionMeter.execute();
     quadStaticDivision_0_Meter.execute();
-    Dividers.clearAddBackCounters();
     quadStaticDivision_1_Meter.execute();
-    say("Add back counter: %s\n", Dividers.getQdrAddBackCounter());
     quadStaticDivision_2_Meter.execute();
 //    say("Add back counter: %s\n", Dividers.getMbiAddBackCounter());
 //    quadInstanceDivisionBenchmarker.execute();
