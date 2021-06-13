@@ -244,14 +244,17 @@ public class Dividers {
   private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
     offset += 5;
     long carry = 0;
-    for (int i = divisor.length - 1; i >= 0; i--) {         // product[offset..offset+4]
-      final long product = quotientWord * divisor[i] + carry;
-      final long difference = remainder[offset] - product;
-      remainder[offset--] = difference & 0xFFFF_FFFFL;
-      carry = (product >>> 32)
-              + ((difference & LONG_MASK) > ( (~(int)product) & LONG_MASK)  ? 1 : 0);
-    }
 
+    for (int i = 4; i >= 0; i--) {         // product[offset..offset+4]
+      final long product = quotientWord * divisor[i] + carry;
+      final long newRemainderWord = (remainder[offset] - product) & 0xFFFF_FFFFL;
+
+      carry = product >>> 32;
+      if ( newRemainderWord > ( ~product & LONG_MASK) )
+        carry++;
+
+      remainder[offset--] = newRemainderWord ;
+    }
 
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 

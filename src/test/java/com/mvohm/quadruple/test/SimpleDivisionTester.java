@@ -26,28 +26,28 @@ public class SimpleDivisionTester {
   private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
 
   public static void main(String[] args) {
-//    final BigDecimal bd1 = new BigDecimal("1.9876543210987654321098765432109876543");
-//    final BigDecimal bd2 = new BigDecimal("1.2345678901234567890123456789012345678");
-//    final BigDecimal bd3 = bd1.divide(bd2, MC_38);
-//    say();
-//    say(bd3);
-//    say();
-    final Quadruple qd1 = new Quadruple("1.9876543210987654321098765432109876543");
-    final Quadruple qd2 = new Quadruple("1.2345678901234567890123456789012345678");
 
+//    final Quadruple qd1 = qv("1.9876543210987654321098765432109876543");
+//    final Quadruple qd2 = qv("1.2345678901234567890123456789012345678");
 //    testDivisions(qd1, qd2);
-//    testDivisions(qv(5), qv(3));
-//    testDivisions(qv(3), qv(5));
 
-//    final List<String> list = randomsForDivision(10000);
-//    final Iterator<String> i = list.iterator();
-//    while (i.hasNext()) {
-//      final String s1 = i.next(), s2 = i.next(), s3 = i.next();
-//      if (!s1.trim().startsWith("//"))
-//        testDivisions(qv(s1), qv(s2));
-//    }
+    testWithDataList();
 
+    say();
 
+    final long qdrAddBackCounter = getQdrAddBackCounter();
+    final long mbiAddBackCounter = getMbiAddBackCounter(); //  / 2; if both instance and static divisions are performed
+
+    say("Division counter  = %6s", divCounter);
+    say("qdrAddBackCounter = %6d (%6.3f)", qdrAddBackCounter, 100.0 * qdrAddBackCounter / divCounter);
+    say("mbiAddBackCounter = %6d (%6.3f)", mbiAddBackCounter, 100.0 * mbiAddBackCounter / divCounter);
+    say("Error counter     = %6s", errCount);
+  }
+
+  /**
+   *
+   */
+  private static void testWithDataList() {
     int count = 0;
     final List<String[]> dataList = DataProviders.divisionDataList();
     for (final String[] dataSample: dataList) {
@@ -58,18 +58,6 @@ public class SimpleDivisionTester {
         say(dataSample[0]);
       }
     }
-
-    say();
-    final long qdrAddBackCounter = getQdrAddBackCounter();
-    final long mbiAddBackCounter = getMbiAddBackCounter(); //  / 2; if both instance and static divisions are performed
-    final double qdrAddBackPercent = 100.0 * qdrAddBackCounter / divCounter;
-    final double mbiAddBackPercent = 100.0 * mbiAddBackCounter / divCounter;
-
-    say("Division counter  = " + divCounter);
-    say("qdrAddBackCounter = %6d (%6.3f)", qdrAddBackCounter, qdrAddBackPercent);
-    say("mbiAddBackCounter = %6d (%6.3f)", mbiAddBackCounter, mbiAddBackPercent);
-    say("Error counter  =    " + errCount);
-
   }
 
   private static long divCounter = 0;
