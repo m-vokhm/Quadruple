@@ -163,37 +163,14 @@ public class Dividers {
             Long.divideUnsigned(remainderHigh, divisorHigh):
             divide65bits(remainder[offset], remainderHigh, divisorHigh);
 
-  //****************************************************************
-  // The performance gains aren't worth the extra cost
-  // of more accurate computation of the quotientWord
-  //****************************************************************
-  //    long quotientWord, qRemainder;
-  //
-  //    if (remainder[offset] == 0) {
-  //      quotientWord  = Long.divideUnsigned(remainderHigh, divisorHigh);
-  //      qRemainder    = Long.remainderUnsigned(remainderHigh, divisorHigh);
-  //    } else {
-  //      quotientWord  = divide65bits(remainder[offset], remainderHigh, divisorHigh);
-  //      qRemainder    = quotientRemainder;        // set by divide65bits() called above
-  //    }
-  //
-  //    if (  quotientWord == 0x1_0000_0000L
-  //          || ( qRemainder < 0x1_0000_0000L
-  //               && Long.compareUnsigned( quotientWord * divisor[2],
-  //                                       (qRemainder << 32) + remainder[offset + 3] ) > 0 )
-  //     ) {
-  //       quotientWord--;
-  //     }
-  //****************************************************************
-
         if (quotientWord == 0x1_0000_0000L)
           quotientWord--;
+
         if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
           multipyAndSubtract(divisor, quotientWord, offset, remainder);
           if ((int)remainder[offset + 1] < 0) {           // The quotiendWord occurred to be too great
             quotientWord--;                               // decrease it
             addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
-//            qdrAddBackCounter++;
           }
         }
 
@@ -245,7 +222,6 @@ public class Dividers {
     final long quotientHi = shiftedDividend / divisor;                  // The most significant 32 bits of the quotient
     final long remainder = ((shiftedDividend % divisor) << 16) | (dividendLo & 0xFFFF);
     final long quotientLo = remainder / divisor;                        // The least significant 16 bits of the quotient
-    quotientRemainder = remainder % divisor;
     return quotientHi << 16 | quotientLo;
   } // private static long divide65bits(long dividendHi, long dividendLo, long divisor) {
 
@@ -266,15 +242,17 @@ public class Dividers {
    * @param remainder the remainder to subtract the product from
    */
   private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
-    int offset1 = offset + divisor.length;
+    offset += 5;
     long carry = 0;
     for (int i = divisor.length - 1; i >= 0; i--) {         // product[offset..offset+4]
       final long product = quotientWord * divisor[i] + carry;
-      final long difference = remainder[offset1] - product;
-      remainder[offset1--] = difference & 0xFFFF_FFFFL;
+      final long difference = remainder[offset] - product;
+      remainder[offset--] = difference & 0xFFFF_FFFFL;
       carry = (product >>> 32)
               + ((difference & LONG_MASK) > ( (~(int)product) & LONG_MASK)  ? 1 : 0);
     }
+
+
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
   private static void copyBuffer(long[] src, long[] dst) {
