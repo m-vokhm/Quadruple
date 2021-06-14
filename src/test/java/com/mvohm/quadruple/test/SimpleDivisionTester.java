@@ -1,14 +1,16 @@
 package com.mvohm.quadruple.test;
 
 import com.mvohm.quadruple.Quadruple;
-import com.mvohm.quadruple.research.MathContext;
-import com.mvohm.quadruple.research.RoundingMode;
-import com.mvohm.quadruple.research.BigDecimal;
+//import com.mvohm.quadruple.research.MathContext;
+//import com.mvohm.quadruple.research.RoundingMode;
+//import com.mvohm.quadruple.research.BigDecimal;
 
 import static com.mvohm.quadruple.test.AuxMethods.*;
-import static com.mvohm.quadruple.test.DataGenerators.Randoms.randomsForDivision;
 import static com.mvohm.quadruple.research.Dividers.*;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,7 +25,7 @@ import java.util.List;
  */
 public class SimpleDivisionTester {
 
-  private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
+  private static final MathContext MC_80 = new MathContext(80, RoundingMode.HALF_EVEN);
 
   public static void main(String[] args) {
 
@@ -96,12 +98,18 @@ public class SimpleDivisionTester {
   private static void testDivisions(final Quadruple qd1, final Quadruple qd2) {
     final long c1 = getMbiAddBackCounter();
     say("%s / %s =", qd1, qd2);
-    final Quadruple qdQuotient0 = Quadruple.divide_1(qd1, qd2);
-    final Quadruple qdQuotient3 = Quadruple.divide_3(qd1, qd2);
-//    final Quadruple qdQuotient3 = qd1.divide_2(qd2);
+    Quadruple qdQuotient0 = null;
+    try {
+      qdQuotient0 = buildQuadruple(bigDecimalValueOf(qd1).divide(bigDecimalValueOf(qd2), MC_80));
+    } catch (final Exception x) {};
+    final Quadruple qdQuotient1 = Quadruple.divide(qd1, qd2);
+    if (qdQuotient0 == null)
+      qdQuotient0 = new Quadruple(qdQuotient1);
+    if (qdQuotient0.isZero() && !qdQuotient0.isNegative() && (qd1.isNegative() != qd2.isNegative()))
+      qdQuotient0.negate();
     say("q0 = %s (%s)", qdQuotient0, hexStr(qdQuotient0));
-    say("q3 = %s (%s)", qdQuotient3, hexStr(qdQuotient3));
-    if (!qdQuotient0.equals(qdQuotient3) && (!qdQuotient0.isNaN() || !qdQuotient3.isNaN())) {
+    say("q1 = %s (%s)", qdQuotient1, hexStr(qdQuotient1));
+    if (!qdQuotient0.equals(qdQuotient1) && (!qdQuotient0.isNaN() || !qdQuotient1.isNaN())) {
       say("###########################################");
       errCount++;
     }

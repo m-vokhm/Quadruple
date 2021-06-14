@@ -654,11 +654,11 @@ public class SpecificTesterClasses {
 
   } // static class InstanceMultiplicationTester extends StaticMultiplicationTester {
 
-  /** A tester class to test static method {@link Quadruple#divide_1(Quadruple op1, Quadruple op2)}.<br>
+  /** A tester class to test static method {@link Quadruple#divide(Quadruple op1, Quadruple op2)}.<br>
    * Obtains the test data from {@link DataProviders#divisionDataList()}
    * and performs {@link Quadruple#divide_1(Quadruple op1, Quadruple op2)} as the tested operation.
    */
-  static class StaticDivision_0_Tester extends BinaryFunctionTester {
+  static class StaticDivision_Tester extends BinaryFunctionTester {
 
     /** Returns the name of the tested operation, namely "{@code divide(Quadruple op1, Quadruple op2)}". */
     @Override protected String getName()                                  { return "divide(Quadruple op1, Quadruple op2)"; }
@@ -670,7 +670,7 @@ public class SpecificTesterClasses {
     /** Performs the tested operation ({@code Quadruple.divide(Quadruple op1, Quadruple op2)})
      * with the given operands, and returns the result. */
     @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
-      return Quadruple.divide_1(op1, op2);
+      return Quadruple.divide(op1, op2);
     }
 
     /**
@@ -727,52 +727,12 @@ public class SpecificTesterClasses {
 
   } // static class StaticDivision_0_Tester extends BinaryFunctionTester {
 
-  static class StaticDivision_1_Tester extends StaticDivision_0_Tester {
 
-    /** Returns the name of the tested operation, namely "{@code divide(Quadruple op1, Quadruple op2)}". */
-    @Override protected String getName()                                  { return "Experimental divide_1(Quadruple op1, Quadruple op2)"; }
-
-    /** Performs the tested operation ({@code Quadruple.divide(Quadruple op1, Quadruple op2)})
-     * with the given operands, and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
-      return Quadruple.divide_1(op1, op2);
-    }
-
-  } // static class StaticDivision_0_Tester extends BinaryFunctionTester {
-
-  static class StaticDivision_2_Tester extends StaticDivision_0_Tester {
-
-    /** Returns the name of the tested operation, namely "{@code divide(Quadruple op1, Quadruple op2)}". */
-    @Override protected String getName()                                  { return "Experimental divide_2(Quadruple op1, Quadruple op2)"; }
-
-    /** Performs the tested operation ({@code Quadruple.divide(Quadruple op1, Quadruple op2)})
-     * with the given operands, and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
-      return Quadruple.divide_2(op1, op2);
-    }
-
-  } // static class StaticDivision_0_Tester extends BinaryFunctionTester {
-
-  static class StaticDivision_3_Tester extends StaticDivision_0_Tester {
-
-    /** Returns the name of the tested operation, namely "{@code divide(Quadruple op1, Quadruple op2)}". */
-    @Override protected String getName()                                  { return "Experimental divide_3(Quadruple op1, Quadruple op2)"; }
-
-    /** Performs the tested operation ({@code Quadruple.divide(Quadruple op1, Quadruple op2)})
-     * with the given operands, and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
-      return Quadruple.divide_3(op1, op2);
-    }
-
-  } // static class StaticDivision_0_Tester extends BinaryFunctionTester {
-
-
-
-  /** A tester class to test instance method {@link Quadruple#divide_1(Quadruple op2)}.<br>
+  /** A tester class to test instance method {@link Quadruple#divide(Quadruple op2)}.<br>
    * Obtains the test data from {@link DataProviders#divisionDataList()}
    * and performs {@link Quadruple#divide_1(Quadruple op2)} as the tested operation.
    */
-  static class InstanceDivision_0_Tester extends StaticDivision_0_Tester {
+  static class InstanceDivision_Tester extends StaticDivision_Tester {
 
     /** Returns the name of the tested operation, namely "{@code op1.divide(Quadruple op2)}". */
     @Override protected String getName() { return "op1.divide(Quadruple op2)"; }
@@ -780,66 +740,10 @@ public class SpecificTesterClasses {
     /** Performs the tested operation ({@code op1.divide(Quadruple op2)})
      * with the given operands and returns the result. */
     @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
-      return new Quadruple(op1).divide_0(op2);
+      return new Quadruple(op1).divide(op2);
     }
 
-  } // static class InstanceDivision_0_Tester extends StaticDivision_0_Tester {
-
-  /** A tester class to test instance method {@link Quadruple#divide_1(Quadruple op2)}.<br>
-   * Obtains the test data from {@link DataProviders#divisionDataList()}
-   * and performs {@link Quadruple#divide_1(Quadruple op2)} as the tested operation.
-   */
-  //21.06.08 18:40:13 Trying to find a faster way to divide
-  static class InstanceDivision_1_Tester extends StaticDivision_0_Tester {
-
-    /** Returns the name of the tested operation, namely "{@code op1.divide(Quadruple op2)}". */
-    @Override protected String getName() { return "Experimental op1.divide_1(Quadruple op2)"; }
-
-    /** Performs the tested operation ({@code op1.divide(Quadruple op2)})
-     * with the given operands and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
-      return new Quadruple(op1).divide_1(op2);
-    }
-
-  } // static class InstanceDivision_0_Tester extends StaticDivision_0_Tester {
-
-
-  /** A tester class to test instance method {@link Quadruple#divide_1(Quadruple op2)}.<br>
-   * Obtains the test data from {@link DataProviders#divisionDataList()}
-   * and performs {@link Quadruple#divide_1(Quadruple op2)} as the tested operation.
-   */
-  //21.06.08 18:40:13 Trying to find a faster way to divide
-  static class InstanceDivision_2_Tester extends StaticDivision_0_Tester {
-
-    /** Returns the name of the tested operation, namely "{@code op1.divide(Quadruple op2)}". */
-    @Override protected String getName() { return "Experimental op1.divide_2(Quadruple op2)"; }
-
-    /** Performs the tested operation ({@code op1.divide(Quadruple op2)})
-     * with the given operands and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
-      return new Quadruple(op1).divide_2(op2);
-    }
-
-  } // static class InstanceDivision_0_Tester extends StaticDivision_0_Tester {
-
-
-  /** A tester class to test instance method {@link Quadruple#divide_1(Quadruple op2)}.<br>
-   * Obtains the test data from {@link DataProviders#divisionDataList()}
-   * and performs {@link Quadruple#divide_1(Quadruple op2)} as the tested operation.
-   */
-  //21.06.08 18:40:13 Trying to find a faster way to divide
-  static class InstanceDivision_3_Tester extends StaticDivision_0_Tester {
-
-    /** Returns the name of the tested operation, namely "{@code op1.divide(Quadruple op2)}". */
-    @Override protected String getName() { return "Experimental op1.divide_3(Quadruple op2)"; }
-
-    /** Performs the tested operation ({@code op1.divide(Quadruple op2)})
-     * with the given operands and returns the result. */
-    @Override protected Quadruple performOp(Quadruple op1, Quadruple op2) {
-      return new Quadruple(op1).divide_3(op2);
-    }
-
-  } // static class InstanceDivision_0_Tester extends StaticDivision_0_Tester {
+  } // static class InstanceDivision_Tester extends StaticDivision_0_Tester {
 
 
   /*

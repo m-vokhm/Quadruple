@@ -277,14 +277,14 @@ public class QuadJUnitTest {
   } // public void testInstanceMultiplication() {
 
   /**
-   * Tests {@link Quadruple#divide_1(Quadruple)} method.<br>
-   * Creates an instance of {@link InstanceDivision_0_Tester}, calls its {@link QuadTester#test()} method,
+   * Tests {@link Quadruple#divide(Quadruple)} method.<br>
+   * Creates an instance of {@link InstanceDivision_Tester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testInstanceDivision() {
-    final TestResults results = new InstanceDivision_0_Tester().test();
+    final TestResults results = new InstanceDivision_Tester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrorCount(),
@@ -349,14 +349,14 @@ public class QuadJUnitTest {
   } // public void testStaticMultiplication() {
 
   /**
-   * Tests {@link Quadruple#divide_1(Quadruple, Quadruple)}method.<br>
+   * Tests {@link Quadruple#divide(Quadruple, Quadruple)}method.<br>
    * Creates an instance of {@link StaticDivision_0_Tester}, calls its {@link QuadTester#test()} method,
    * and verifies that the {@link TestResults} instance returned by it
    * does not indicate errors exceeding {@link Consts#NORM_ERR_THRESH}.
    */
   @Test
   public void testStaticDivision() {
-    final TestResults results = new StaticDivision_0_Tester().test();
+    final TestResults results = new StaticDivision_Tester().test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrorCount(),

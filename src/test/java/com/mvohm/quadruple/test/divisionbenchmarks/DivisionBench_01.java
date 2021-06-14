@@ -124,51 +124,51 @@ public class DivisionBench_01 {
 
   @Benchmark
   public void h_QuadStatic_0_Division() {
-    bh.consume(qResult[index] = Quadruple.divide_0(qOp1[index], qOp2[index]));
+    bh.consume(qResult[index] = Quadruple.divide(qOp1[index], qOp2[index]));
     index = ++index & INDEX_MASK;
   }
 
-  @Benchmark
-  public void h_QuadStatic_1_Division() {
-    bh.consume(qResult[index] = Quadruple.divide_1(qOp1[index], qOp2[index]));
-    index = ++index & INDEX_MASK;
-  }
+//  @Benchmark
+//  public void h_QuadStatic_1_Division() {
+//    bh.consume(qResult[index] = Quadruple.divide_1(qOp1[index], qOp2[index]));
+//    index = ++index & INDEX_MASK;
+//  }
 
-  @Benchmark
-  public void h_QuadStatic_2_Division() {
-    bh.consume(qResult[index] = Quadruple.divide_2(qOp1[index], qOp2[index]));
-    index = ++index & INDEX_MASK;
-  }
+//  @Benchmark
+//  public void h_QuadStatic_2_Division() {
+//    bh.consume(qResult[index] = Quadruple.divide_2(qOp1[index], qOp2[index]));
+//    index = ++index & INDEX_MASK;
+//  }
 
-  @Benchmark
-  public void h_QuadStatic_3_Division() {
-    bh.consume(qResult[index] = Quadruple.divide_3(qOp1[index], qOp2[index]));
-    index = ++index & INDEX_MASK;
-  }
+//  @Benchmark
+//  public void h_QuadStatic_3_Division() {
+//    bh.consume(qResult[index] = Quadruple.divide_3(qOp1[index], qOp2[index]));
+//    index = ++index & INDEX_MASK;
+//  }
 
   @Benchmark
   public void i_QuadInstan_0_Division() {
-    bh.consume(qOp1[index].divide_0(qOp2[index]));
+    bh.consume(qOp1[index].divide(qOp2[index]));
     index = ++index & INDEX_MASK;
   }
 
-  @Benchmark
-  public void i_QuadInstan_1_Division() {
-    bh.consume(qOp1[index].divide_1(qOp2[index]));
-    index = ++index & INDEX_MASK;
-  }
-
-  @Benchmark
-  public void i_QuadInstan_2_Division() {
-    bh.consume(qOp1[index].divide_2(qOp2[index]));
-    index = ++index & INDEX_MASK;
-  }
-
-  @Benchmark
-  public void i_QuadInstan_3_Division() {
-    bh.consume(qOp1[index].divide_3(qOp2[index]));
-    index = ++index & INDEX_MASK;
-  }
+//  @Benchmark
+//  public void i_QuadInstan_1_Division() {
+//    bh.consume(qOp1[index].divide_1(qOp2[index]));
+//    index = ++index & INDEX_MASK;
+//  }
+//
+//  @Benchmark
+//  public void i_QuadInstan_2_Division() {
+//    bh.consume(qOp1[index].divide_2(qOp2[index]));
+//    index = ++index & INDEX_MASK;
+//  }
+//
+//  @Benchmark
+//  public void i_QuadInstan_3_Division() {
+//    bh.consume(qOp1[index].divide_3(qOp2[index]));
+//    index = ++index & INDEX_MASK;
+//  }
 
   /**
    * @param args
