@@ -187,7 +187,7 @@ public class Dividers {
 
   public static long divideArrays_3(int[] dividend, int[] divisor, int[] quotient) {
     final int[] remainder = dividend;            // will contain remainder after each iteration
-    Arrays.fill(quotient, 0);
+//    Arrays.fill(quotient, 0);
 
     final long divisorHigh = ((long)divisor[0] << 32) | (divisor[1] & LOWER_32_BITS);   // The most significant word of the divisor
     int offset = 0;                               // the index of the quotient word being computed
@@ -195,7 +195,7 @@ public class Dividers {
     subtractDivisor_3(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
 
     // Compute the quotient by portions by 32 bits per iterations
-    if (!isEmpty_3(remainder)) {
+//    if (!isEmpty_3(remainder)) {
       do {
         final long remainderHigh = ((long)remainder[offset + 1] << 32) | (remainder[offset + 2] & LOWER_32_BITS); // The most significant 64 bits of the remainder
 
@@ -207,18 +207,20 @@ public class Dividers {
           quotientWord--;
 
         if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
-          multipyAndSubtract_3(divisor, quotientWord, offset, remainder);
-
-          if (remainder[offset + 1] < 0) {           // The quotiendWord occurred to be too great
+//          final int diff = multipyAndSubtract_3(divisor, quotientWord, offset, remainder);
+//          say("Diff:    " + hexStr(diff));
+//          say("r[of+1]: " + hexStr(remainder[offset + 1]));
+//          if (remainder[offset + 1] < 0) {           // The quotiendWord occurred to be too great
+          if (multipyAndSubtract_3(divisor, quotientWord, offset, remainder) < 0) {
             quotientWord--;                               // decrease it
             addDivisorBack_3(divisor, remainder, offset);   // Add divisor * 1 back
           }
         }
 
         quotient[offset++] = (int)quotientWord;          // The next word of the quotient
-      } while (offset <= 4 && !isEmpty_3(remainder));    // TODO here - не ходить по всему, а проверять только ту часть, которая м.б. != 0
+      } while (offset <= 4 /* && !isEmpty_3(remainder) */ );    // TODO here - не ходить по всему, а проверять только ту часть, которая м.б. != 0
       // while the 5 half-words of the quotient are not filled and the remainder !=0
-    } // (!isEmpty(remainder)) {
+//    } // (!isEmpty(remainder)) {
 
     if (greaterThanHalfOfDivisor_3(remainder, divisor, offset))
       return 1;
@@ -321,18 +323,20 @@ public class Dividers {
 
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
-  private static void multipyAndSubtract_3(int[] divisor, long quotientWord, int offset, int[] remainder) {
+  private static int multipyAndSubtract_3(int[] divisor, long quotientWord, int offset, int[] remainder) {
     offset += 5;
     long carry = 0;
 
+    long difference = 0;
     for (int i = 4; i >= 0; i--) {
       final long product = quotientWord * (divisor[i] & LOWER_32_BITS) + carry;
-      final long difference = remainder[offset] - product;
+      difference = remainder[offset] - product;
       remainder[offset--] = (int)difference;
       carry = product >>> 32;
       if ( (difference & LONG_MASK) > ( ~(int)product & LONG_MASK ) )
          carry++;
     }
+    return (int)difference;
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
   private static void copyBuffer(long[] src, long[] dst) {
@@ -510,10 +514,14 @@ public class Dividers {
 
   private static boolean greaterThanHalfOfDivisor_3(int[] remainder, int[] divisor, int offset) {
     for (int idx = 0; idx < 4; idx++) {
-      final int cmp = Integer.compareUnsigned(
-            (remainder[offset] << 1) + (remainder[++offset] >>> 31),      // Doubled remainder
-            divisor[idx]                                                              // Greater than divisor
-          );
+//      final int cmp = Integer.compareUnsigned(
+//            (remainder[offset] << 1) + (remainder[++offset] >>> 31),      // Doubled remainder
+//            divisor[idx]                                                              // Greater than divisor
+//          );
+      final int cmp = Integer.compare( // 21.06.14 18:10:02 Экономим на спичках
+          (remainder[offset] << 1) + (remainder[++offset] >>> 31) + Integer.MIN_VALUE,      // Doubled remainder
+          divisor[idx] + Integer.MIN_VALUE                                                             // Greater than divisor
+        );
       if (cmp > 0)
         return true;
       if (cmp < 0)

@@ -2,6 +2,7 @@ package com.mvohm.quadruple.test.divisionbenchmarks;
 
 import static com.mvohm.quadruple.test.AuxMethods.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -20,7 +21,7 @@ import com.mvohm.quadruple.research.Dividers;
  * @author M.Vokhmentev
  *
  */
-public class SimpleBench {
+public class SimpleBenchForProfiler {
 
   // Time to run every benchmark in seconds
   private final static double WARMUP_TIME = 5.0;
@@ -48,17 +49,26 @@ public class SimpleBench {
   private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
 
   public static void main(String[] args) {
-    new SimpleBench().run();
+    new SimpleBenchForProfiler().run();
   }
 
   private void run() {
+    say("Going to profile. press a key when ready");
+    try {
+      System.in.read();
+    } catch (final IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    say("Поехали!");
+
     initData();
     say();
 //    bdAdditionBenchmarker.execute();
 //    quadStaticAdditionBenchmarker.execute();
 //    quadInstanceAdditionBenchmarker.execute();
-    bdDivisionMeter.execute();
-    quadStaticDivision_0_Meter.execute();
+//    bdDivisionMeter.execute();
+//    quadStaticDivision_0_Meter.execute();
     quadStaticDivision_1_Meter.execute();
     quadStaticDivision_2_Meter.execute();
     quadStaticDivision_3_Meter.execute();
@@ -99,7 +109,8 @@ public class SimpleBench {
         iterationCount++;
         say_(".");
         runTime = (System.nanoTime() - startTime) / 1e9;
-      } while (runTime < during);
+      // } while (runTime < during);
+      } while (iterationCount < 5);
       say(" %s done.", iterationCount);
       final double workTime = t / ((double) DATA_SIZE * iterationCount);
       return workTime;
