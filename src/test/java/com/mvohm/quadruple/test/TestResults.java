@@ -414,7 +414,10 @@ on 3144 samples with err threshold 1.470e-39
    */
   private void checkError(DataItem expected, DataItem resultValue) {
     if (expected.getQuadValue() != null
-        && !expected.getQuadValue().equals(resultValue.getQuadValue())) { // The Quadruple values differ
+        && !expected.getQuadValue().equals(resultValue.getQuadValue())
+        && !(expected.getQuadValue().isNaN() && resultValue.getQuadValue().isNaN())
+        ) { // The Quadruple values differ
+
       sayIfVerbose_(findHexDiff(expStr, resStr));           // Print "$$$" and underline the difference in hex representations
       bitDiffCount++;
     }

@@ -1136,7 +1136,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     if (this == obj) return true;
     if (!(obj instanceof Quadruple)) return false;
     final Quadruple other = (Quadruple)obj;
-    if (isNaN() && other.isNaN())                       // NaNs are like animals: they are all equal (but some NaN are more equal than others)
+    if (isNaN() && other.isNaN())                       // NaNs are all different
       return false;
     return
        negative == other.negative                       // For Doubles, -0 != 0. Do it the same way
@@ -2098,13 +2098,16 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private static final long[] BUFFER_3x64_D   = new long[3];
 
   private static final long[] BUFFER_5x32_A   = new long[5];
+  private static final int[]  BUFFER_5x32_A_INT   = new int[5];
   private static final long[] BUFFER_5x32_B   = new long[5];
+  private static final int[] BUFFER_5x32_B_INT   = new int[5];
 
   private static final long[] BUFFER_6x32_A   = new long[6];
   private static final long[] BUFFER_6x32_B   = new long[6];
   private static final long[] BUFFER_6x32_C   = new long[6];
 
   private static final long[] BUFFER_10x32_A  = new long[10];
+  private static final int[] BUFFER_10x32_A_INT  = new int[10];
   private static final long[] BUFFER_10x32_B  = new long[10];
 
   private static final long[] BUFFER_12x32    = new long[12];
@@ -4632,6 +4635,16 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return buffer;
   } // private static long[] unpack_To5x32(long factHi, long factLo, long[] buffer) {
 
+  private static int[] unpack_To5x32(long mantHi, long mantLo, int[] buffer) {
+    // TODO 21.06.13 17:08:11
+    buffer[0] = 1;
+    buffer[1] = (int)(mantHi >>> 32);
+    buffer[2] = (int)(mantHi);
+    buffer[3] = (int)(mantLo >>> 32);
+    buffer[4] = (int)(mantLo);
+    return buffer;
+  } // private static long[] unpack_To5x32(long factHi, long factLo, long[] buffer) {
+
   protected void ____Used_By_division____() {} // Just to put a visible mark of the section in the outline view of the IDE
 
   /* **********************************************************************************
@@ -4647,7 +4660,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @param divisor the divisor to divide this instance by
    * <br>Covered
    */
-  private Quadruple divideUnsigned(Quadruple divisor) { // 20.10.17 10:26:36
+  private Quadruple divideUnsigned(Quadruple divisor) {
     if (divisor.compareMagnitudeTo(ONE) == 0)       // x / 1 = x;
       return this;
     if (compareMagnitudeTo(divisor) == 0)           // x / x = 1;
@@ -4660,7 +4673,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       return this;
 
     boolean needToDivide = true;
-    final long[] divisorBuff = BUFFER_5x32_A;
+    final int[] divisorBuff = BUFFER_5x32_A_INT;
     if (exponent != 0 & divisor.exponent != 0) {    // both are normal
       if (mantHi == divisor.mantHi && mantLo == divisor.mantLo) { // Mantissas are equal, result. mantissa = 1
         mantHi = mantLo = 0;                        // will return 2 ^ (exp1 - exp2)
@@ -4721,7 +4734,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return the exponent of the quotient, adjusted accordingly to the normalization results
    * <br>Covered
    */
-  private long normalizeAndUnpackSubnormals(long quotientExponent, Quadruple divisor, long[] divisorBuff) {
+  private long normalizeAndUnpackSubnormals(long quotientExponent, Quadruple divisor, int[] divisorBuff) {
     if (exponent == 0)                           // Dividend is subnormal
       quotientExponent -= normalizeMantissa();
 
@@ -4759,7 +4772,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * to use as an exponent correction
    * <br>Covered
    */
-  private static long normalizeAndUnpackDivisor(Quadruple divisor, long[] buffer) {
+  private static long normalizeAndUnpackDivisor(Quadruple divisor, int[] buffer) {
     long mantHi = divisor.mantHi, mantLo = divisor.mantLo;
     int shift = Long.numberOfLeadingZeros(mantHi); // the highest 1 will be the implied unity -- shift-out it
     if (shift == 64)
@@ -4785,8 +4798,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    *    128 bits of the fractional part in the lower halves of divisor[1] -- divisor[4])
    * @return (possibly adjusted) exponent of the quotient
    */
-  private long doDivide(long quotientExponent, final long[] divisor) {
-    final long[] dividend = BUFFER_10x32_A; // Will hold dividend with integer part in buff[1] and mantissa in buff[2] -- buff[5]
+  private long doDivide(long quotientExponent, final int[] divisor) {
+    final int[] dividend = BUFFER_10x32_A_INT; // Will hold dividend with integer part in buff[1] and mantissa in buff[2] -- buff[5]
     quotientExponent = unpackMantissaTo(quotientExponent, divisor, dividend);
     divideBuffers(dividend, divisor, quotientExponent); // proper division
     return quotientExponent;
@@ -4802,7 +4815,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    *   integer 1 (or up to 3 in case of doubling) in dividend[1], 4 x 32 bits of the mantissa in in dividend[2..5]
    * @return (possibly decremented) exponent of the quotient
    */
-  private long unpackMantissaTo(long quotientExponent, final long[] divisor, final long[] dividend) {
+  private long unpackMantissaTo(long quotientExponent, final int[] divisor, final int[] dividend) {
     // The mantissa of this is normalized, the normalized mantissa of the divisor is in divisorBuff
     if (compareMantissaWith(divisor) < 0) {
       unpackDoubledMantissaToBuff_10x32(dividend);
@@ -4824,9 +4837,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return a positive value if the mantissa of this instance is greater, zero if the mantissas are equal,
    *   or a negative value if the mantissa of this instance is less than the mantissa of the other Quadruple.
    */
-  private int compareMantissaWith(long[] divisor) {
-    final int cmp = Long.compareUnsigned(mantHi, (divisor[1] << 32) | divisor[2] );
-    return cmp == 0? Long.compareUnsigned(mantLo, (divisor[3] << 32) | divisor[4] ) : cmp;
+  private int compareMantissaWith(int[] divisor) {
+    final int cmp = Long.compareUnsigned(mantHi, ((long)divisor[1] << 32) | (divisor[2] & LOWER_32_BITS));
+    return cmp == 0? Long.compareUnsigned(mantLo, ((long)divisor[3] << 32) | (divisor[4] & LOWER_32_BITS)) : cmp;
   } // private int compareMantissaWith(long[] divisor) {
 
   /**
@@ -4835,13 +4848,16 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @param buffer a buffer to unpack the mantissa, at least 6 longs
    * <br>Covered
    */
-  private void unpackDoubledMantissaToBuff_10x32(long[] buffer) { //
-    Arrays.fill(buffer, 0);
-    buffer[1] = 2 + (mantHi >>> 63);
-    buffer[2] = mantHi >>> 31 & LOWER_32_BITS;
-    buffer[3] = ((mantHi << 1) + (mantLo >>> 63)) & LOWER_32_BITS;
-    buffer[4] = mantLo >>> 31 & LOWER_32_BITS;
-    buffer[5] = mantLo << 1 & LOWER_32_BITS;
+  private void unpackDoubledMantissaToBuff_10x32(int[] buffer) { //
+    buffer[0] = 0;
+    buffer[1] = (int)(2 + (mantHi >>> 63));
+    buffer[2] = (int)(mantHi >>> 31 & LOWER_32_BITS);
+    buffer[3] = (int)( ((mantHi << 1) + (mantLo >>> 63)) & LOWER_32_BITS);
+    buffer[4] = (int)(mantLo >>> 31 & LOWER_32_BITS);
+    buffer[5] = (int)(mantLo << 1 & LOWER_32_BITS);
+    // TODO 16:30 15.06.2021 А точно это нужно?
+    for (int i = 6; i < 10; i++)
+      buffer[i] = 0;
   }; // private void unpackDoubledMantissaToBuff_10x32(long[] buffer) { //
 
   /**
@@ -4850,13 +4866,15 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @param buffer a buffer to unpack the mantissa, at least 6 longs
    * <br>Covered
    */
-  private void unpackMantissaToBuff_10x32(long[] buffer) {
-    Arrays.fill(buffer, 0);
+    private void unpackMantissaToBuff_10x32(int[] buffer) {
+    buffer[0] = 0;
     buffer[1] = 1;
-    buffer[2] = mantHi >>> 32;
-    buffer[3] = mantHi & LOWER_32_BITS;
-    buffer[4] = mantLo >>> 32;
-    buffer[5] = mantLo & LOWER_32_BITS;
+    buffer[2] = (int)(mantHi >>> 32);
+    buffer[3] = (int)(mantHi & LOWER_32_BITS);
+    buffer[4] = (int)(mantLo >>> 32);
+    buffer[5] = (int)(mantLo & LOWER_32_BITS);
+    for (int i = 6; i < 10; i++)
+      buffer[i] = 0;
   } // private void unpackMantissaToBuff_10x32(long[] buffer) {
 
   /**
@@ -4873,9 +4891,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return (perhaps adjusted) exponent of the quotient
    * <br>Covered
    */
-  private void divideBuffers(long[] dividend, long[] divisor, long quotientExponent) {
-    final long[] quotientBuff = BUFFER_5x32_B;  // Will be used to hold unpacked quotient
-    final long nextBit = divideArrays(dividend, divisor, quotientBuff);    // Proper division of the arrays, returns the next bit of the quotient
+  private void divideBuffers(int[] dividend, int[] divisor, long quotientExponent) {
+    final int[] quotientBuff = BUFFER_5x32_B_INT;  // Will be used to hold unpacked quotient
+
+    final long nextBit = divideArrays(dividend, divisor, quotientBuff);
+
     packMantissaFromWords_1to4(quotientBuff);   // Pack unpacked quotient into the mantissa fields of this instance
 
     if (quotientExponent > 0           // Not rounding for subnormals, since the rounding will be done by makeSubnormal()
@@ -4901,35 +4921,45 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return the next bit of the quotient (half the LSB), to be used for rounding the result
    * <br>Covered
    */
-  private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
-    final long[] remainder = dividend;            // will contain remainder after each iteration
-    Arrays.fill(quotient, 0);
+  public static long divideArrays(int[] dividend, int[] divisor, int[] quotient) {
+    final int[] remainder = dividend;            // will contain remainder after each iteration
+//    Arrays.fill(quotient, 0);
 
-    final long divisorHigh = (divisor[0] << 32) | divisor[1];   // The most significant word of the divisor
+    final long divisorHigh = ((long)divisor[0] << 32) | (divisor[1] & LOWER_32_BITS);   // The most significant word of the divisor
     int offset = 0;                               // the index of the quotient word being computed
     quotient[offset++] = 1;                       // the integer part aka the implicit unity of the quotient is always 1
     subtractDivisor(divisor, remainder);          // Subtract divisor multiplied by 1 from the remainder
 
     // Compute the quotient by portions by 32 bits per iterations
-    if (!isEmpty(remainder))
+//    if (!isEmpty(remainder)) {
       do {
-        final long remainderHigh = (remainder[offset + 1] << 32) | remainder[offset + 2]; // The most significant 64 bits of the remainder
+        final long remainderHigh = ((long)remainder[offset + 1] << 32) | (remainder[offset + 2] & LOWER_32_BITS); // The most significant 64 bits of the remainder
+
         long quotientWord = (remainder[offset] == 0)?
             Long.divideUnsigned(remainderHigh, divisorHigh):
             divide65bits(remainder[offset], remainderHigh, divisorHigh);
 
+        if (quotientWord == 0x1_0000_0000L)
+          quotientWord--;
+
         if (quotientWord != 0) {    // Multiply divisor by quotientWord and subtract the product from the remainder, adjust quotientWord
-          multipyAndSubtract(divisor, quotientWord, offset, remainder);
-          if (remainder[0] < 0) {                         // The quotiendWord occurred to be too great
+//          final int diff = multipyAndSubtract(divisor, quotientWord, offset, remainder);
+//          if (remainder[offset + 1] < 0) {           // The quotiendWord occurred to be too great
+          if (multipyAndSubtract(divisor, quotientWord, offset, remainder) < 0) {
             quotientWord--;                               // decrease it
             addDivisorBack(divisor, remainder, offset);   // Add divisor * 1 back
           }
         }
 
-        quotient[offset++] = quotientWord;          // The next word of the quotient
-      } while (offset <= 4 && !isEmpty(remainder));        // while the 5 half-words of the quotient are not filled and the remainder !=0
+        quotient[offset++] = (int)quotientWord;          // The next word of the quotient
+      } while (offset <= 4 /* && !isEmpty(remainder) */ );    // TODO here - не ходить по всему, а проверять только ту часть, которая м.б. != 0
+//    } // (!isEmpty(remainder)) {
 
-    return findNextBitOfQuotient(remainder, divisor);
+    if (greaterThanHalfOfDivisor_3(remainder, divisor, offset))
+      return 1;
+
+    return 0;
+
   } // private static long divideArrays(long[] dividend, long[] divisor, long[] quotient) {
 
   /**
@@ -4937,13 +4967,12 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @param divisor unpacked mantissa of the divisor, 1 + 4 x 32 bits, implicit integer 1 in divisor[0]
    * @param remainder unpacked mantissa of the dividend, 2 + 8 x 32 bits, implicit integer 1 in divisor[1]
    */
-  private static void subtractDivisor(long[] divisor, long[] remainder) {
+  private static void subtractDivisor(int[] divisor, int[] remainder) {
+    long carry = 0;
     for (int i = 5; i >= 1; i--) {
-      remainder[i] -= divisor[i - 1];
-      if ((remainder[i] & HIGHER_32_BITS) != 0) {
-        remainder[i - 1]--;
-        remainder[i] &= LOWER_32_BITS;
-      }
+      final long difference = (remainder[i] & LOWER_32_BITS) - (divisor[i - 1] & LOWER_32_BITS) + carry;;
+      remainder[i] = (int)difference;
+      carry = difference >> 32;
     }
   } // private static void subtractDivisor(long[] divisor, long[] remainder) {
 
@@ -4976,11 +5005,20 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    *    defines the position of the product, that is subtracted from the remainder, relative to the latter
    * @param remainder the remainder to subtract the product from
    */
-  private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
-    offset++;
-    final long[] partialProduct = BUFFER_10x32_B;
-    multDivisorBy(divisor, quotientWord, partialProduct, offset); // multiply divisor by qW with the given offset
-    subtractProduct(partialProduct, remainder, offset);           // and subtract the product from the remainder
+  private static int multipyAndSubtract(int[] divisor, long quotientWord, int offset, int[] remainder) {
+    offset += 5;
+    long carry = 0;
+
+    long difference = 0;
+    for (int i = 4; i >= 0; i--) {
+      final long product = quotientWord * (divisor[i] & LOWER_32_BITS) + carry;
+      difference = remainder[offset] - product;
+      remainder[offset--] = (int)difference;
+      carry = product >>> 32;
+      if ( (difference & LOWER_32_BITS) > ( ~(int)product & LOWER_32_BITS) )
+         carry++;
+    }
+    return (int)difference;
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
   /**
@@ -5037,16 +5075,39 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @param remainder unpacked mantissa of the dividend, 2 + 8 x 32 bits, implicit integer 1 in divisor[1]
    * @param offset
    */
-  private static void addDivisorBack(long[] divisor, long[] remainder, int offset) {
-    offset++;
-    for (int i = 4 + offset; i >= 1; i--) {
-      remainder[i] += i < offset? 0 : divisor[i - offset];
-      if ((remainder[i] & HIGHER_32_BITS) != 0) {
-        remainder[i - 1]++;
-        remainder[i] &= LOWER_32_BITS;
-      }
+  private static void addDivisorBack(int[] divisor, int[] remainder, int offset) {
+    offset += 5;                          // Index in reminder remainder
+    long carry = 0;
+
+    for (int idx = 4; idx >= 0; idx--) {  // Index in the divisor
+      final long sum = (remainder[offset] & LOWER_32_BITS) + (divisor[idx] & LOWER_32_BITS) + carry;
+      remainder[offset--] = (int)sum;
+      carry = sum >>> 32;
     }
   } // private static void addDivisorBack(long[] divisor, long[] remainder, int offset) {
+
+
+  private static boolean greaterThanHalfOfDivisor_3(int[] remainder, int[] divisor, int offset) {
+    for (int idx = 0; idx < 4; idx++) {
+//      final int cmp = Integer.compareUnsigned(
+//            (remainder[offset] << 1) + (remainder[++offset] >>> 31),      // Doubled remainder
+//            divisor[idx]                                                              // Greater than divisor
+//          );
+      final int cmp = Integer.compare( // 21.06.14 18:10:02 Экономим на спичках
+          (remainder[offset] << 1) + (remainder[++offset] >>> 31) + Integer.MIN_VALUE,      // Doubled remainder
+          divisor[idx] + Integer.MIN_VALUE                                                             // Greater than divisor
+        );
+      if (cmp > 0)
+        return true;
+      if (cmp < 0)
+        return false;
+      }
+    final int cmp = Integer.compareUnsigned(
+        (remainder[offset] << 1),      // Doubled remainder
+        divisor[4]                                                              // Greater than divisor
+      );
+    return (cmp >= 0);
+    }
 
   /**
    * After the basic division, finds the next bit of the quotient
@@ -5073,9 +5134,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * (the integer part (implicit unity) in buffer[0], the 128 bits of fractional part in the lower halves of buffer[1] -- buffer[4]
    * <br>Covered
    */
-  private void packMantissaFromWords_1to4(long[] buffer) {
-    mantLo = buffer[4] | (buffer[3] << 32);
-    mantHi = buffer[2] | (buffer[1] << 32);
+  private void packMantissaFromWords_1to4(int[] buffer) {
+    mantLo = (buffer[4] & LOWER_32_BITS) | ((long)buffer[3] << 32);
+    mantHi = (buffer[2] & LOWER_32_BITS) | ((long)buffer[1] << 32);
   } // private void packMantissaFromWords_1to4(long[] buffer) {
 
   protected void ____Used_By_sqrt____() {} // Just to put a visible mark of the section in the outline view of the IDE
