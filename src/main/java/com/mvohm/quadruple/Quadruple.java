@@ -959,8 +959,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * {@code -8000_0000_0000_0000 0000_0000_0000_0000 e7fff_ffff}
    * @return a string containing a hexadecimal representation
    */
-  public String toHexStr() {
-    return hexStr(this);
+  public String toHexString() {
+    return hexString(this);
   } //public String toHexStr() {
 
   /**
@@ -1137,7 +1137,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     if (!(obj instanceof Quadruple)) return false;
     final Quadruple other = (Quadruple)obj;
     if (isNaN() && other.isNaN())                       // NaNs are like animals: they are all equal (but some NaN are more equal than others)
-      return true;
+      return false;
     return
        negative == other.negative                       // For Doubles, -0 != 0. Do it the same way
        && exponent == other.exponent
@@ -2781,7 +2781,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @param q1 the Quadruple instance to format
    * @return
    */
-  private static String hexStr(Quadruple q1) {
+  private static String hexString(Quadruple q1) {
     return String.format( "%s%s %s e %s", (q1.isNegative()? "-":"+"),
                   hexStr(q1.mantHi()), hexStr(q1.mantLo()),
                   hexStr(q1.exponent()));
