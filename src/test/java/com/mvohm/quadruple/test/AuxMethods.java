@@ -177,9 +177,8 @@ public class AuxMethods {
   public static String hexStr_u(long[] buffer) {
     final StringBuilder sb = new StringBuilder();
     sb.append(hexStr((int)(buffer[0] >>> 32)) + " ");
-    for (int i = 0; i < buffer.length; i += 2) { // Big-endian ++
-      final long lowerHalf = buffer.length >= i + 2 ? buffer[i+1] & LOWER_32_BITS: 0;
-      sb.append(hexStr(buffer[i] << 32 | lowerHalf) + " ");
+    for (int i = 0; i < buffer.length; i++) { // Big-endian ++
+      sb.append(hexStr((int)buffer[i]) + " ");
     }
     return sb.toString();
   } // public static String hexStr_u(long[] buffer) {
@@ -199,6 +198,15 @@ public class AuxMethods {
 		}
 		return sb.toString();
 	} // public static String hexStr_(long[] buffer) {
+
+  public static String hexStr_(int[] ints) {
+    final StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < ints.length; i++) { // Big-endian ++
+      if (sb.length() != 0) sb.append(" ");
+      sb.append(hexStr(ints[i]));
+    }
+    return sb.toString();
+  } // public static String hexStr_(long[] buffer) {
 
   /**
    * Returns a hexadecimal string representation of the given array of {@code bytes}s,

@@ -4742,7 +4742,6 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       quotientExponent += normalizeAndUnpackDivisor(divisor, divisorBuff);  // normalize and unpack
     } else                                       // Divisor is normal
       unpack_To5x32(divisor.mantHi, divisor.mantLo, divisorBuff); // just unpack
-
     return quotientExponent;
   } // private long normalizeAndUnpackSubnormals(long quotientExponent, Quadruple divisor, long[] divisorBuff) {
 
@@ -4976,6 +4975,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     }
   } // private static void subtractDivisor(long[] divisor, long[] remainder) {
 
+
   /**
    * Divides a dividend, consisting of more than 64 bits (and less than 81 bits),
    * by the given divisor, that may contain up to 33 bits.
@@ -4991,6 +4991,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     final long quotientLo = remainder / divisor;                        // The least significant 16 bits of the quotient
     return quotientHi << 16 | quotientLo;
   } // private static long divide65bits(long dividendHi, long dividendLo, long divisor) {
+
 
   /**
    * Multiplies the divisor by a newly found word of quotient,
@@ -5101,13 +5102,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
         return true;
       if (cmp < 0)
         return false;
-      }
+    }
     final int cmp = Integer.compareUnsigned(
         (remainder[offset] << 1),      // Doubled remainder
         divisor[4]                                                              // Greater than divisor
       );
     return (cmp >= 0);
-    }
+  }
 
   /**
    * After the basic division, finds the next bit of the quotient

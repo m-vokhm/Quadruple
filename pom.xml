@@ -23,7 +23,6 @@
   </properties>
   
   <dependencies>
-  
     <!-- For benchmarking, added 21.06.06 -->
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
