@@ -19,11 +19,11 @@ import com.mvohm.quadruple.Quadruple;
  * @author M.Vokhmentev
  *
  */
-public class SimpleBench {
+public class SimpleNanoBench {
 
   // Time to run every benchmark in seconds
-  private final static double WARMUP_TIME = 5.0;
-  private final static double BENCH_TIME  = 10.0;
+  private final static double WARMUP_TIME = 3.0;
+  private final static double BENCH_TIME  = 5.0;
 
   private final static int DATA_SIZE      = 250_000;
                                           // = 500_000;
@@ -47,30 +47,46 @@ public class SimpleBench {
   private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
 
   public static void main(String[] args) {
-    new SimpleBench().run();
+    new SimpleNanoBench().run();
   }
+
+  private final Benchmarker[] benchmarkers = {
+    new bigDecimal____Addition_Meter(),
+    new quadStatic____Addition_Meter(),
+    new quadInstance__Addition_Meter(),
+
+    new bigDecimal____Subtraction_Meter(),
+    new quadStatic____Subtraction_Meter(),
+    new quadInstance__Subtraction_Meter(),
+
+    new bigDecimal____Multiplication_Meter(),
+    new quadStatic____Multiplication_Meter(),
+    new quadInstance__Multiplication_Meter(),
+
+    new bigDecimal____Division_Meter(),
+    new quadStatic____Division_Meter(),
+    new quadInstance__Division_Meter(),
+  };
 
   private void run() {
     initData();
+
+    for (final Benchmarker b: benchmarkers)
+      b.execute();
+
     say();
-//    bdAdditionBenchmarker.execute();
-//    quadStaticAdditionBenchmarker.execute();
-//    quadInstanceAdditionBenchmarker.execute();
-    bdDivision_Meter.execute();
-    quadStaticDivision_Meter.execute();
+    for (final Benchmarker b: benchmarkers)
+      b.report();
 
-//    quadStaticDivision_1_Meter.execute();
-//    quadStaticDivision_2_Meter.execute();
-//    quadStaticDivision_3_Meter.execute();
-
-    quadInstanDivision_Meter.execute();
+    say();
   }
 
-
   static abstract class Benchmarker {
-    String benchmarkName;
-    double time;
+    protected String benchmarkName;
+    private double time;
     boolean needToUpdateData;
+
+    String getName() { return benchmarkName; }
 
     private void execute() {
       say(benchmarkName);
@@ -78,7 +94,7 @@ public class SimpleBench {
       runBenchmark(WARMUP_TIME);
       say_("Benchmarking:");
       time = runBenchmark(BENCH_TIME);
-      say("%s: %8.3f ns/op\n", benchmarkName, time);
+      say("Result: %8.3f ns/op\n", time);
     }
 
     private double runBenchmark(double during) {
@@ -94,7 +110,10 @@ public class SimpleBench {
         doBenchmark();
         t += System.nanoTime();
         iterationCount++;
-        say_(".");
+
+        if (iterationCount < 60) say_(".");
+        else if (iterationCount == 60) say_(" etc... ");
+
         runTime = (System.nanoTime() - startTime) / 1e9;
       } while (runTime < during);
       say(" %s done.", iterationCount);
@@ -102,43 +121,17 @@ public class SimpleBench {
       return workTime;
     }
 
+    void report() {  say("%s: %8.3f ns/op", benchmarkName, time); }
+
     abstract void doBenchmark();
+
+
 
   } // static abstract class Benchmarker {
 
-  Benchmarker bdDivision_Meter = new Benchmarker() {
-    { benchmarkName = "          BigDecimal division"; }
 
-    @Override void doBenchmark() {
-      for (int i = 0; i < DATA_SIZE; i++)
-        bdResult[i] = bdOp1[i].divide(bdOp2[i], MC_38);
-    }
-  };
-
-  Benchmarker quadStaticDivision_Meter = new Benchmarker() {
-    { benchmarkName = "  Quadruple static division  "; }
-
-    @Override void doBenchmark() {
-      for (int i = 0; i < DATA_SIZE; i++)
-        qdResult[i] = Quadruple.divide(qdOp1[i], qdOp2[i]);
-    }
-  };
-
-  Benchmarker quadInstanDivision_Meter = new Benchmarker() {
-    {
-      benchmarkName = "Quadruple instance division  ";
-      needToUpdateData = true;
-    }
-
-    @Override void doBenchmark() {
-      for (int i = 0; i < DATA_SIZE; i++)
-        qdOp1[i].divide(qdOp2[i]);
-    }
-  };
-
-
-  Benchmarker bdAddition_Meter = new Benchmarker() {
-    { benchmarkName = "        BigDecimal Addition"; }
+  class bigDecimal____Addition_Meter extends Benchmarker {
+    { benchmarkName = "              BigDecimal Addition"; }
 
     @Override void doBenchmark() {
       for (int i = 0; i < DATA_SIZE; i++)
@@ -146,8 +139,8 @@ public class SimpleBench {
     }
   };
 
-  Benchmarker quadStaticAddition_Meter = new Benchmarker() {
-    { benchmarkName = "  Quadruple static Addition"; }
+  class quadStatic____Addition_Meter  extends Benchmarker {
+    { benchmarkName = "        Quadruple static Addition"; }
 
     @Override void doBenchmark() {
       for (int i = 0; i < DATA_SIZE; i++)
@@ -155,15 +148,106 @@ public class SimpleBench {
     }
   };
 
-  Benchmarker quadInstanAddition_Meter = new Benchmarker() {
+  class quadInstance__Addition_Meter  extends Benchmarker {
     {
-      benchmarkName = "Quadruple instance Addition";
+      benchmarkName = "      Quadruple instance Addition";
       needToUpdateData = true;
     }
 
     @Override void doBenchmark() {
       for (int i = 0; i < DATA_SIZE; i++)
         qdOp1[i].add(qdOp2[i]);
+    }
+  };
+
+  class bigDecimal____Subtraction_Meter  extends Benchmarker {
+    { benchmarkName = "           BigDecimal Subtraction"; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        bdResult[i] = bdOp1[i].subtract(bdOp2[i], MC_38);
+    }
+  };
+
+  class quadStatic____Subtraction_Meter  extends Benchmarker {
+    { benchmarkName = "     Quadruple static Subtraction"; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdResult[i] = Quadruple.subtract(qdOp1[i], qdOp2[i]);
+    }
+  };
+
+  class quadInstance__Subtraction_Meter  extends Benchmarker {
+    {
+      benchmarkName = "   Quadruple instance Subtraction";
+      needToUpdateData = true;
+    }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdOp1[i].subtract(qdOp2[i]);
+    }
+  };
+
+  class bigDecimal____Multiplication_Meter  extends Benchmarker {
+    { benchmarkName = "        BigDecimal Multiplication"; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        bdResult[i] = bdOp1[i].multiply(bdOp2[i], MC_38);
+    }
+  };
+
+  class quadStatic____Multiplication_Meter  extends Benchmarker {
+    { benchmarkName = "  Quadruple static Multiplication"; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdResult[i] = Quadruple.multiply(qdOp1[i], qdOp2[i]);
+    }
+  };
+
+  class quadInstance__Multiplication_Meter  extends Benchmarker {
+    {
+      benchmarkName = "Quadruple instance Multiplication";
+      needToUpdateData = true;
+    }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdOp1[i].multiply(qdOp2[i]);
+    }
+  };
+
+
+  class bigDecimal____Division_Meter  extends Benchmarker {
+    { benchmarkName = "              BigDecimal division"; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        bdResult[i] = bdOp1[i].divide(bdOp2[i], MC_38);
+    }
+  };
+
+  class quadStatic____Division_Meter  extends Benchmarker {
+    { benchmarkName = "      Quadruple static division  "; }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdResult[i] = Quadruple.divide(qdOp1[i], qdOp2[i]);
+    }
+  };
+
+  class quadInstance__Division_Meter  extends Benchmarker {
+    {
+      benchmarkName = "    Quadruple instance division  ";
+      needToUpdateData = true;
+    }
+
+    @Override void doBenchmark() {
+      for (int i = 0; i < DATA_SIZE; i++)
+        qdOp1[i].divide(qdOp2[i]);
     }
   };
 
@@ -198,7 +282,6 @@ public class SimpleBench {
 
   public static void prepareForNextIteration() {
     copyArray(qdStorage, qdOp1);
-    say_("-");
   }
 
   private static void copyArray(Quadruple[] src, Quadruple[] dst) {
