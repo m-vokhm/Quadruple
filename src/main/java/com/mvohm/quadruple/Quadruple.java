@@ -2108,7 +2108,6 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   private static final long[] BUFFER_10x32_A  = new long[10];
   private static final int[] BUFFER_10x32_A_INT  = new int[10];
-  private static final long[] BUFFER_10x32_B  = new long[10];
 
   private static final long[] BUFFER_12x32    = new long[12];
 
@@ -4615,16 +4614,23 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       buffer[i] = (buffer[i] >>> 1) | (buffer[i - 1] & 1) << 31;
   } // private void shiftBuffRightWithoutRounding(long[] buffer) {
 
-  /** Unpacks the value of the two longs, containing 128 bits of a fractional part of the mantissa,
-   * to an "unpacked" buffer, that consists of 5 longs,
-   * the first of which contains the integer part of the mantissa, aka implicit unity (that is always 1),
-   * and the others (the items {@code buffer[1] -- buffer[4]}) contain 128 bits
-   * of the fractional part in their lower halves (bits 31 - 0),
-   * the highest 32 bits in {@code buffer[1]).
-   * @param factHi the higher 64 bits of the fractional part of the mantissa
-   * @param mantLo the lower 64 bits of the fractional part of the mantissa
-   * @param buffer the buffer to hold the unpacked mantissa, should be array of at least 5 longs
-   * @return the buffer holding the unpacked value (the same reference as passed in as the {@code buffer} parameter
+  /**
+   * Unpacks the value of the two longs, containing 128 bits of a fractional
+   * part of the mantissa, to an "unpacked" buffer, that consists of 5 longs,
+   * the first of which contains the integer part of the mantissa, aka implicit
+   * unity (that is always 1), and the others (the items
+   * {@code buffer[1] -- buffer[4]}) contain 128 bits of the fractional part in
+   * their lower halves (bits 31 - 0), the highest 32 bits in
+   * {@code buffer[1]). @param factHi the higher 64 bits of the fractional part
+   * of the mantissa
+   *
+   * @param mantLo
+   *          the lower 64 bits of the fractional part of the mantissa
+   * @param buffer
+   *          the buffer to hold the unpacked mantissa, should be array of at
+   *          least 5 longs
+   * @return the buffer holding the unpacked value (the same reference as passed
+   *         in as the {@code buffer} parameter
    */
   private static long[] unpack_To5x32(long mantHi, long mantLo, long[] buffer) {
     buffer[0] = 1;
@@ -4635,15 +4641,25 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return buffer;
   } // private static long[] unpack_To5x32(long factHi, long factLo, long[] buffer) {
 
+  /** Unpacks the value of the two longs, containing 128 bits of a fractional part of the mantissa,
+   * to an "unpacked" buffer, that consists of 5 ints,
+   * the first of which contains the integer part of the mantissa, aka implicit unity (that is always 1),
+   * and the others (the items {@code buffer[1] -- buffer[4]}) contain 128 bits
+   * of the fractional part (bits 31 - 0),
+   * the highest 32 bits in {@code buffer[1]).
+   * @param factHi the higher 64 bits of the fractional part of the mantissa
+   * @param mantLo the lower 64 bits of the fractional part of the mantissa
+   * @param buffer the buffer to hold the unpacked mantissa, should be array of at least 5 longs
+   * @return the buffer holding the unpacked value (the same reference as passed in as the {@code buffer} parameter
+   */
   private static int[] unpack_To5x32(long mantHi, long mantLo, int[] buffer) {
-    // TODO 21.06.13 17:08:11
     buffer[0] = 1;
     buffer[1] = (int)(mantHi >>> 32);
     buffer[2] = (int)(mantHi);
     buffer[3] = (int)(mantLo >>> 32);
     buffer[4] = (int)(mantLo);
     return buffer;
-  } // private static long[] unpack_To5x32(long factHi, long factLo, long[] buffer) {
+  } // private static int[] unpack_To5x32(long factHi, long factLo, int[] buffer) {
 
   protected void ____Used_By_division____() {} // Just to put a visible mark of the section in the outline view of the IDE
 
@@ -4654,7 +4670,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Divides this instance of {@code Quadruple} by the given {@code Quadruple} divisor, ignoring their signs
    * <br>Uses static arrays
-   * <b><i>BUFFER_5x32_A, BUFFER_5x32_B, BUFFER_10x32_A, BUFFER_10x32_B</i></b>
+   * <b><i>BUFFER_5x32_A_INT, BUFFER_5x32_B, BUFFER_10x32_A_INT, BUFFER_10x32_B</i></b>
    * 20.10.17 10:26:36 A new version with probable doubling of the dividend and
    * simplified estimation of the quotient digit and simplified estimation of the necessity of rounding up the result
    * @param divisor the divisor to divide this instance by
@@ -4843,18 +4859,18 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /**
    * Unpacks the mantissa of this instance into the given buffer and multiplies it by 2 (shifts left),
-   * integer part (may be up to 3) in buffer[1], fractional part in lower halves of buffer[2] -- buffer[5]
+   * integer part (may be up to 3) in buffer[1], fractional part in buffer[2] -- buffer[5]
    * @param buffer a buffer to unpack the mantissa, at least 6 longs
    * <br>Covered
    */
   private void unpackDoubledMantissaToBuff_10x32(int[] buffer) { //
+//    Arrays.fill(buffer, 0); // Manual filling a little faster
     buffer[0] = 0;
     buffer[1] = (int)(2 + (mantHi >>> 63));
     buffer[2] = (int)(mantHi >>> 31 & LOWER_32_BITS);
     buffer[3] = (int)( ((mantHi << 1) + (mantLo >>> 63)) & LOWER_32_BITS);
     buffer[4] = (int)(mantLo >>> 31 & LOWER_32_BITS);
     buffer[5] = (int)(mantLo << 1 & LOWER_32_BITS);
-    // TODO 16:30 15.06.2021 А точно это нужно?
     for (int i = 6; i < 10; i++)
       buffer[i] = 0;
   }; // private void unpackDoubledMantissaToBuff_10x32(long[] buffer) { //
@@ -4865,7 +4881,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @param buffer a buffer to unpack the mantissa, at least 6 longs
    * <br>Covered
    */
-    private void unpackMantissaToBuff_10x32(int[] buffer) {
+  private void unpackMantissaToBuff_10x32(int[] buffer) {
+//    Arrays.fill(buffer, 0); // Manual filling a little faster
     buffer[0] = 0;
     buffer[1] = 1;
     buffer[2] = (int)(mantHi >>> 32);
@@ -4881,7 +4898,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * held in the unpacked form in the {@code divisorBuff} and packs the result
    * into the fields {@code mantHi, mantLo} of this instance. Rounds the result as needed.
    * <br>Uses static arrays
-   * <b><i>BUFFER_5x32_B, BUFFER_10x32_B</i></b>
+   * <b><i>BUFFER_5x32_B_INT</i></b>
    * @param dividend a buffer of 10 longs containing unpacked mantissa of the dividend (integer 1 (or up to 3 in case of doubling) in dividend[1],
    *    the fractional part of the mantissa in the lower halves of dividend[2] -- dividend[5])
    * @param divisor a buffer of 5 longs containing unpacked mantissa of the divisor (integer part (implicit unity) in divisor[0],
@@ -4904,23 +4921,21 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   } // private void divideBuffers(long[] dividend, long[] divisor, long quotientExponent) {
 
   /**
-   * Divides an unpacked value held in the 10 longs of the {@code dividend)
-   * by the value held in the 5 longs of the {@code divisor}
-   * and fills 5 longs of the {@code quotient} with the quotient value.
+   * Divides an unpacked value held in the 10 ints of the {@code dividend}
+   * by the value held in the 5 ints of the {@code divisor}
+   * and fills 5 ints of the {@code quotient} with the quotient value.
    * All values are unpacked 129-bit values, containing integer parts
    * (implicit unities, always 1) in LSB of buff[0] (buff[1] for dividend)
    * and 128 bits of the fractional part in lower halves of buff[1] -- buff[4] (buff[2] -- buff[5] for dividend).
    * It uses the principle of the standard long division algorithm, with the difference
    * that instead of one decimal digit of the quotient at each step, the next 32 bits are calculated.
-   * <br>Uses static arrays
-   * <b><i>BUFFER_10x32_B</i></b>
    * @param dividend an unpacked value of the mantissa of the dividend (10 x 32 bits: 0, 1, dd1, dd2, dd3, dd4, 0, 0, 0, 0)
    * @param divisor an unpacked value of the mantissa of the divisor (5 x 32 bits: 1, dr1, dr2, dr3, dr4)
    * @param quotient a buffer that gets filled with the mantissa of the quotient
    * @return the next bit of the quotient (half the LSB), to be used for rounding the result
    * <br>Covered
    */
-  public static long divideArrays(int[] dividend, int[] divisor, int[] quotient) {
+  private static long divideArrays(int[] dividend, int[] divisor, int[] quotient) {
     final int[] remainder = dividend;            // will contain remainder after each iteration
 //    Arrays.fill(quotient, 0);
 
@@ -5023,53 +5038,6 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   } // private static void multipyAndSubtract(long[] divisor, long quotientWord, int offset, long[] remainder) {
 
   /**
-   * Multiplies the divisor by the 32 bits of the quotientWord with the given offset,
-   * so that <br>{@code product[i + offset] = divisor[i] * quotientWord},}<br>
-   * as if the quotientWord were the only non-zero item in a buffer containing 5 x 32 bits of a factor,
-   * and were located in buff[offset]. The result is an 'unpacked' value, i. e. contains the value
-   * in the 32 least significant bits of each long.
-   * @param divisor unpacked mantissa of the divisor, 1 + 4 x 32 bits, implicit integer 1 in divisor[0]
-   * @param quotientWord the 32 bits to multiply the divisor by
-   * @param product a buffer to hold the result, 10 longs
-   * @param offset the offset to add to the index when filling the resulting product
-   * <br>Covered
-   */
-  private static void multDivisorBy(long[] divisor, long quotientWord, long[] product, int offset) {
-    Arrays.fill(product, 0);            // Partial product
-    if (quotientWord == 1)              // Just copy
-      for (int i = 0; i < 5; i++)       // product has the most significant bit in halfword 1, product[0] is not used
-        product[i + offset] = divisor[i];
-    else {
-      for (int i = 0; i < 5; i++)
-        product[i + offset] = divisor[i] * quotientWord;   // product[offset..offset+4]
-      for (int i = 4 + offset; i >= offset; i--) {         // propagate carry
-        product[i - 1] += product[i] >>> 32;
-        product[i] &= LOWER_32_BITS;
-      }
-    }
-  } // private static void multDivisorBy(long[] divisor, long quotientWord, long[] product, int offset) {
-
-  /**
-   * Subtracts half-words of product[1] through product[4 + offset]
-   * from the corresponding half-words of the remainder.
-   * Propagates borrow from the least significant word of the result (remainder[4 + offset]) up to remainder[0].
-   * Keeps the higher half-words of the remainder empty.
-   * @param product the product to subtract from the remainder, as an unpacked 257-bit value
-   * @param remainder the remainder to subtract product from, as an unpacked 257-bit value
-   * @param offset the offset of the implied most significant word of 129-bit remainder
-   * <br>Covered
-   */
-  private static void subtractProduct(long[] product, long[] remainder, int offset) {
-    for (int i = 4 + offset; i >= 1; i--) {
-      remainder[i] -= product[i];
-      if ((remainder[i] & HIGHER_32_BITS) != 0) {
-        remainder[i - 1]--;
-        remainder[i] &= LOWER_32_BITS;
-      }
-    }
-  } // private static void subtractProduct(long[] product, long[] remainder, int offset) {
-
-  /**
    * Adds the divisor, shifted by offset words, back to remainder, to correct the remainder in case when
    * preliminarily estimated word of quotient occurred to be too great
    * @param divisor unpacked mantissa of the divisor, 1 + 4 x 32 bits, implicit integer 1 in divisor[0]
@@ -5109,25 +5077,6 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       );
     return (cmp >= 0);
   }
-
-  /**
-   * After the basic division, finds the next bit of the quotient
-   * (corresponding to 2^-129, i.e. half the least significant bit of the mantissa), to round up the quotient if this bit isn't 0.
-   * Compares the remainder with the divisor and if the remainder >= 0.5 * divisor, returns 1, otherwise returns 0.
-   * @param remainder the remainder (dividend - quotient * divisor ), unpacked (10 longs)
-   * @param divisor  the divisor, unpacked (5 longs)
-   * @return 1 if the remainder is equal to or greater than half the divisor
-   */
-  private static long findNextBitOfQuotient(long[] remainder, long[] divisor) {
-    for (int i = 0; i < divisor.length - 1; i++) {
-      final long rw = (remainder[i + 5] * 2 & LOWER_32_BITS) // a current word of the remainder multiplied by 2
-                    + (remainder[i + 6] >> 31);              // MSB of the next word as the LSB
-      if (rw > divisor[i]) return 1;
-      if (rw < divisor[i]) return 0;
-    }
-    if ((remainder[9] * 2 & LOWER_32_BITS) < divisor[4]) return 0;
-    return 1;
-  } // private static long findNextBitOfQuotient(long[] remainder, long[] divisor) {
 
   /**
    * Packs the unpacked value from words 1..4 of the given buffer into the mantissa of this instance

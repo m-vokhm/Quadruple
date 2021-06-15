@@ -514,7 +514,7 @@ public class AuxMethods {
     final BigInteger biMantHi = new BigInteger(Long.toUnsignedString(mantHi));
     final BigInteger biMantLo = new BigInteger(Long.toUnsignedString(mantLo));
 
-    if (exponent == EXP_INF) {
+    if (exponent == EXPONENT_OF_INFINITY) {
       throw new NumberFormatException("Can't convert "
                   + (((mantHi | mantLo) != 0)?  "NaN" :
                       sign?                     "NEGATIVE_INFINITY" :
@@ -663,7 +663,7 @@ public class AuxMethods {
    * @return a decimal {@code String} representation of the value of a {@code Quadruple} built of the given parts
    */
   public static String bdStr(boolean sign, long mantHi, long mantLo, int exponent) {
-    if (exponent == EXP_INF)                           // infinity or NaN
+    if (exponent == EXPONENT_OF_INFINITY)                           // infinity or NaN
       return ((mantHi | mantLo) != 0)? "NaN" : (sign)? "-Infinity" : "Infinity";
     return bd(sign, mantHi, mantLo, exponent).stripTrailingZeros().toString();
   } // public static String bdStr(boolean sign, long mantHi, long mantLo, int exponent) {
@@ -887,7 +887,7 @@ public class AuxMethods {
    * @param qValue the value to check
    */
   private static void checkNaNInfinity(Quadruple qValue) {
-    if (qValue.exponent() == EXP_INF) {
+    if (qValue.exponent() == EXPONENT_OF_INFINITY) {
       throw new NumberFormatException(String.format("Can't convert %s to BigDecimal",
                                                     (qValue.mantHi() | qValue.mantLo()) != 0? "NaN" :
                                                       qValue.isNegative()?                    "NEGATIVE_INFINITY" :

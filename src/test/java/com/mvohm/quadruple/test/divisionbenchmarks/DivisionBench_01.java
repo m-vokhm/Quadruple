@@ -62,7 +62,6 @@ public class DivisionBench_01 {
 
   private int index = 0;
 
-  private int invocationCount;
   private Blackhole bh;
 
   @Setup(Level.Trial)
