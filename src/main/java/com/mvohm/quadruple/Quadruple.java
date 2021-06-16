@@ -1597,7 +1597,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       return assignZero(divisor.negative);              // 0 / x = 0, 0 / -x = -0, etc.
     }
 
-    // This is normal number, not a zero, not an infinity, and divisor != NaN
+    // This is a normal number, not a zero, not an infinity, and divisor != NaN
     if (divisor.isInfinite())
       return assignZero(divisor.negative);              // x / Inf = 0, x / -Inf = -0
 
@@ -4950,7 +4950,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
         final long remainderHigh = ((long)remainder[offset + 1] << 32) | (remainder[offset + 2] & LOWER_32_BITS); // The most significant 64 bits of the remainder
 
         long quotientWord = (remainder[offset] == 0)?
-            Long.divideUnsigned(remainderHigh, divisorHigh):
+            // Wow! They use dynamically allocated BigIntegers for this, with their dynamically allocated MutableBigIntegers and int[] !!!
+            // Long.divideUnsigned(remainderHigh, divisorHigh):
+            divideUnsignedLongs(remainderHigh, divisorHigh):
             divide65bits(remainder[offset], remainderHigh, divisorHigh);
 
         if (quotientWord == 0x1_0000_0000L)
@@ -4990,6 +4992,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     }
   } // private static void subtractDivisor(long[] divisor, long[] remainder) {
 
+  private static long divideUnsignedLongs(long dividend, long divisor) {
+    final long dividendHi = dividend >>> 16;
+    final long remainder = (dividendHi % divisor << 16) | (dividend & 0xFFFFL);
+    return (dividendHi / divisor << 16) | (remainder / divisor);
+  }
 
   /**
    * Divides a dividend, consisting of more than 64 bits (and less than 81 bits),
@@ -5000,10 +5007,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return the quotient
    */
   private static long divide65bits(long dividendHi, long dividendLo, long divisor) {
-    final long shiftedDividend = dividendHi << 48 | dividendLo >>> 16;  // 16 bits of dividendHi and 48 bits of dividendLo
-    final long quotientHi = shiftedDividend / divisor;                  // The most significant 32 bits of the quotient
-    final long remainder = ((shiftedDividend % divisor) << 16) | (dividendLo & 0xFFFF);
+    dividendHi = dividendHi << 48 | dividendLo >>> 16;  // 16 bits of dividendHi and 48 bits of dividendLo
+    final long quotientHi = dividendHi / divisor;                  // The most significant 32 bits of the quotient
+    final long remainder = ((dividendHi % divisor) << 16) | (dividendLo & 0xFFFF);
     final long quotientLo = remainder / divisor;                        // The least significant 16 bits of the quotient
+
     return quotientHi << 16 | quotientLo;
   } // private static long divide65bits(long dividendHi, long dividendLo, long divisor) {
 

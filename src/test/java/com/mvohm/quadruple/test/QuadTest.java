@@ -101,7 +101,6 @@ public class QuadTest {
     new QuadToIEEELongsTester(),
     new QuadToIEEEBytesTester(),
 
-
   // Conversions from other types to Quadruple
     new StringToQuadTester(),             // 14 source errors testing detection of syntax errors
     new BdToQuadTester(),                 // 3 source errors testing detection of syntax errors
@@ -109,7 +108,6 @@ public class QuadTest {
     new LongToQuadTester(),
     new AssignIEEELongsTester(),
     new AssignIEEEBytesTester(),
-
 
   // Binary operations
     new InstanceAdditionTester(),

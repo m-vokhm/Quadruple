@@ -1,4 +1,4 @@
-package com.mvohm.quadruple.test.divisionbenchmarks;
+package com.mvohm.quadruple.test.benchmarks;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -28,9 +28,8 @@ import com.mvohm.quadruple.Quadruple;
 import static com.mvohm.quadruple.test.AuxMethods.*;
 
 /**
- * A simple quick-and-dirty benchmarking tool
- * for the basic arithmetic operations of the {@link Quadruple} class.
- * Depends on JMH (see https://github.com/openjdk/jmh)
+ * A simple Q&D hand-made benchmarking tool for {@link oQuadruple} arithmetic,
+ * using JMH (see https://github.com/openjdk/jmh)
  *
  * @author M.Vokhmentev
  *
@@ -40,25 +39,25 @@ import static com.mvohm.quadruple.test.AuxMethods.*;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(java.util.concurrent.TimeUnit.NANOSECONDS)
 @Fork(value = 1)
-@Warmup(iterations = 2, time = 1)
-@Measurement(iterations = 3, time = 2)
+@Warmup(iterations = 3, time = 5)
+@Measurement(iterations = 10, time = 10)
+
 public class SimpleJmhBench {
 
-  // To do BigDecimal arithmetic with the precision close to this of Quadruple
+  // To perform BigDecimal arithmetic with the precision comparable with this of Quadruple
   private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
 
-  private static final int DATA_SIZE
-                                            =  0x1_0000;  // 65_536
+  private static final int DATA_SIZE        // =  0x1_0000;  // 65_536
                                             // = 0x10_0000;  // 1 048 576
                                             // = 0x20_0000;  // 2 097 152
-                                            // = 0x40_0000;  // 4 194 304
+                                            = 0x40_0000;  // 4 194 304
                                             // = 0x80_0000;  // 8 388 608;
 
-  private static final int INDEX_MASK     = DATA_SIZE - 1;  // 0xFFFF
+  private static final int INDEX_MASK     = DATA_SIZE - 1;  // 0xFFFF for 0x10_0000 etc
   private static final int RAND_SEED      = 12345;
 
   private static final double RAND_SCALE  = 1e39; // To provide a sensible range of operands,
-                                                 // so that the actual calculations don't get bypassed
+                                                  // so that the actual calculations don't get bypassed
 
   private final BigDecimal[]
       bdOp1     = new BigDecimal[DATA_SIZE],

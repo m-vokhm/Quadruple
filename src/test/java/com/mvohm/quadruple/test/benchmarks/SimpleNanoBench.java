@@ -1,18 +1,20 @@
-package com.mvohm.quadruple.test.divisionbenchmarks;
+package com.mvohm.quadruple.test.benchmarks;
 
 import static com.mvohm.quadruple.test.AuxMethods.*;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Locale;
 import java.util.Random;
 
 import com.mvohm.quadruple.Quadruple;
 
 /**
- * A simple Q&D hand-made benchmark for divisions,
- * with good old nanoseconds,
- * to estimate the reliability of a more serious benchmark
+ * A simple Q&D hand-made benchmark tool for {@link oQuadruple} arithmetic,
+ * using good old {@link System#nanoTime() }
+ *
+ * To roughly, but quickly evaluate performance when modifying code
  *
  * Started 21.06.07 11:27:16
  *
@@ -22,13 +24,14 @@ import com.mvohm.quadruple.Quadruple;
 public class SimpleNanoBench {
 
   // Time to run every benchmark in seconds
-  private final static double WARMUP_TIME = 3.0;
-  private final static double BENCH_TIME  = 5.0;
+  private final static double WARMUP_TIME = 6.0;
+  private final static double BENCH_TIME  = 15.0;
 
-  private final static int DATA_SIZE      = 250_000;
+  private final static int DATA_SIZE      // = 0x1_0000;    // 65536;
                                           // = 500_000;
-                                          // = 1_000_000;
-                                          // = 0x20_0000;  // 2 097 152
+                                          // = 0x10_0000;   // 1_048_576
+                                          // = 0x20_0000;   // 2_097_152
+                                          = 0x40_0000;   // 4_194_304
 
   private static final int RAND_SEED      = 12345;
   private static final double RAND_SCALE  = 1e39; // To provide a sensible range of operands,
@@ -47,6 +50,7 @@ public class SimpleNanoBench {
   private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
 
   public static void main(String[] args) {
+    Locale.setDefault(Locale.US);
     new SimpleNanoBench().run();
   }
 
@@ -78,7 +82,7 @@ public class SimpleNanoBench {
     for (final Benchmarker b: benchmarkers)
       b.report();
 
-    say();
+    say("All done!");
   }
 
   static abstract class Benchmarker {
@@ -124,8 +128,6 @@ public class SimpleNanoBench {
     void report() {  say("%s: %8.3f ns/op", benchmarkName, time); }
 
     abstract void doBenchmark();
-
-
 
   } // static abstract class Benchmarker {
 
@@ -231,7 +233,7 @@ public class SimpleNanoBench {
   };
 
   class quadStatic____Division_Meter  extends Benchmarker {
-    { benchmarkName = "      Quadruple static division  "; }
+    { benchmarkName = "      Quadruple static   division"; }
 
     @Override void doBenchmark() {
       for (int i = 0; i < DATA_SIZE; i++)
@@ -241,7 +243,7 @@ public class SimpleNanoBench {
 
   class quadInstance__Division_Meter  extends Benchmarker {
     {
-      benchmarkName = "    Quadruple instance division  ";
+      benchmarkName = "    Quadruple instance   division";
       needToUpdateData = true;
     }
 

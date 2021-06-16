@@ -6,4 +6,4 @@
  * @author M.Vokhmentev
  *
  */
-package com.mvohm.quadruple.test.divisionbenchmarks;
+package com.mvohm.quadruple.test.benchmarks;
