@@ -40,14 +40,14 @@ For more details, see the
 #### Motivation
 The main goal of the project was to provide the ability to perform calculations 
 more accurately than the standard `double` allows, and at the same time 
-to do them faster than the standard `BigDecimal` can do, that may be important 
+to do them faster than the standard `BigDecimal` can do. This ability may be important 
 for some resource-intensive scientific computing and simulations.  
 
-The results below are from an average performance machine with `Java 1.8.211`
+The results below are from a mid-performance machine with `Java 1.8.211`
 when calculating over arrays of random numbers with a size of 65,536 elements.
 For measurements, the `SimpleJmhBench.java` utility included in the project was used.
 These numbers are not very useful on their own, but give an idea of ​​the performance 
-of `Quadruple` versus `BigDecimal` whose accuracy is limited to 38 decimal digits, 
+of `Quadruple` versus `BigDecimal`, whose accuracy is limited to 38 decimal digits, 
 to make their precision comparable.
 
     Benchmark                        Mode  Cnt     Score     Error  Units   Q/BD ratio
@@ -82,7 +82,7 @@ most or even all of the computations to be performed without
 creating new object instances, which gives additional benefits 
 on large amounts of data.
 
-The following digits were obtained on the same machine when calculating over 4,194,304 element arrays
+The following digits were obtained on the same machine when calculating on 4,194,304-element arrays
 
     Benchmark                        Mode  Cnt     Score     Error  Units  Q/BD Ratio
     ---------------------------------------------------------------------------------
@@ -102,7 +102,13 @@ The following digits were obtained on the same machine when calculating over 4,1
 Note the high measurement error values for `BigDecimals`, which are brought about 
 by the operation time instability caused by the high load on the garbage collector. 
 
-See also images at the bottom of this page.
+The charts below show the performance ratio in a graphical form. 
+The numbers in the charts represent millions of individual operations per second.     
+
+![Performance at arrays of 64k items](https://github.com/m-vokhm/Quadruple/blob/master/images/Performance_64k.png)
+
+![Performance at arrays of 4M items](https://github.com/m-vokhm/Quadruple/blob/master/images/Performance_4M.png)
+     
 
 
 #### Usage
@@ -135,7 +141,3 @@ They use the same data as the aforementioned standalone utility.
 For more details, see the 
 [Quadruple tests documentation](https://m-vokhm.github.io/Quadruple/src/test/javadoc/index.html)
 
-#### Performance charts
-![Performance at arrays of 64k items](https://github.com/m-vokhm/Quadruple/images/Performance_64k.png)
-![Performance at arrays of 4M items](https://github.com/m-vokhm/Quadruple/images/Performance_4M.png)
-   
