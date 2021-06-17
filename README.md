@@ -102,6 +102,8 @@ The following digits were obtained on the same machine when calculating over 4,1
 Note the high measurement error values for `BigDecimals`, which are brought about 
 by the operation time instability caused by the high load on the garbage collector. 
 
+See also images at the bottom of this page.
+
 
 #### Usage
 A simple example:
@@ -133,5 +135,7 @@ They use the same data as the aforementioned standalone utility.
 For more details, see the 
 [Quadruple tests documentation](https://m-vokhm.github.io/Quadruple/src/test/javadoc/index.html)
 
-
+#### Performance charts
+![Performance at arrays of 64k items](https://github.com/m-vokhm/Quadruple/images/Performance_64k.png)
+![Performance at arrays of 4M items](https://github.com/m-vokhm/Quadruple/images/Performance_4M.png)
    
