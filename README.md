@@ -49,20 +49,20 @@ For measurements, the SimpleJmhBench.java utility included in the project was us
 These numbers are not very useful on their own, but give an idea of ​​the performance 
 of Quadruple versus BigDecimal.
 
-  Benchmark                        Mode  Cnt     Score     Error  Units   Q/BD ratio
-  ---------------------------------------------------------------------------------
-   a1_BigDecimal___Addition        avgt   10   263.178 ±   1.097  ns/op   
-   a2_QuadStatic___Addition        avgt   10    43.435 ±   0.315  ns/op   6.059
-   a3_QuadInstance_Addition        avgt   10    34.966 ±   0.222  ns/op   7.527
-   b1_BigDecimal___Subtraction     avgt   10   277.652 ±   0.390  ns/op   
-   b2_QuadStatic___Subtraction     avgt   10    50.630 ±   0.200  ns/op   5.484
-   b3_QuadInstance_Subtraction     avgt   10    43.602 ±   0.281  ns/op   6.368
-   c1_BigDecimal___Multiplication  avgt   10   516.112 ±   1.152  ns/op   
-   c2_QuadStatic___Multiplication  avgt   10    93.112 ±   0.524  ns/op   5.543
-   c3_QuadInstance_Multiplication  avgt   10    87.104 ±   0.109  ns/op   5.925
-   d1_BigDecimal___Division        avgt   10   580.177 ±   2.633  ns/op   
-   d2_QuadStatic___Division        avgt   10   247.557 ±   0.386  ns/op   2.344
-   d3_QuadInstance_Division        avgt   10   240.569 ±   0.534  ns/op   2.412
+    Benchmark                        Mode  Cnt     Score     Error  Units   Q/BD ratio
+    ---------------------------------------------------------------------------------
+     a1_BigDecimal___Addition        avgt   10   263.178 ±   1.097  ns/op   
+     a2_QuadStatic___Addition        avgt   10    43.435 ±   0.315  ns/op   6.059
+     a3_QuadInstance_Addition        avgt   10    34.966 ±   0.222  ns/op   7.527
+     b1_BigDecimal___Subtraction     avgt   10   277.652 ±   0.390  ns/op   
+     b2_QuadStatic___Subtraction     avgt   10    50.630 ±   0.200  ns/op   5.484
+     b3_QuadInstance_Subtraction     avgt   10    43.602 ±   0.281  ns/op   6.368
+     c1_BigDecimal___Multiplication  avgt   10   516.112 ±   1.152  ns/op   
+     c2_QuadStatic___Multiplication  avgt   10    93.112 ±   0.524  ns/op   5.543
+     c3_QuadInstance_Multiplication  avgt   10    87.104 ±   0.109  ns/op   5.925
+     d1_BigDecimal___Division        avgt   10   580.177 ±   2.633  ns/op   
+     d2_QuadStatic___Division        avgt   10   247.557 ±   0.386  ns/op   2.344
+     d3_QuadInstance_Division        avgt   10   240.569 ±   0.534  ns/op   2.412
   
 The immutable nature of BigDecimal, which means the need to create a new object 
 with each arithmetic operation, combined with their usage of dynamically 
@@ -83,20 +83,20 @@ on large amounts of data.
 
 The following digits were obtained on the same machine when calculating over 4,194,304 element arrays
 
-   Benchmark                        Mode  Cnt     Score     Error  Units  Q/BD Ratio
-   ---------------------------------------------------------------------------------
-    a1_BigDecimal___Addition        avgt   10   910.662 ± 261.937  ns/op  
-    a2_QuadStatic___Addition        avgt   10    69.834 ±  21.660  ns/op  13.040
-    a3_QuadInstance_Addition        avgt   10    37.015 ±   0.083  ns/op  24.603
-    b1_BigDecimal___Subtraction     avgt   10   943.394 ± 200.669  ns/op  
-    b2_QuadStatic___Subtraction     avgt   10    77.527 ±  22.030  ns/op  12.169
-    b3_QuadInstance_Subtraction     avgt   10    45.511 ±   0.081  ns/op  20.729
-    c1_BigDecimal___Multiplication  avgt   10  1244.141 ± 327.183  ns/op  
-    c2_QuadStatic___Multiplication  avgt   10   122.723 ±  20.559  ns/op  10.138
-    c3_QuadInstance_Multiplication  avgt   10    88.910 ±   0.127  ns/op  13.993
-    d1_BigDecimal___Division        avgt   10  1287.110 ± 286.895  ns/op  
-    d2_QuadStatic___Division        avgt   10   283.074 ±  24.969  ns/op  4.547
-    d3_QuadInstance_Division        avgt   10   228.153 ±   0.287  ns/op  5.641
+    Benchmark                        Mode  Cnt     Score     Error  Units  Q/BD Ratio
+    ---------------------------------------------------------------------------------
+     a1_BigDecimal___Addition        avgt   10   910.662 ± 261.937  ns/op  
+     a2_QuadStatic___Addition        avgt   10    69.834 ±  21.660  ns/op  13.040
+     a3_QuadInstance_Addition        avgt   10    37.015 ±   0.083  ns/op  24.603
+     b1_BigDecimal___Subtraction     avgt   10   943.394 ± 200.669  ns/op  
+     b2_QuadStatic___Subtraction     avgt   10    77.527 ±  22.030  ns/op  12.169
+     b3_QuadInstance_Subtraction     avgt   10    45.511 ±   0.081  ns/op  20.729
+     c1_BigDecimal___Multiplication  avgt   10  1244.141 ± 327.183  ns/op  
+     c2_QuadStatic___Multiplication  avgt   10   122.723 ±  20.559  ns/op  10.138
+     c3_QuadInstance_Multiplication  avgt   10    88.910 ±   0.127  ns/op  13.993
+     d1_BigDecimal___Division        avgt   10  1287.110 ± 286.895  ns/op  
+     d2_QuadStatic___Division        avgt   10   283.074 ±  24.969  ns/op   4.547
+     d3_QuadInstance_Division        avgt   10   228.153 ±   0.287  ns/op   5.641
 
 Note the high measurement error values for BigDecimals, which are brought about 
 by the operation time instability caused by high load on the garbage collector. 
