@@ -44,14 +44,14 @@ import static com.mvohm.quadruple.test.AuxMethods.*;
 
 public class SimpleJmhBench {
 
-  // To perform BigDecimal arithmetic with the precision comparable with this of Quadruple
-  private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
-
-  private static final int DATA_SIZE        // =  0x1_0000;  // 65_536
+  private static final int DATA_SIZE        =  0x1_0000;  // 65_536
                                             // = 0x10_0000;  // 1 048 576
                                             // = 0x20_0000;  // 2 097 152
-                                            = 0x40_0000;  // 4 194 304
+                                            // = 0x40_0000;  // 4 194 304
                                             // = 0x80_0000;  // 8 388 608;
+
+  // To perform BigDecimal arithmetic with the precision comparable with this of Quadruple
+  private static final MathContext MC_38 = new MathContext(38, RoundingMode.HALF_EVEN);
 
   private static final int INDEX_MASK     = DATA_SIZE - 1;  // 0xFFFF for 0x10_0000 etc
   private static final int RAND_SEED      = 12345;
@@ -77,7 +77,7 @@ public class SimpleJmhBench {
   @Setup(Level.Trial)
   public void initPatterns(Blackhole bh) {
     Locale.setDefault(Locale.US);
-    say_("Data size = %,d", DATA_SIZE);
+    say_("Generating test data, size = %,d", DATA_SIZE);
     this.bh = bh;
     final Random rand = new Random(RAND_SEED); // for reproducibility
 
@@ -101,7 +101,7 @@ public class SimpleJmhBench {
       qOp1[i] = qOp1_0[i];
       qOp2[i] = qOp2[i % (DATA_SIZE / 8)]; // These don't change
     }
-    say("!");
+    say("Ready. ");
 
   }
 
@@ -212,6 +212,7 @@ public class SimpleJmhBench {
    * @throws IOException
    */
   private void run(String... args) throws IOException, RunnerException {
+    Locale.setDefault(Locale.US);
     final Options opt = new OptionsBuilder()
         .include(SimpleJmhBench.class.getSimpleName())
         .forks(1)
