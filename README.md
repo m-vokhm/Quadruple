@@ -43,11 +43,12 @@ more accurately than the standard `double` allows, and at the same time
 to do them faster than the standard `BigDecimal` can do, that may be important 
 for some resource-intensive scientific computing and simulations.  
 
-The results below are from an average performance machine with Java 1.8.211
+The results below are from an average performance machine with `Java 1.8.211`
 when calculating over arrays of random numbers with a size of 65,536 elements.
-For measurements, the SimpleJmhBench.java utility included in the project was used.
+For measurements, the `SimpleJmhBench.java` utility included in the project was used.
 These numbers are not very useful on their own, but give an idea of ​​the performance 
-of Quadruple versus BigDecimal.
+of `Quadruple` versus `BigDecimal` whose accuracy is limited to 38 decimal digits, 
+to make their precision comparable.
 
     Benchmark                        Mode  Cnt     Score     Error  Units   Q/BD ratio
     ---------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ of Quadruple versus BigDecimal.
      d2_QuadStatic___Division        avgt   10   247.557 ±   0.386  ns/op   2.344
      d3_QuadInstance_Division        avgt   10   240.569 ±   0.534  ns/op   2.412
   
-The immutable nature of BigDecimal, which means the need to create a new object 
+The immutable nature of `BigDecimal`, which means the need to create a new object 
 with each arithmetic operation, combined with their usage of dynamically 
 allocated memory while performing arithmetic operations, causes extremely 
 high load on the garbage collector during intensive calculations on large 
@@ -72,11 +73,11 @@ amounts of data.
 
 This significantly reduces the overall performance and causes instability 
 in the execution time, while the processor load can be 100% most of the time, 
-which means that the performance of other tasks 
-running on the computer during such calculations decreases.
+which means that the performance of other tasks running on the computer 
+during such calculations decreases.
 
-Quadruple does not use heap memory in arithmetic operatons, 
-and the mutable nature of Quadruple in many cases allows 
+Unlike `BgDecimal`, `Quadruple` does not use heap memory in arithmetic operations, 
+and the mutable nature of `Quadruple` in many cases allows 
 most or even all of the computations to be performed without 
 creating new object instances, which gives additional benefits 
 on large amounts of data.
@@ -98,8 +99,8 @@ The following digits were obtained on the same machine when calculating over 4,1
      d2_QuadStatic___Division        avgt   10   283.074 ±  24.969  ns/op   4.547
      d3_QuadInstance_Division        avgt   10   228.153 ±   0.287  ns/op   5.641
 
-Note the high measurement error values for BigDecimals, which are brought about 
-by the operation time instability caused by high load on the garbage collector. 
+Note the high measurement error values for `BigDecimals`, which are brought about 
+by the operation time instability caused by the high load on the garbage collector. 
 
 
 #### Usage
