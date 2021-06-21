@@ -660,7 +660,6 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     return this;
   } // public Quadruple assign(long[] value) {
 
-
   /**
    * Assigns the value of a IEEE-754 quadruple value passed in as an array
    * of two {@code long}s containing the 128 bits of the IEEE-754 quadruple to the given instance.<br>
@@ -1745,6 +1744,15 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     negative = !negative;
     return this;
   } // public Quadruple negate() {
+
+  /**
+   * Returns a new instance of {@code Quadruple} with the value of the absolute value of this instance
+   * @return a new instance of {@code Quadruple} with the value of the absolute value of this instance
+   */
+  public Quadruple abs() {
+    return new Quadruple(exponent, mantHi, mantLo);
+  } // public Quadruple abs() {
+
 
   /**
    * Returns 1 for positive values, -1 for negative values (including -0), and 0 for the positive zero value
