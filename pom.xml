@@ -127,7 +127,35 @@
         </configuration>
       </plugin>
       
+      <!-- ++ 21.06.21 16:44:21 To add source -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>      
+      
+      <!-- ++ 21.06.21 16:44:21 To add JavaDoc -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+              
+	    <plugin>  
 	      <artifactId>maven-jar-plugin</artifactId>
 	      <executions>
 	        <execution>
