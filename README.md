@@ -114,7 +114,7 @@ The numbers in the charts represent millions of individual operations per second
 #### Usage
 A simple example:
 
-       Quadruple radius = new Quadruple(5.5);  // Constructors accept double
+       Quadruple radius = new Quadruple(5.5);  // Constructors accept doubles
        System.out.println("Radius of the circle: " + radius); 
        // prints "Radius of the circle: 5.500000000000000000000000000000000000000e+00"
        radius.multiply(radius);                // r^2
@@ -122,6 +122,10 @@ A simple example:
                           radius.multiply(Quadruple.pi())); // pi*r^2
        // prints "Area of the circle:   9.503317777109124546349496234420496224688e+01"
     
+There exists a [simple matrix library](https://github.com/m-vokhm/QuadMatrix) that utilizes the `Quadruple` type. This library offers three distinct matrix classes, enabling basic operations on square matrices in three modes: a fast but less accurate mode using standard `double` arithmetic, a relatively fast and fairly accurate mode using `Quadruple`, and a highly accurate but slower mode using `BigDecimal`.
+
+
+
 #### Testing
 A simple stand-alone test utility `QuadTest.java` is included 
 in `com.mvohm.quadruple.test` package located in the `test` folder.
