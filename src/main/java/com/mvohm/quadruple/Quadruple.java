@@ -1159,6 +1159,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     result = prime * result + (int) (mantLo ^ (mantLo >>> 32));
     result = prime * result + (negative ? 1231 : 1237);
     return result;
+
   } // public int hashCode() {
 
   /**
@@ -1192,10 +1193,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     if (other.isInfinite())
       return -1;
 
-    int result;
-    if ((result = Integer.compareUnsigned(exponent, other.exponent)) != 0)
+    int result = Integer.compareUnsigned(exponent, other.exponent);
+    if (result != 0)
       return result;
-    if ((result = Long.compareUnsigned(mantHi, other.mantHi)) != 0) // If exponents are equal, compare mantissas
+    result = Long.compareUnsigned(mantHi, other.mantHi);
+    if (result != 0) // If exponents are equal, compare mantissas
       return result;
     return Long.compareUnsigned(mantLo, other.mantLo);
   } // public int compareMagnitudeTo(Quadruple other) {
@@ -3975,8 +3977,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return this instance with the new value
    */
   private Quadruple greaterPlusLowerBit(long greaterHi, long greaterLo) {
-    if ((mantLo = ++greaterLo) == 0) {
-      if ((mantHi = ++greaterHi) == 0)
+    mantLo = ++greaterLo;
+    if (mantLo == 0) {
+      mantHi = ++greaterHi;
+      if (mantHi == 0)
         exponent++;                    // If it becomes infinity, the mantissa is already 0
     } else
       mantHi = greaterHi;
