@@ -1,0 +1,5 @@
+To run tests compiled and packaged into Quadruple-<version>-tests.jar, 
+you need to go to the directory where the jar files are located and run the following command:
+
+java -cp Quadruple-1.1.1.jar;Quadruple-1.1.1-tests.jar com.mvohm.quadruple.test.QuadTest
+

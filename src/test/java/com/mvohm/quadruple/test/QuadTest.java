@@ -154,10 +154,10 @@ public class QuadTest {
   @SuppressWarnings("unused")
   static public void main(String...args) { // throws IOException { // if uses the logger
     Locale.setDefault(Locale.US);
-    if (parseArgs(args)) { // returns true of args are OK
+    if (parseArgs(args)) { // returns true if args are OK
       // A simplest "logger" (actually just a PrintStream), if needed
       // change the path to point where appropriate
-      // AuxMethods.openLog("F:/git/QuadFloat/QuadFloat/Data/wrk_20_09_28/log.txt");
+      // AuxMethods.openLog("QuadTestLog.txt");
       new QuadTest().run();
       // AuxMethods.closeLog();
     }
@@ -300,6 +300,7 @@ public class QuadTest {
   @SuppressWarnings("serial")
   static private final HashMap<ArgumentKeys, Object> COMMAND_LINE_ARGS = new HashMap<ArgumentKeys, Object>() {{
     put(ArgumentKeys.VERBOSITY, Verbosity.MEDIUM);
+//    put(ArgumentKeys.VERBOSITY, Verbosity.TALKATIVE);
     put(ArgumentKeys.RANDOM_COUNT, 3000L);
     put(ArgumentKeys.EXIT_ON_ERROR, "y");
   }};

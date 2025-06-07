@@ -25,6 +25,8 @@ import static com.mvohm.quadruple.Quadruple.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.test.TesterClasses.*;
@@ -325,6 +327,8 @@ public class SpecificTesterClasses {
    **** Testers for unary functions ************************************************
    *********************************************************************************/
 
+  private static final Pattern LARGE_NUMBER_PATTERN = Pattern.compile(".+e(\\d+)");
+
   /** A tester class to test the conversion from {@code Quadruple} to {@code String}
    * and back to {@code Quadruple}.<br>
    * Obtains the test data from {@link DataProviders#q2s2qConversionDataList()}
@@ -333,12 +337,37 @@ public class SpecificTesterClasses {
   static class QuadToStringToQuadTester extends UnaryQuadrupleFunctionTester {
 
     /** Returns the name of the tested operation, namely "{@code new Quadruple(q.toString())}". */
-    @Override protected String getName()                                  { return "new Quadruple(q.toString())"; }
+    @Override protected String getName()                                  { return "Quadruple -> String -> Quadruple"; }
 
     /** Obtains and returns a data set intended to test the conversion
      * from {@code Quadruple} to {@code String} and back to {@code Quadruple}.<br>
      * Uses {@link DataProviders#q2s2qConversionDataList()} to obtain the data. */
-    @Override protected List<String[]>  getTestDataList()                 { return q2s2qConversionDataList(); }
+    @Override protected List<String[]>  getTestDataList() {
+      final List<String[]> sourceList = q2s2qConversionDataList();
+
+      // There exist string representations of values exceeding MAX_VALUE in magnitude.
+      // They can't be converted back to the source string because
+      // they get converted to Quadruple.INFINITY, positive or negative.
+      // Catch them and replace the original string with the respective Infinity
+
+      for (final String[] ss: sourceList) {
+        if (ss[1] != null && ss[1].endsWith("Infinity")) {
+          final Matcher m = LARGE_NUMBER_PATTERN.matcher(ss[0]);
+          if (m.matches()) {
+            final String exponentString = m.group(1);
+            final long exponent = Long.parseLong(exponentString);
+            if (exponent > 646456993) {
+              if (ss[0].startsWith("-")) {
+                ss[0] = "-Infinity";
+              } else {
+                ss[0] = "Infinity";
+              }
+            }
+          }
+        }
+      }
+      return sourceList;
+    }
 
     /** Performs the tested operation, namely {@code new Quadruple(operand.toString()},
      * with the given operand, and returns its result. */

@@ -674,9 +674,9 @@ public class TestData {
     "-1.23456e-2147483649",                                     null,
 
     "// exp > Integer.MAX_VALUE, expected Infinity",            null,
-    "1.23456e2147483648",                                       null,
+    "1.23456e2147483648",                                       "Infinity", // null; // changed 2025-06-07 14:59:40
     "// exp > Integer.MAX_VALUE, negative, expected -Infinity", null,
-    "-1.23456e2147483648",                                      null,
+    "-1.23456e2147483648",                                      "-Infinity",
 
     "// exp < MIN_EXP10, expected 0",                           null,
     "1.23456e-1646457033",                                      null,

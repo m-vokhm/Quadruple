@@ -66,7 +66,8 @@ import java.util.regex.Pattern;
  * <br>
  * The biased exponent values stored in the {@code exponent} field are as following:
  *
- <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="">
+ <table class="customTable">
+   <caption>Exponent classification table</caption>
    <tr>
       <th class="colLast" scope="col">biased value</th>
       <th class="colLast" scope="col">const name</th>
@@ -1800,9 +1801,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   protected void ____Private_fields_____() {} // Just to put a visible mark of the section in the outline view of the IDE
 
   // The fields containing the value of the instance
+  /** true for negative values*/
   private boolean negative;
+  /** biased exponent */
   private int exponent;
+  /** Most significant 64 bits of mantissa (only fractional part) */
   private long mantHi;
+  /** Least significant 64 bits of mantissa */
   private long mantLo;
 
   private static final char[] ZEROS = "0000000000000000000000000000000000000000".toCharArray(); // 40 zeros
@@ -4114,8 +4119,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * <br>Covered
    */
   private Quadruple subtractNormals(long minuendLo, long minuendHi, int lesserExp) {
-    final int shift = exponent - lesserExp;             // The distance to shift the mantissa of the subtrahend
-    if (shift > 130)  {                                 // The subtrahend is too small to affect the result
+    final int shift = exponent - lesserExp;           // The distance to shift the mantissa of the subtrahend
+    if (Integer.compareUnsigned(shift, 130) > 0)  {   // The subtrahend is too small to affect the result
       mantHi = minuendHi; mantLo = minuendLo;
       return this;
     }

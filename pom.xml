@@ -6,7 +6,7 @@
   
   <groupId>com.mvohm.quadruple</groupId>
   <artifactId>Quadruple</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <name>Quadruple, 128-bit floating-point arithmetics</name>
   <url>https://github.com/m-vokhm/Quadruple</url>
   <description>128-bit floating-point arithmetics</description>
@@ -18,17 +18,18 @@
     
     <!-- For benchmarking, added 21.06.06 -->
     <jmh.version>1.29</jmh.version>
-    <uberjar.name>benchmarks</uberjar.name>
+    <!-- <uberjar.name>benchmarks</uberjar.name - left aside till the next approach -->
     
   </properties>
   
   <dependencies>
-    <!-- For benchmarking, added 21.06.06 -->
+    <!-- For benchmarking, added 21.06.06 --> 
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-core</artifactId>
       <version>${jmh.version}</version>
     </dependency>
+    
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-generator-annprocess</artifactId>
@@ -37,27 +38,11 @@
     </dependency>
 
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.${junit.jupiter.minorVersion}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.${junit.jupiter.minorVersion}</version>
-      <scope>test</scope>
-    </dependency>
-            
-    <dependency>
       <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-launcher</artifactId>
-      <version>1.${junit.jupiter.minorVersion}</version>
-      <scope>test</scope>
-    </dependency>
-            
-  </dependencies>
+      <artifactId>junit-platform-console-standalone</artifactId>
+      <version>1.10.2</version>
+      <scope>runtime</scope>
+    </dependency>  </dependencies>
   
   <build>
   
@@ -105,7 +90,7 @@
                     
         <configuration>
         
-          <skipTests>true</skipTests> <!--  TODO to speed up build process, for testing it  -->
+           <!-- <skipTests>true</skipTests>  TODO to speed up build process, for testing it  -->
           
           <includes>
             <include>**/QuadJUnitTest.java</include>
@@ -122,8 +107,8 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>17</source>
+          <target>17</target>
         </configuration>
       </plugin>
       
@@ -131,6 +116,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -143,8 +129,43 @@
       
       <!-- ++ 21.06.21 16:44:21 To add JavaDoc -->
       <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>copy-javadoc-css</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/javadoc</directory>
+                  <includes>
+                    <include>customtable.css</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <!-- compatible with old javadoc syntax: v2.9.1 --> 
+        <version>3.3.0</version> 
+        <configuration>
+          <addStylesheets>
+            <addStylesheet>customtable.css</addStylesheet>
+          </addStylesheets>
+          <additionalOptions>
+            <additionalOption>-public</additionalOption>
+          </additionalOptions>          
+        </configuration>        
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -155,68 +176,30 @@
         </executions>
       </plugin>
               
-	    <plugin>  
-	      <artifactId>maven-jar-plugin</artifactId>
-	      <executions>
-	        <execution>
-	          <id>test-jar</id>
-	          <phase>package</phase>
-	          <goals>
-	            <goal>test-jar</goal>
-	          </goals>
-	          
-				    <configuration>
-			        <archive>
-		            <manifest>
-	                <addClasspath>true</addClasspath>
-	                <classpathPrefix>libs/</classpathPrefix>
-	                <mainClass>
-	                    com.mvohm.quadruple.test.QuadTest
-	                </mainClass>
-		            </manifest>
-			        </archive>
-				    </configuration>
-	        </execution>
-        </executions>
-	    </plugin>      
-      
-      <!-- For benchmarking, added 21.06.06 -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.1</version>
+      <plugin>  
+        <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
+            <id>test-jar</id>
             <phase>package</phase>
             <goals>
-              <goal>shade</goal>
+              <goal>test-jar</goal>
             </goals>
+            
             <configuration>
-              <finalName>${uberjar.name}</finalName>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>org.openjdk.jmh.Main</mainClass>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-              </transformers>
-              <filters>
-                <filter>
-                  <!--
-                      Shading signed JARs will fail without this.
-                      http://stackoverflow.com/questions/999489/invalid-signature-file-when-attempting-to-run-a-jar
-                  -->
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
+              <archive>
+                <manifest>
+                  <addClasspath>true</addClasspath>
+                  <mainClass>
+                    com.mvohm.quadruple.test.QuadTest
+                  </mainClass>
+                </manifest>
+              </archive>
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin>      
+      
     </plugins>
     
     <pluginManagement>
