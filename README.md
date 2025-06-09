@@ -43,27 +43,27 @@ more accurately than the standard `double` allows, and at the same time
 to do them faster than the standard `BigDecimal` can do. This ability may be important 
 for some resource-intensive scientific computing and simulations.  
 
-The results below are from a mid-performance machine with `Java 1.8.211`
+The results below are from a mid-performance machine with `OpenJDK 21.0.3ф`
 when calculating over arrays of random numbers with a size of 65,536 elements.
 For measurements, the `SimpleJmhBench.java` utility included in the project was used.
 These numbers are not very useful on their own, but give an idea of ​​the performance 
 of `Quadruple` versus `BigDecimal`, whose accuracy is limited to 38 decimal digits, 
 to make their precision comparable.
 
-    Benchmark                        Mode  Cnt     Score     Error  Units   Q/BD ratio
-    ---------------------------------------------------------------------------------
-     a1_BigDecimal___Addition        avgt   10   263.178 ±   1.097  ns/op   
-     a2_QuadStatic___Addition        avgt   10    43.435 ±   0.315  ns/op   6.059
-     a3_QuadInstance_Addition        avgt   10    34.966 ±   0.222  ns/op   7.527
-     b1_BigDecimal___Subtraction     avgt   10   277.652 ±   0.390  ns/op   
-     b2_QuadStatic___Subtraction     avgt   10    50.630 ±   0.200  ns/op   5.484
-     b3_QuadInstance_Subtraction     avgt   10    43.602 ±   0.281  ns/op   6.368
-     c1_BigDecimal___Multiplication  avgt   10   516.112 ±   1.152  ns/op   
-     c2_QuadStatic___Multiplication  avgt   10    93.112 ±   0.524  ns/op   5.543
-     c3_QuadInstance_Multiplication  avgt   10    87.104 ±   0.109  ns/op   5.925
-     d1_BigDecimal___Division        avgt   10   580.177 ±   2.633  ns/op   
-     d2_QuadStatic___Division        avgt   10   247.557 ±   0.386  ns/op   2.344
-     d3_QuadInstance_Division        avgt   10   240.569 ±   0.534  ns/op   2.412
+    Benchmark                    Mode  Cnt    Score     Error  Units  Q/BD ratio
+    ----------------------------------------------------------------------------
+    BigDecimal___Addition        avgt   10  300.121  ±  2.243  ns/op 
+    QuadStatic___Addition        avgt   10   48.097  ±  0.209  ns/op  6.2
+    QuadInstance_Addition        avgt   10   32.364  ±  0.635  ns/op  9.3
+    BigDecimal___Subtraction     avgt   10  308.684  ±  1.420  ns/op  
+    QuadStatic___Subtraction     avgt   10   52.477  ±  0.559  ns/op  5.9
+    QuadInstance_Subtraction     avgt   10   38.364  ±  0.314  ns/op  8.0
+    BigDecimal___Multiplication  avgt   10  562.883  ±  5.548  ns/op  
+    QuadStatic___Multiplication  avgt   10   95.521  ±  0.766  ns/op  5.9
+    QuadInstance_Multiplication  avgt   10   76.426  ±  2.298  ns/op  7.4
+    BigDecimal___Division        avgt   10  633.257  ± 10.220  ns/op  
+    QuadStatic___Division        avgt   10  248.964  ±  2.217  ns/op  2.5
+    QuadInstance_Division        avgt   10  237.597  ±  0.931  ns/op  2.7 
   
 The immutable nature of `BigDecimal`, which means the need to create a new object 
 with each arithmetic operation, combined with their usage of dynamically 
@@ -82,22 +82,23 @@ most or even all of the computations to be performed without
 creating new object instances, which gives additional benefits 
 on large amounts of data.
 
-The following digits were obtained on the same machine when calculating on 4,194,304-element arrays
+The following digits were obtained on the same machine when calculating 
+on 4,194,304-element arrays
 
-    Benchmark                        Mode  Cnt     Score     Error  Units  Q/BD Ratio
-    ---------------------------------------------------------------------------------
-     a1_BigDecimal___Addition        avgt   10   910.662 ± 261.937  ns/op  
-     a2_QuadStatic___Addition        avgt   10    69.834 ±  21.660  ns/op  13.040
-     a3_QuadInstance_Addition        avgt   10    37.015 ±   0.083  ns/op  24.603
-     b1_BigDecimal___Subtraction     avgt   10   943.394 ± 200.669  ns/op  
-     b2_QuadStatic___Subtraction     avgt   10    77.527 ±  22.030  ns/op  12.169
-     b3_QuadInstance_Subtraction     avgt   10    45.511 ±   0.081  ns/op  20.729
-     c1_BigDecimal___Multiplication  avgt   10  1244.141 ± 327.183  ns/op  
-     c2_QuadStatic___Multiplication  avgt   10   122.723 ±  20.559  ns/op  10.138
-     c3_QuadInstance_Multiplication  avgt   10    88.910 ±   0.127  ns/op  13.993
-     d1_BigDecimal___Division        avgt   10  1287.110 ± 286.895  ns/op  
-     d2_QuadStatic___Division        avgt   10   283.074 ±  24.969  ns/op   4.547
-     d3_QuadInstance_Division        avgt   10   228.153 ±   0.287  ns/op   5.641
+    Benchmark                    Mode  Cnt    Score     Error  Units  Q/BD ratio
+    ----------------------------------------------------------------------------
+    BigDecimal___Addition        avgt   10  356.115  ± 12.128  ns/op  
+    QuadStatic___Addition        avgt   10   54.167  ±  2.190  ns/op   6.6
+    QuadInstance_Addition        avgt   10   33.499  ±  0.182  ns/op  10.6
+    BigDecimal___Subtraction     avgt   10  390.802  ± 18.310  ns/op      
+    QuadStatic___Subtraction     avgt   10   59.101  ±  2.333  ns/op   6.6
+    QuadInstance_Subtraction     avgt   10   39.990  ±  0.597  ns/op   9.8
+    BigDecimal___Multiplication  avgt   10  641.846  ± 15.363  ns/op      
+    QuadStatic___Multiplication  avgt   10  101.757  ±  4.847  ns/op   6.3
+    QuadInstance_Multiplication  avgt   10   77.441  ±  0.508  ns/op   8.3
+    BigDecimal___Division        avgt   10  714.986  ± 16.402  ns/op      
+    QuadStatic___Division        avgt   10  255.274  ±  6.486  ns/op   2.8
+    QuadInstance_Division        avgt   10  225.219  ±  1.297  ns/op   3.2
 
 Note the high measurement error values for `BigDecimals`, which are brought about 
 by the operation time instability caused by the high load on the garbage collector. 
@@ -109,7 +110,7 @@ The numbers in the charts represent millions of individual operations per second
 
 ![Performance at arrays of 4M items](https://github.com/m-vokhm/Quadruple/blob/master/images/Performance_4M.png)
      
-
+A simple set of benchmarks can be found in a [separate project](https://github.com/m-vokhm/Quadruple_benchmarks)
 
 #### Usage
 A simple example:
@@ -129,6 +130,17 @@ There exists a [simple matrix library](https://github.com/m-vokhm/QuadMatrix) th
 #### Testing
 A simple stand-alone test utility `QuadTest.java` is included 
 in `com.mvohm.quadruple.test` package located in the `test` folder.
+You can run it in an IDE, alternatively you can build the project with Maven (or download a release),
+and run the tests from a command line as follows:
+
+A simple standalone test utility `QuadTest.java` is included
+in the `com.mvohm.quadruple.test` package, located in the `test` folder.
+You can run it in an IDE, or you can build the project with Maven (or download a release),
+and run the tests from the command line as follows:
+
+    java -cp Quadruple-RV.jar;Quadruple-RV-tests.jar com.mvohm.quadruple.test.QuadTest
+    
+where `RV` stands for the release version.
 
 It uses a statically defined set of test data to provide complete coverage 
 of the code under test, as well as automatically generated data sequences 
@@ -144,4 +156,6 @@ They use the same data as the aforementioned standalone utility.
 
 For more details, see the 
 [Quadruple tests documentation](https://m-vokhm.github.io/Quadruple/src/test/javadoc/index.html)
+
+
 
