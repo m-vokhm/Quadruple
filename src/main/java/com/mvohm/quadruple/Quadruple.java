@@ -3062,7 +3062,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
      * used by {@link NumberParser#parse(String, Quadruple)}
      */
     @SuppressWarnings("serial")
-    private static final Map<String, Quadruple> QUADRUPLE_CONSTS = new HashMap<String, Quadruple>() {{
+    private static final Map<String, Quadruple> QUADRUPLE_CONSTS = new HashMap<>() {{
       put("quadruple.min_value",           MIN_VALUE);
       put("min_value",                     MIN_VALUE);
       put("quadruple.max_value",           MAX_VALUE);
@@ -4815,7 +4815,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       mantHi = (mantHi << shift) + (mantLo >>> 64 - shift);
       mantLo <<= shift;
     } else {
-      mantHi = mantLo << shift - 64;
+      if (shift == 128) {
+        mantHi = 0;
+      } else {
+        mantHi = mantLo << shift - 64;
+      }
       mantLo = 0;
     }
 

@@ -6,7 +6,7 @@
   
   <groupId>com.mvohm.quadruple</groupId>
   <artifactId>Quadruple</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <name>Quadruple, 128-bit floating-point arithmetics</name>
   <url>https://github.com/m-vokhm/Quadruple</url>
   <description>128-bit floating-point arithmetics</description>
