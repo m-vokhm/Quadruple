@@ -1690,7 +1690,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   public Quadruple sqrt() {
     if (negative) return assignNaN();
-    if (isNaN() || isInfinite()) return this;
+    if (isNaN() || isInfinite() || isZero()) return this;
 
     long absExp = (exponent & LOWER_32_BITS) - EXPONENT_BIAS; // unbiased exponent
     if (exponent == 0)                                  // subnormal
