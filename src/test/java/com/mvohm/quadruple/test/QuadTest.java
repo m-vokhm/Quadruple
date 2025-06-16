@@ -298,7 +298,7 @@ public class QuadTest {
    * Initialized with the default values of the command-line arguments.
    */
   @SuppressWarnings("serial")
-  static private final HashMap<ArgumentKeys, Object> COMMAND_LINE_ARGS = new HashMap<ArgumentKeys, Object>() {{
+  static private final HashMap<ArgumentKeys, Object> COMMAND_LINE_ARGS = new HashMap<>() {{
     put(ArgumentKeys.VERBOSITY, Verbosity.MEDIUM);
 //    put(ArgumentKeys.VERBOSITY, Verbosity.TALKATIVE);
     put(ArgumentKeys.RANDOM_COUNT, 3000L);
@@ -311,11 +311,6 @@ public class QuadTest {
    * and printed to the console when all the tests are finished.
    */
   private void run() {
-// TODO 20.10.28 11:48:25 do it like anything else, with TestResults
-//  testRandoms();
-//    say(Quadruple.pi());
-//    exit();
-
     TesterClasses.setVerbosity((Verbosity)COMMAND_LINE_ARGS.get(ArgumentKeys.VERBOSITY));
     DataProviders.setRandomCount(((Long)COMMAND_LINE_ARGS.get(ArgumentKeys.RANDOM_COUNT)).intValue());
 
