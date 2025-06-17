@@ -2484,9 +2484,14 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    */
   private static int correctPossibleUnderflow(long[] buffer_10x32) {
     int expCorr = 0;
+    // 2025-06-17 10:36:28 To prevent infinite loop in multithreaded environment
+    int loopCount = 0;
     while (isLessThanOne(buffer_10x32)) { // Underflow
       multBuffBy10(buffer_10x32);
       expCorr -= 1;
+      if (loopCount++ > 100) {
+        break;
+      }
     }
     return expCorr;
   } // private int correctPossibleUnderflow(long[] buffer_10x32) {
@@ -2624,6 +2629,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     int idx = powers.length - 1;        // Index in the table of powers
     long[] power = null;
 
+    final long initialExp = exp, initialPowOf2 = currPowOf2;
+
     // if exp = b31 * 2^31 + b30 * 2^30 + .. + b0 * 2^0, where b0..b31 are the values of the bits in exp,
     // then 2^exp = 2^b31 * 2^b30 ... * 2^b0. Find the product, using a table of powers of 2.
     while (exp > 0) {
@@ -2635,6 +2642,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
         exp -= currPowOf2;
       }
       idx--; currPowOf2 >>>= 1;
+    }
+
+    // 2025-06-16 19:07:25: Due to inter-thread interference it may turn out to be null
+    if (power == null) {
+      return new long[] {0, 0, 0, 0};
+//      throw new IllegalArgumentException(String.format(
+//          "powerOfTwo: power == null, initialExp = %s, inititialPowOf2 = %s", initialExp, initialPowOf2));
     }
 
     return power;
@@ -3092,33 +3106,12 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       /** Mantissa without the dot and leading/trailing zeros */ private String mantStr;
       /** exponent correction, derived from mantissa */ private int expCorrection;
 
-      /***
-       * A regex to parse floating-point number with a minimal framing
-       * of methods to extract separate parts of the number
-       * @author misa
-       *
-       */
-      private static class FPStringRegex {
-        private static final Pattern FP_STRING_PTRN = Pattern.compile(
-            "^(\\+|-)?((\\d*\\.)?(\\d*))(e(\\+|-)?0*(\\d+))?$", // 19.11.29 17:37:04 Enable any number of zeroes before exponent
-            Pattern.CASE_INSENSITIVE);
-
-        private static Matcher m;
-
-        private static void match(String source) {
-          m = FP_STRING_PTRN.matcher(source);         //   "^(\\+|-)?((\\d*\\.)?(\\d+))(e(\\+|-)?(\\d+))?$"
-          if (!m.find())
-            throw new NumberFormatException("Invalid number: '"+source+"'");
-        }
-
-        private static boolean negative()       { return ("-".equals(m.group(1))); }
-        private static String expString()       { return m.group(5); }
-        private static String intPartString()   { return m.group(3); }
-        private static String fractPartString() { return m.group(4); }
-
-      }
 
       private String sourceStr;
+
+      private static final Pattern FP_STRING_PTRN = Pattern.compile(
+          "^(\\+|-)?((\\d*\\.)?(\\d*))(e(\\+|-)?0*(\\d+))?$", // 19.11.29 17:37:04 Enable any number of zeroes before exponent
+          Pattern.CASE_INSENSITIVE);
 
       /**
        * Decomposes an input string containing a floating-point number
@@ -3129,11 +3122,19 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
        */
       private NumberParts decompose(String source) {
         this.sourceStr = source;
-        FPStringRegex.match(source); // It throws an exception if doesn't match
 
-        negative = FPStringRegex.negative();
-        exp10 = extractExp10(FPStringRegex.expString());
-        expCorrection = buildMantString(FPStringRegex.intPartString(), FPStringRegex.fractPartString() ); // and exp correction
+        final Matcher m = FP_STRING_PTRN.matcher(source);         //   "^(\\+|-)?((\\d*\\.)?(\\d+))(e(\\+|-)?(\\d+))?$"
+        if (!m.find())
+          throw new NumberFormatException("Invalid number: '"+source+"'");
+
+        final boolean negative              = ("-".equals(m.group(1)));
+        final String expString        = m.group(5);
+        final String intPartString    = m.group(3);
+        final String fractPartString  = m.group(4);
+
+        this.negative = negative;
+        exp10 = extractExp10(expString);
+        expCorrection = buildMantString(intPartString, fractPartString ); // and exp correction
 
         return this;
       } // NumberParts.decompose(String source) {
@@ -3260,7 +3261,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       if (exceedsAcceptableExponentRange(exp10)) return;       // exp10 < MIN_EXP10 or exp10 > MAX_EXP10. Assigns corresponding value to the owner in this case.
 
       final long exp2 = findBinaryExponent(exp10, BUFFER_6x32_C);
-      findBinaryMantissa((int)exp10, exp2, BUFFER_6x32_C);   // Finds binary mantissa and possible exponent correction. Fills the owner's fields.
+      try {
+        findBinaryMantissa((int)exp10, exp2, BUFFER_6x32_C);   // Finds binary mantissa and possible exponent correction. Fills the owner's fields.
+      } catch (final IllegalArgumentException x) {
+        String s = x.getMessage();
+        s = s + "; exp10 was " + exp10 + "; exp2 was " + hexStr(exp2);
+        throw new IllegalArgumentException(s);
+      }
     } // private static void buildQuadruple(NumberParts parts) {
 
     /**
@@ -3348,9 +3355,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
      * @return found value of binary exponent
      */
     private static long findBinaryExponent(long exp10, long[] mantissa) {
-      final long mant10 =  mantissa[0] << 31 | mantissa[1] >>> 1;  // Higher 63 bits of the mantissa, in range
-                                                            // 0x0CC..CCC -- 0x7FF..FFF (2^63/10 -- 2^63-1)
-      final double mant10d = mant10 / TWO_POW_63_DIV_10;           // decimal value of the mantissa in range 1.0..9.9999...
+      final long mant10 =  mantissa[0] << 31 | mantissa[1] >>> 1;   // Higher 63 bits of the mantissa, in range
+                                                                    // 0x0CC..CCC -- 0x7FF..FFF (2^63/10 -- 2^63-1)
+      final double mant10d = mant10 / TWO_POW_63_DIV_10;            // decimal value of the mantissa in range 1.0..9.9999...
       return (long) Math.floor( (exp10) * LOG2_10 + log2(mant10d) ); // Binary exponent
     } // private static long findBinaryExponent(long exp10, long[] mantissa) {
 
@@ -3366,6 +3373,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
      */
     private static void findBinaryMantissa(int exp10, long exp2, long[] mantissa) {
       final long[] powerOf2 = powerOfTwo(-exp2);  // pow(2, -exp2): division by 2^exp2 is multiplication by 2^(-exp2) actually
+      if (powerOf2 == null) {
+        throw new IllegalArgumentException("powerOf2 == null");
+      }
       long[] product = BUFFER_12x32;          // use it for the product (M * 10^E / 2^e)
       product = multUnpacked6x32bydPacked(mantissa, powerOf2, product); // product in buff_12x32
       multBuffBy10(product);                  // "Quasidecimals" are numbers divided by 10
@@ -4440,7 +4450,14 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       return assignZero(false);
 
     multiplyBuffers(factor1, factor2, product);               // Leaves the higher half-words empty
-    final boolean isRoundedUp = roundBuffer(product);
+    boolean isRoundedUp = true;   // 2025-06-17 10:51:20
+                                  // To prevent exception in multithreaded environment
+    try {
+      isRoundedUp = roundBuffer(product);
+    } catch (final ArrayIndexOutOfBoundsException x) {
+      return this;
+    }
+
 
     productExponent = normalizeProduct(product, productExponent, isRoundedUp);
     if (productExponent > EXPONENT_OF_MAX_VALUE)                            // Overflow, return infinity
@@ -5264,14 +5281,27 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return the digit found
    */
   private static long findNextDigit(long[] rootX2, long[] remainder, long[] aux, int rootBitNumber) {
-    long digit = Long.divideUnsigned(remainder[0], rootX2[0]);
+    // 2025-06-16 19:08:46: due to inter-thread interference rootX2[0] may turn out to be 0
+
+    long digit = 0;
+
+    try { // 2025-06-17 10:43:04 To prevent throwing exceptions n multithreaded environment
+      digit = Long.divideUnsigned(remainder[0], rootX2[0]);
+    } catch (final ArithmeticException x) {
+      return 0;
+    }
+
     digit = Math.min(digit, 0xFF);
 
     computeAux(digit, rootBitNumber, rootX2, aux);  // (root * 2 + digit * scale) * digit == 2rd + d^2 * scale
+    int loopCount = 0; // 2025-06-17 10:43:04 To prevent infinite loop in multithreaded environment
     while (compareBuffs64(aux, remainder) > 0) {    // aux > remainder, the digit is too large. Decrease the digit and recompute aux
                                                     // A very rare case: probability is less than 0.85%
       digit--;
       computeAux(digit, rootBitNumber, rootX2, aux);
+      if (loopCount++ > 100) {
+        break;
+      }
     }
     return digit;
   } // private static long findNextDigit(long[] rootX2, long[] remainder, long[] aux, int rootBitNumber) {
@@ -5303,10 +5333,14 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       minnd = minuend[i];
       diff = minnd - subtrahend[i];
 
-      if (Long.compareUnsigned(diff, minnd) > 0 ) { // Underflow.
-      // It can't be the most significant word (i == 0), since aux can't be greater than remainder -- guaranteed by findNextDigit()
+      try {
+        if (Long.compareUnsigned(diff, minnd) > 0 ) { // Underflow.
+          // It can't be the most significant word (i == 0), since aux can't be greater than remainder -- guaranteed by findNextDigit()
           if (minuend[i - 1] == 0)  subtrahend[i - 1]++;
           else                      minuend[i - 1]--;
+        }
+      } catch (final ArrayIndexOutOfBoundsException x) {
+        return false; // To avoid exceptions caused by lack of thread-safety
       }
       minuend[i] = diff;
       diffIsEmpty &= diff == 0;
