@@ -26,8 +26,8 @@ import static com.mvohm.quadruple.test.AuxMethods.*;
  */
 public class ThreadSafetyTest_02 {
 
-  // With these values and quadruples, it needs 8 GB: use -Xmx8G TODO ???
-  private final static int DATA_SIZE = 100_000; // 200_000;
+  // With these values and quadruples, it needs 6 GB: use -Xmx6G
+  private final static int DATA_SIZE = 300_000; // 200_000;
   private final static int NUMBER_OF_THREADS = 16;
   private final static int RAND_SEED = 123;
   private final static int TIMEOUT = 15;  // will awaitTermination in 30 seconds
@@ -38,24 +38,30 @@ public class ThreadSafetyTest_02 {
 
   static class ResultSet {
     int size;
+    Quadruple[] additionResults;
+    Quadruple[] subtractionResults;
     Quadruple[] multiplicationResults;
     Quadruple[] divisionResults;
     Quadruple[] sqrtResults;
     Quadruple[] parseResults;
     String[] toStringResults;
+
     enum OPCODES {
-      MULTIPLICATIOIN, DIVISION, SQRT, PARSE, TOSTRING,
+      ADDITION, SUBTRACTION, MULTIPLICATIOIN, DIVISION, SQRT, PARSE, TOSTRING,
     };
+
     List<OPCODES> operations;
     String signature = "";
 
     ResultSet(int size) {
       this.size = size;
+      additionResults       = new Quadruple[size];
+      subtractionResults    = new Quadruple[size];
       multiplicationResults = new Quadruple[size];
-      divisionResults = new Quadruple[size];
-      sqrtResults = new Quadruple[size];
-      parseResults = new Quadruple[size];
-      toStringResults = new String[size];
+      divisionResults       = new Quadruple[size];
+      sqrtResults           = new Quadruple[size];
+      parseResults          = new Quadruple[size];
+      toStringResults       = new String[size];
 
       // To provide different order of performing operations
       operations = Arrays.asList(OPCODES.values());
@@ -69,10 +75,14 @@ public class ThreadSafetyTest_02 {
       }
       for(final OPCODES opcode: operations) {
         switch (opcode) {
-          case DIVISION:
-            performDivisions(); break;
+          case ADDITION:
+            performAdditions(); break;
+          case SUBTRACTION:
+            performSubtractions(); break;
           case MULTIPLICATIOIN:
             performMultiplications(); break;
+          case DIVISION:
+            performDivisions(); break;
           case SQRT:
             performSqrt(); break;
           case PARSE:
@@ -81,6 +91,20 @@ public class ThreadSafetyTest_02 {
             performToString(); break;
         }
       }
+    }
+
+    private void performAdditions() {
+      for (int i = 0; i < size; i++) {
+        additionResults[i] = Quadruple.add(args1[i], args2[i]);
+      }
+      say(signature + " done addition");
+    }
+
+    private void performSubtractions() {
+      for (int i = 0; i < size; i++) {
+        subtractionResults[i] = Quadruple.subtract(args1[i], args2[i]);
+      }
+      say(signature + " done subtraction");
     }
 
     private void performMultiplications() {
@@ -116,6 +140,22 @@ public class ThreadSafetyTest_02 {
         toStringResults[i] = args1[i].toString();
       }
       say(signature + " done toString()");
+    }
+
+    public int verifyAdditionResults(Quadruple[] additionResults2) {
+      final int errorCount = compareArtrays(additionResults, additionResults2);
+      if (errorCount != 0) {
+        say("Addition errors:       %-6s", errorCount);
+      }
+      return errorCount;
+    }
+
+    public int verifySubtractionResults(Quadruple[] subtractionResults2) {
+      final int errorCount = compareArtrays(subtractionResults, subtractionResults2);
+      if (errorCount != 0) {
+        say("Subtraction errors:    %-6s", errorCount);
+      }
+      return errorCount;
     }
 
     public int verifyMultiplicationResults(Quadruple[] multiplicationResults2) {
@@ -315,6 +355,8 @@ public class ThreadSafetyTest_02 {
 
   private static int verify(ResultSet result, ResultSet model) {
     int errors = 0;
+    errors += model.verifyAdditionResults(result.additionResults);
+    errors += model.verifySubtractionResults(result.subtractionResults);
     errors += model.verifyMultiplicationResults(result.multiplicationResults);
     errors += model.verifyDivisionResults(result.divisionResults);
     errors += model.verifySqrtResults(result.sqrtResults);
