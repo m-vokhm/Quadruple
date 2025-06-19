@@ -31,8 +31,12 @@ with a new one. The new value can be passed in as an argument of type `Quadruple
 either as a value of another numeric type, or as a `String` representing a decimal number
 in standard notation. Some special notations, such as "Quadruple.NaN", are also admittable.
 
-***The class is not thread safe.*** Different threads should not simultaneously perform
-operations even with different instances of the class.
+***The class is conditionally thread-safe.***
+While instances are mutable, concurrent use of the same instance is unsafe when performing 
+operations that modify its internal state. Read-only operations 
+(such as toString() or bigDecimalValue()) can be safely called from multiple threads, 
+provided no thread is modifying the instance at the same time.
+Using different instances in different threads is always safe.
 
 For more details, see the 
 [Quadruple class documentation](https://m-vokhm.github.io/Quadruple/src/main/javadoc/index.html)

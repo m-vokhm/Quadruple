@@ -33,7 +33,7 @@ import com.mvohm.quadruple.test.TesterClasses.Verbosity;
   against the single-threaded baseline to ensure consistency and correctness.
   */
 
-public class ThreadSafetyTester extends QuadTester{
+public class ThreadSafetyTester extends QuadTester {
 
   private static final int RAND_SEED = 12345;
   private static final int TIMEOUT = 15; // Allow to run for 15 s
