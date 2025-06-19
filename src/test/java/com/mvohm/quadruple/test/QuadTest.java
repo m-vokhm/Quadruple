@@ -75,6 +75,9 @@ on 70209 samples with err threshold 1.470e-39
  */
 public class QuadTest {
 
+//  private static final Verbosity DEFAULT_VERBOSITY = Verbosity.TALKATIVE;
+  private static final Verbosity DEFAULT_VERBOSITY = Verbosity.MEDIUM;
+
   private static final String USAGE = "\nTests the operations of the Quadruple class.\n"
       + "Usage:\n"
       + "  java QuadTest [-v:verbosity] [-r:randCount] [-x:exitMode]\n"
@@ -86,6 +89,10 @@ public class QuadTest {
       + "  exitMode:  \"y\" -- stop running tests and exit immediately if one of the tests ends with errors\n"
       + "             \"n\" -- to continue testing regardless of errors encountered\n"
       + "";
+
+  /** The size of data arrays for ThreadSafetyTester */
+  private static final int DATA_SIZE = 200_000;
+  private static final int NUMBER_OF_THREADS = 16;
 
   /**
    * A static array containing the testers for all operations that need to be tested
@@ -131,6 +138,7 @@ public class QuadTest {
   // Unary operation
     new StaticSqrtTester(),
     new InstanceSqrtTester(),       // 37 total source errors
+    new ThreadSafetyTester(DATA_SIZE, NUMBER_OF_THREADS),
 
   };
 
@@ -299,7 +307,7 @@ public class QuadTest {
    */
   @SuppressWarnings("serial")
   static private final HashMap<ArgumentKeys, Object> COMMAND_LINE_ARGS = new HashMap<>() {{
-    put(ArgumentKeys.VERBOSITY, Verbosity.MEDIUM);
+    put(ArgumentKeys.VERBOSITY, DEFAULT_VERBOSITY);
 //    put(ArgumentKeys.VERBOSITY, Verbosity.TALKATIVE);
     put(ArgumentKeys.RANDOM_COUNT, 3000L);
     put(ArgumentKeys.EXIT_ON_ERROR, "y");
@@ -323,8 +331,11 @@ public class QuadTest {
            && toStopOnError )
         break;
     }
+
     say("======");
     say(totalResults.getReport(totalResults.getSummaryTestName()));
+    say("======");
+    say("Done.");
   }
 
 }

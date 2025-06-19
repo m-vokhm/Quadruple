@@ -144,6 +144,13 @@ public class TestResults {
 		errThreshold = threshold;
 	}
 
+  public TestResults(Verbosity verbosity, int dataSize) {
+    this.verbosity = verbosity;
+    errThreshold = 0;
+    sampleCount = dataSize;
+  }
+
+
   /**
    * Registers the result of a test of an operation on a single data instance for unary operations.<br>
    *
@@ -571,6 +578,11 @@ on 3144 samples with err threshold 1.470e-39
   private void sayIfVerbose_(Object o) {
 	  if (verbosity == Verbosity.TALKATIVE)
 	    AuxMethods.say_(o);
+  }
+
+
+  public void setErrorCount(int totalErrorCount) {
+    errCount = totalErrorCount;
   }
 
 }

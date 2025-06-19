@@ -51,7 +51,7 @@ public class TesterClasses {
    * and there may be a special record that is a command to quit testing.
    * Such records are processed in a special way.
    */
-  private static enum DataKinds {
+  public static enum DataKinds {
     COMMENT, DATA, SIGNAL_TO_QUIT
   };
 
@@ -83,6 +83,10 @@ public class TesterClasses {
       verbosity = Verbosity.MEDIUM; // default
     else
       verbosity = verbosityValue;
+  }
+
+  public static Verbosity getVerbosity() {
+    return verbosity;
   }
 
   /**
@@ -197,7 +201,7 @@ public class TesterClasses {
      */
     private TestResults doTest(List<String[]> testData) {
       // if (TesterClasses.verbosity != Verbosity.SILENT)
-        say(getHeader());
+      say(getHeader());
 
       results = new TestResults(getThreshold(), verbosity);
 

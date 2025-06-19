@@ -40,6 +40,13 @@ import static com.mvohm.quadruple.test.AuxMethods.say;
 @TestInstance(Lifecycle.PER_CLASS)
 public class QuadJUnitTest {
 
+  /** The size of data arrays (that is the number of operations of each kind)
+   * performed in every thread by the ThreadSafetyTester */
+  private final static int DATA_SIZE = 200_000;
+  /** The number of threads to be concurrently run by the
+   * performed in every thread by the ThreadSafetyTester */
+  private final static int NUMBER_OF_THREADS = 16;
+
   private static final TestResults totalResults = new TestResults(Consts.NORM_ERR_THRESH, Verbosity.SILENT);
 
   /**
@@ -511,6 +518,24 @@ public class QuadJUnitTest {
   @Test
   public void testAssignIEEEBytes() {
     final TestResults results = new AssignIEEEBytesTester().test();
+    totalResults.register(results);
+    assertArrayEquals( new int[] {
+          results.getErrorCount(),
+          results.getBitDifferenceCount(),
+          results.getSourceErrorCount() },
+        new int[] {0, 0, 0}
+    );
+  } // public void testAssignIEEEBytes() {
+
+  /**
+   * Tests thread-safety of Quadruples.<br>
+   * Creates an instance of {@link ThreadSafetyTester}, calls its {@link QuadTester#test()} method,
+   * and verifies that the {@link TestResults} instance returned by it
+   * does not indicate errors/
+   */
+  @Test
+  public void testThreadSafety() {
+    final TestResults results = new ThreadSafetyTester(DATA_SIZE, NUMBER_OF_THREADS).test();
     totalResults.register(results);
     assertArrayEquals( new int[] {
           results.getErrorCount(),
