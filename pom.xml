@@ -14,7 +14,11 @@
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <junit.version>5.10.2</junit.version>
     <junit.jupiter.minorVersion>2.0</junit.jupiter.minorVersion>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
     <!-- For benchmarking, added 21.06.06 -->
     <jmh.version>1.29</jmh.version>
@@ -43,7 +47,17 @@
       <artifactId>junit-platform-console-standalone</artifactId>
       <version>1.10.2</version>
       <scope>test</scope>
-    </dependency>  </dependencies>
+    </dependency>  
+    
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.22.0</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+    
   
   <build>
   
@@ -82,6 +96,7 @@
             <artifactId>junit-platform-surefire-provider</artifactId>
             <version>1.0.0</version>
           </dependency>
+          
           <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>

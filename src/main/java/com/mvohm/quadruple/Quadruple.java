@@ -436,7 +436,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       if ((dobleAsLong & DOUBLE_MANT_MASK) == 0)        // Infinity
         mantHi = 0;
       else                                              // NaN
-        mantHi = DOUBLE_SIGN_MASK;
+        mantHi = HIGH_BIT;
       return this;
     }
 
@@ -5450,7 +5450,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * @return factor1, whose mantissa is replaced with the product
    */
   private static long[] multPacked3x64(long[] factor1, long[] factor2) {
-    long[] product = multPacked3x64_simply(factor1, factor2);
+    final long[] product = multPacked3x64_simply(factor1, factor2);
     return pack_12x32_to_3x64(product, factor1);
   } // private static long[] multPacked3x64(long[] factor1, long[] factor2) {
 
