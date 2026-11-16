@@ -66,9 +66,13 @@ public class CreationTest {
         .withFailMessage("Quadruple created from NaN must be NaN")
         .isTrue();
     } else {
-      assertThat(q.doubleValue())
-        .withFailMessage("Value restored from Quadruple (%s) differs from source double %s", q.doubleValue(), value)
-        .isEqualTo(value);
+      // Compare bit patterns: AssertJ's isEqualTo(double) treats 0.0 and -0.0 as equal
+      final double restored = q.doubleValue();
+      assertThat(Double.doubleToRawLongBits(restored))
+        .withFailMessage("Value restored from Quadruple (%s, 0x%016X) differs from source double %s (0x%016X)",
+                         restored, Double.doubleToRawLongBits(restored),
+                         value, Double.doubleToRawLongBits(value))
+        .isEqualTo(Double.doubleToRawLongBits(value));
     }
   }
 

@@ -17,8 +17,7 @@
 1. **Переписать тесты** (текущий фокус — на другие задачи пока не отвлекаемся).
    - Старые тесты в `src/test/java/com/mvohm/quadruple/test` работают и, видимо, покрывают все случаи.
      Пока их не анализируем; позже будем брать оттуда наборы тестовых данных.
-   - Заготовка новых тестов — `src/test/java/com/mvohm/quadruple/junit`.
-     Новые тесты переносим в `src/test/java/com/mvohm/quadruple/` (тот же пакет, что у тестируемого класса, как принято).
+   - Новые тесты — в `src/test/java/com/mvohm/quadruple/` (тот же пакет, что у тестируемого класса).
 2. **Рефакторинг `Quadruple`.** Сейчас API и вся функциональность в одном классе. Выделить package-private классы
    с реализацией, отделив её от API. Эту же реализацию использовать в immutable-варианте класса
    (сейчас он в другом проекте и представляет собой просто обёртку над `Quadruple`).
@@ -36,7 +35,8 @@ src/test/java/com/mvohm/quadruple/
   testutil/      — эталонные вычисления (BigDecimal), проверка точности
 ```
 
-Классы: `CreationTest` (конструкторы + `assign`, кроме строк), `StringParsingTest`, `ConversionTest`,
+Классы: `CreationTest` (конструкторы, кроме строкового), `AssignTest` (`assign(...)` со всеми типами,
+в т.ч. на «грязном» экземпляре), `StringParsingTest`, `ConversionTest`,
 `ToStringTest`, `ComparisonTest`, арифметика по операциям (`AddSubTest`, `MultiplyTest`, `DivideTest`),
 `SqrtTest`, `SpecialValuesTest`, `ConstantsTest`, `ThreadSafetyTest` (`@Tag("slow")`).
 
@@ -48,15 +48,16 @@ src/test/java/com/mvohm/quadruple/
   строгое совпадение с правильно округлённым значением.
 - Случайные данные: свой `Random` с фиксированным seed на каждый набор; распределение по битам/экспоненте,
   а не равномерное по диапазону. Объём — через системное свойство (быстрый прогон по умолчанию).
-- Падающие тесты не подгонять: `@Disabled("см. BUG-xx")` + список багов (вход для задачи 4).
-- Порядок: перенос → testutil → генераторы → Creation → Conversion → Comparison → SpecialValues →
-  Arithmetic → Sqrt → StringParsing/ToString.
+- Падающие тесты не подгонять: `@Disabled("BUG-xx ...")` + запись в `KNOWN_ISSUES.md` (в корне, коммитится; вход для задачи 4).
+- Порядок: перенос → генераторы → Creation → AssignTest → testutil (BigDecimal) →
+  Conversion → Comparison → SpecialValues → Arithmetic → Sqrt → StringParsing/ToString.
 
 ## Структура
 
 - `src/main/java` — код библиотеки.
 - `src/test/java/com/mvohm/quadruple/test` — старая подсистема тестирования.
-- `src/test/java/com/mvohm/quadruple/junit` — заготовка новых JUnit-тестов (переезжает в `com.mvohm.quadruple`).
+- `src/test/java/com/mvohm/quadruple/*Test.java`, `testdata/` — новые JUnit-тесты.
+- `KNOWN_ISSUES.md` — подтверждённые баги (BUG-xx).
 - Ветка `newTests` — разработка новой подсистемы тестирования на замену старой.
 - Зависимости тестов: JUnit 5, AssertJ; бенчмарки — JMH.
 
