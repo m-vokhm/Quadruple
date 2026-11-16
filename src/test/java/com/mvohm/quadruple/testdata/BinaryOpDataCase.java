@@ -1,4 +1,4 @@
-package com.mvohm.quadruple.junit.data;
+package com.mvohm.quadruple.testdata;
 
 public record BinaryOpDataCase<T1, T2, R>(
     T1 left,

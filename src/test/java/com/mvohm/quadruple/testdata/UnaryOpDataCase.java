@@ -1,4 +1,4 @@
-package com.mvohm.quadruple.junit.data;
+package com.mvohm.quadruple.testdata;
 
 public record UnaryOpDataCase<T, R>(
     T operand,

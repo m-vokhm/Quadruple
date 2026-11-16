@@ -1,4 +1,4 @@
-package com.mvohm.quadruple.junit;
+package com.mvohm.quadruple;
 
 public class StaticArithmeticTest {
 

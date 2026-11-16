@@ -1,4 +1,4 @@
-package com.mvohm.quadruple.junit.data.generators;
+package com.mvohm.quadruple.testdata.generators;
 
 import java.util.Random;
 import java.util.stream.DoubleStream;

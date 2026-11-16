@@ -1,4 +1,4 @@
-package com.mvohm.quadruple.junit;
+package com.mvohm.quadruple;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,7 +56,7 @@ public class CreationTest {
    * passed to the constructor, including special values and signed zero.
    */
   @ParameterizedTest
-  @MethodSource("com.mvohm.quadruple.junit.data.CreationData#doubleValuesForCreation")
+  @MethodSource("com.mvohm.quadruple.testdata.CreationData#doubleValuesForCreation")
   @DisplayName("Constructor taking double should preserve exact value")
   void shouldCreateExactValueFromDouble(double value) {
     final Quadruple q = new Quadruple(value);
@@ -77,7 +77,7 @@ public class CreationTest {
    * the exact numeric value of the source operand.
    */
   @ParameterizedTest
-  @MethodSource("com.mvohm.quadruple.junit.data.CreationData#longValuesForCreation")
+  @MethodSource("com.mvohm.quadruple.testdata.CreationData#longValuesForCreation")
   @DisplayName("Constructor taking long should preserve exact value")
   void shouldCreateExactValueFromLong(long value) {
     final Quadruple q = new Quadruple(value);

@@ -15,10 +15,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>5.10.2</junit.version>
-    <junit.jupiter.minorVersion>2.0</junit.jupiter.minorVersion>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
     <!-- For benchmarking, added 21.06.06 -->
     <jmh.version>1.29</jmh.version>
@@ -42,12 +40,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- JUnit 5 aggregate: jupiter-api, jupiter-params, jupiter-engine -->
     <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-console-standalone</artifactId>
-      <version>1.10.2</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
-    </dependency>  
+    </dependency>
     
     <dependency>
       <groupId>org.assertj</groupId>
@@ -89,34 +88,22 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        
-        <dependencies>
-          <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>1.0.0</version>
-          </dependency>
-          
-          <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.${junit.jupiter.minorVersion}</version>
-          </dependency>
-        </dependencies>  
-                    
+        <!-- Surefire 3.x detects JUnit 5 by itself, no provider dependencies needed -->
+
         <configuration>
-        
+
            <!-- <skipTests>true</skipTests>  TODO to speed up build process, for testing it  -->
-          
+
+          <!-- New tests: com.mvohm.quadruple.*Test;
+               old tests: run via their JUnit wrapper QuadJUnitTest only -->
           <includes>
-            <include>**/QuadJUnitTest.java</include>
+            <include>**/*Test.java</include>
           </includes>
-          
+
           <excludes>
-            <exclude>%regex[Test.+]</exclude>
-            <exclude>**/QuadTest.java</exclude>
-          </excludes>          
-           
+            <exclude>**/QuadTest.java</exclude>   <!-- old tests, main()-based, not JUnit -->
+          </excludes>
+
         </configuration>
       </plugin>
       
@@ -233,7 +220,7 @@
       
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.19</version>
+          <version>3.2.5</version>
         </plugin>
         
         <plugin>

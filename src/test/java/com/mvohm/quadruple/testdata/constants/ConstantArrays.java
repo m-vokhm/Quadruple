@@ -1,4 +1,4 @@
-package com.mvohm.quadruple.junit.data.constants;
+package com.mvohm.quadruple.testdata.constants;
 
 import com.mvohm.quadruple.Quadruple;
 

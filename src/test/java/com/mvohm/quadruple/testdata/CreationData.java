@@ -1,11 +1,11 @@
-package com.mvohm.quadruple.junit.data;
+package com.mvohm.quadruple.testdata;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
 import java.util.stream.DoubleStream;
 
-import static com.mvohm.quadruple.junit.data.constants.ConstantArrays.*;
-import static com.mvohm.quadruple.junit.data.generators.RandomGenerator.*;
+import static com.mvohm.quadruple.testdata.constants.ConstantArrays.*;
+import static com.mvohm.quadruple.testdata.generators.RandomGenerator.*;
 
 public class CreationData {
 

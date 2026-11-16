@@ -5,3 +5,6 @@
 /.settings/
 /Data/
 /pom.backup2.xml
+
+# Claude work journal (not committed)
+/Claude/
