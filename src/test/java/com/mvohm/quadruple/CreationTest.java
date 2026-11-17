@@ -9,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.mvohm.quadruple.Quadruple;
+import com.mvohm.quadruple.testdata.QuadParts;
 
 public class CreationTest {
 
@@ -88,6 +89,34 @@ public class CreationTest {
     assertThat(q.longValue())
       .withFailMessage("Value restored from Quadruple (%d) differs from source long %d", q.longValue(), value)
       .isEqualTo(value);
+  }
+
+  /**
+   * Verifies that the constructor taking low-level parts stores them in the fields as they are.
+   * The {@code exponent} argument is the biased exponent (see BUG-02 about the documentation).
+   */
+  @ParameterizedTest
+  @MethodSource("com.mvohm.quadruple.testdata.AssignData#rawPartsForAssign")
+  @DisplayName("Constructor taking (boolean, int, long, long) should store the parts as they are")
+  void shouldCreateFromParts(QuadParts p) {
+    final Quadruple q = new Quadruple(p.negative(), p.exponent(), p.mantHi(), p.mantLo());
+    assertThat(new QuadParts(q.isNegative(), q.exponent(), q.mantHi(), q.mantLo()))
+      .as("Fields of new Quadruple(%s)", p)
+      .isEqualTo(p);
+  }
+
+  /**
+   * Verifies that the constructor taking (int, long, long) stores the parts in the fields
+   * as they are and creates a positive value.
+   */
+  @ParameterizedTest
+  @MethodSource("com.mvohm.quadruple.testdata.AssignData#rawPartsForAssign")
+  @DisplayName("Constructor taking (int, long, long) should store the parts as they are, with positive sign")
+  void shouldCreatePositiveFromParts(QuadParts p) {
+    final Quadruple q = new Quadruple(p.exponent(), p.mantHi(), p.mantLo());
+    assertThat(new QuadParts(q.isNegative(), q.exponent(), q.mantHi(), q.mantLo()))
+      .as("Fields of new Quadruple(int, long, long) with %s", p)
+      .isEqualTo(new QuadParts(false, p.exponent(), p.mantHi(), p.mantLo()));
   }
 
 }

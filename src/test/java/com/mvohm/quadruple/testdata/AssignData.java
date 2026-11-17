@@ -70,6 +70,47 @@ public class AssignData {
     return CreationData.longValuesForCreation();
   }
 
+  private static final int RAW_PARTS_RANDOM_COUNT = 1000;
+
+  /** Exponents (as stored in the field, i.e. biased) to combine with {@link #EDGE_MANTISSAS} */
+  private static final int[] EDGE_EXPONENTS = {
+      0,                                // zero / subnormal
+      1,                                // lowest normal
+      EXPONENT_OF_ONE,                  // 0x7FFF_FFFF
+      EXPONENT_OF_ONE + 1,              // 0x8000_0000, == Integer.MIN_VALUE as int
+      (int)EXPONENT_OF_MAX_VALUE,       // 0xFFFF_FFFE
+      EXPONENT_OF_INFINITY,             // 0xFFFF_FFFF, NaN / infinity
+  };
+
+  /** Pairs {mantHi, mantLo} to combine with {@link #EDGE_EXPONENTS} */
+  private static final long[][] EDGE_MANTISSAS = {
+      { 0, 0 },
+      { 0, 1 },
+      { 0x8000_0000_0000_0000L, 0 },
+      { -1L, -1L },
+  };
+
+  /**
+   * Returns low-level parts of Quadruple values for tests of {@code assign(boolean, int, long, long)}
+   * and similar methods:
+   * <ul>
+   *   <li>all combinations of both signs, edge exponents, and edge mantissas;</li>
+   *   <li>random parts.</li>
+   * </ul>
+   * Any combination of parts is admissible for these methods, so the data are not restricted
+   * to valid finite values.
+   *
+   * @return a stream of Quadruple parts
+   */
+  public static Stream<QuadParts> rawPartsForAssign() {
+    final Stream.Builder<QuadParts> edge = Stream.builder();
+    for (final boolean negative : new boolean[] { false, true })
+      for (final int exponent : EDGE_EXPONENTS)
+        for (final long[] mant : EDGE_MANTISSAS)
+          edge.add(new QuadParts(negative, exponent, mant[0], mant[1]));
+    return Stream.concat(edge.build(), new RandomGenerator().quadrupleParts(RAW_PARTS_RANDOM_COUNT));
+  }
+
   /**
    * Returns Quadruple values for {@code assign(Quadruple)} tests:
    * <ul>

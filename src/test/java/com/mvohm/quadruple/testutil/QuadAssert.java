@@ -16,9 +16,16 @@ public class QuadAssert {
    * for any exponent.
    */
   public static String fieldsOf(Quadruple q) {
+    return formatFields(q.isNegative(), q.exponent(), q.mantHi(), q.mantLo());
+  }
+
+  /**
+   * Formats the given low-level parts of a Quadruple value the same way as {@link #fieldsOf(Quadruple)}.
+   */
+  public static String formatFields(boolean negative, int exponent, long mantHi, long mantLo) {
     return String.format("%s, exp=%s, mantHi=%s, mantLo=%s",
-                         q.isNegative()? "-" : "+",
-                         hex(q.exponent() & 0xFFFF_FFFFL, 8), hex(q.mantHi(), 16), hex(q.mantLo(), 16));
+                         negative? "-" : "+",
+                         hex(exponent & 0xFFFF_FFFFL, 8), hex(mantHi, 16), hex(mantLo, 16));
   }
 
   /**
@@ -40,8 +47,11 @@ public class QuadAssert {
         && q1.mantLo()     == q2.mantLo();
   }
 
-  /** Hex with '_' separating groups of 4 digits, e.g. 0x7FFF_FFFF */
-  private static String hex(long value, int digits) {
+  /**
+   * Returns the given value as a hex string of the given number of digits,
+   * with '_' separating groups of 4 digits, e.g. {@code hex(0x7FFF_FFFF, 8)} returns "0x7FFF_FFFF".
+   */
+  public static String hex(long value, int digits) {
     final String s = String.format("%0" + digits + "X", value);
     final StringBuilder sb = new StringBuilder("0x");
     for (int i = 0; i < s.length(); i++) {

@@ -6,6 +6,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import com.mvohm.quadruple.Quadruple;
+import com.mvohm.quadruple.testdata.QuadParts;
 
 /**
  * Generator of pseudo-random test values.
@@ -69,6 +70,17 @@ public class RandomGenerator {
   public LongStream longs(int count) {
     return LongStream.generate(() -> random.nextLong() >> random.nextInt(64))
                      .limit(count);
+  }
+
+  /**
+   * Returns arbitrary random parts of Quadruple values: random sign, exponent, and mantissa.
+   * All bit patterns are possible, including zero, NaN and infinity ones
+   * (with a very low probability, though).
+   */
+  public Stream<QuadParts> quadrupleParts(int count) {
+    return Stream.generate(() -> new QuadParts(random.nextBoolean(), random.nextInt(),
+                                               random.nextLong(), random.nextLong()))
+                 .limit(count);
   }
 
   /**
