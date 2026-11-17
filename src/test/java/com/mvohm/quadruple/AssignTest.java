@@ -16,6 +16,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.function.UnaryOperator;
 
 import com.mvohm.quadruple.testdata.AssignData;
+import com.mvohm.quadruple.testdata.Ieee754Bits;
+import com.mvohm.quadruple.testutil.Ieee754Reference;
 import com.mvohm.quadruple.testdata.QuadParts;
 
 /**
@@ -223,14 +225,88 @@ public class AssignTest {
   @ValueSource(ints = { 0, 1, 2 })
   @DisplayName("assign(long[]) should throw IndexOutOfBoundsException for arrays shorter than 3")
   void shouldThrowOnShortLongArray(int length) {
-    for (final Named<Quadruple> dirty : AssignData.dirtyInstances()) {
-      final Quadruple q = dirty.getPayload();
-      final Quadruple copy = new Quadruple(q.isNegative(), q.exponent(), q.mantHi(), q.mantLo());
-      assertThatThrownBy(() -> q.assign(new long[length]))
-        .as("assign(new long[%d]) to instance holding %s", length, dirty.getName())
-        .isInstanceOf(IndexOutOfBoundsException.class);
-      assertSameFields(q, copy, "assign(new long[" + length + "]) must not change the instance holding " + dirty.getName());
-    }
+    checkThrowsOnDirtyInstances(q -> q.assign(new long[length]), IndexOutOfBoundsException.class,
+                                "assign(new long[" + length + "])");
+  }
+
+  /* *******************************************************************************
+   * IEEE-754: assignIeee754(long[]), assignIeee754(byte[])
+   *
+   * The expected values are computed by Ieee754Reference, independently of the library
+   *********************************************************************************/
+
+  /**
+   * Verifies that {@code assignIeee754(long[])} converts the IEEE-754 quadruple
+   * to the exactly equal Quadruple value (NaN with any payload to canonical NaN),
+   * whatever value the instance held before, and leaves the array unchanged.
+   */
+  @ParameterizedTest
+  @MethodSource("com.mvohm.quadruple.testdata.AssignData#ieee754ValuesForAssign")
+  @DisplayName("assignIeee754(long[]) should assign the exact value of the IEEE-754 quadruple")
+  void shouldAssignIeee754LongsToDirtyInstance(Ieee754Bits bits) {
+    final long[] longs = bits.toLongs();
+    final String description = "assignIeee754(long[]) with " + bits;
+    checkOnDirtyInstances(Ieee754Reference.expectedQuadruple(bits), q -> q.assignIeee754(longs), description);
+    assertThat(longs).as(description + ": the array must not change").isEqualTo(bits.toLongs());
+  }
+
+  /**
+   * Verifies that {@code assignIeee754(byte[])} converts the IEEE-754 quadruple, given as
+   * 16 big-endian bytes, to the exactly equal Quadruple value,
+   * whatever value the instance held before, and leaves the array unchanged.
+   */
+  @ParameterizedTest
+  @MethodSource("com.mvohm.quadruple.testdata.AssignData#ieee754ValuesForAssign")
+  @DisplayName("assignIeee754(byte[]) should assign the exact value of the IEEE-754 quadruple")
+  void shouldAssignIeee754BytesToDirtyInstance(Ieee754Bits bits) {
+    final byte[] bytes = bits.toBytes();
+    final String description = "assignIeee754(byte[]) with " + bits;
+    checkOnDirtyInstances(Ieee754Reference.expectedQuadruple(bits), q -> q.assignIeee754(bytes), description);
+    assertThat(bytes).as(description + ": the array must not change").isEqualTo(bits.toBytes());
+  }
+
+  /**
+   * Verifies that {@code toIeee754Longs()} and {@code toIeee754Bytes()} restore the original bits
+   * of an IEEE-754 quadruple assigned with {@code assignIeee754()}
+   * (Quadruple is more precise than IEEE-754 quadruple, so the conversion back must be exact),
+   * except for NaN, which becomes the canonical IEEE-754 NaN {@code 0x7FFF_8000_0000_0000, 0}.
+   */
+  @ParameterizedTest
+  @MethodSource("com.mvohm.quadruple.testdata.AssignData#ieee754ValuesForAssign")
+  @DisplayName("toIeee754Longs() and toIeee754Bytes() should restore bits assigned by assignIeee754()")
+  void shouldRestoreIeee754Bits(Ieee754Bits bits) {
+    final Quadruple q = new Quadruple().assignIeee754(bits.toLongs());
+    final Ieee754Bits expected = q.isNaN()? new Ieee754Bits(0x7FFF_8000_0000_0000L, 0) : bits;
+    assertThat(q.toIeee754Longs())
+      .as("toIeee754Longs() after assignIeee754(%s)", bits)
+      .isEqualTo(expected.toLongs());
+    assertThat(q.toIeee754Bytes())
+      .as("toIeee754Bytes() after assignIeee754(%s)", bits)
+      .isEqualTo(expected.toBytes());
+  }
+
+  /**
+   * Verifies that {@code assignIeee754(long[])} throws {@code IllegalArgumentException}
+   * if the array length is not 2, and leaves the instance unchanged.
+   */
+  @ParameterizedTest
+  @ValueSource(ints = { 0, 1, 3 })
+  @DisplayName("assignIeee754(long[]) should throw IllegalArgumentException if length != 2")
+  void shouldThrowOnWrongIeee754LongsLength(int length) {
+    checkThrowsOnDirtyInstances(q -> q.assignIeee754(new long[length]), IllegalArgumentException.class,
+                                "assignIeee754(new long[" + length + "])");
+  }
+
+  /**
+   * Verifies that {@code assignIeee754(byte[])} throws {@code IllegalArgumentException}
+   * if the array length is not 16, and leaves the instance unchanged.
+   */
+  @ParameterizedTest
+  @ValueSource(ints = { 0, 8, 15, 17, 32 })
+  @DisplayName("assignIeee754(byte[]) should throw IllegalArgumentException if length != 16")
+  void shouldThrowOnWrongIeee754BytesLength(int length) {
+    checkThrowsOnDirtyInstances(q -> q.assignIeee754(new byte[length]), IllegalArgumentException.class,
+                                "assignIeee754(new byte[" + length + "])");
   }
 
   /* *******************************************************************************
@@ -302,6 +378,21 @@ public class AssignTest {
       final Quadruple result = assignment.apply(q);
       assertThat(result).as(context + ": must return this instance").isSameAs(q);
       assertSameFields(q, expected, context);
+    }
+  }
+
+  /**
+   * Applies the given assignment to each of the dirty instances and checks that
+   * it throws an exception of the given type and leaves the instance unchanged.
+   */
+  private static void checkThrowsOnDirtyInstances(UnaryOperator<Quadruple> assignment,
+                                                  Class<? extends Throwable> exceptionType, String description) {
+    for (final Named<Quadruple> dirty : AssignData.dirtyInstances()) {
+      final Quadruple q = dirty.getPayload();
+      final Quadruple copy = new Quadruple(q.isNegative(), q.exponent(), q.mantHi(), q.mantLo());
+      final String context = description + " to instance holding " + dirty.getName();
+      assertThatThrownBy(() -> assignment.apply(q)).as(context).isInstanceOf(exceptionType);
+      assertSameFields(q, copy, context + ": the instance must not change");
     }
   }
 

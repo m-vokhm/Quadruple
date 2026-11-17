@@ -111,6 +111,54 @@ public class AssignData {
     return Stream.concat(edge.build(), new RandomGenerator().quadrupleParts(RAW_PARTS_RANDOM_COUNT));
   }
 
+  private static final int IEEE754_RANDOM_COUNT = 2000;
+
+  /**
+   * Bit patterns of special and edge IEEE-754 quadruple-precision values, positive only
+   * (negative ones are obtained by setting the sign bit).
+   * The comments for subnormal values refer to the branches of {@code assignIeee754(long[])}.
+   */
+  private static final long[][] IEEE754_EDGE_BITS = {
+      { 0, 0 },                                               // 0
+      { 0x7FFF_0000_0000_0000L, 0 },                          // Infinity
+      { 0x7FFF_8000_0000_0000L, 0 },                          // NaN (quiet, canonical)
+      { 0x7FFF_0000_0000_0000L, 1 },                          // NaN (signaling, payload in lo only)
+      { 0x7FFF_FFFF_FFFF_FFFFL, -1L },                        // NaN (all bits set)
+      { 0x3FFF_0000_0000_0000L, 0 },                          // 1.0
+      { 0x4000_0000_0000_0000L, 0 },                          // 2.0
+      { 0x3FFF_8000_0000_0000L, 0 },                          // 1.5
+      { 0x3FFF_0000_0000_0000L, 1 },                          // 1.0 + LSB
+      { 0x3FFF_FFFF_FFFF_FFFFL, -1L },                        // 2.0 - LSB, all significand bits set
+      { 0x7FFE_FFFF_FFFF_FFFFL, -1L },                        // max value
+      { 0x0001_0000_0000_0000L, 0 },                          // min normal
+      { 0x0000_FFFF_FFFF_FFFFL, -1L },                        // max subnormal, MSB in hi
+      { 0x0000_8000_0000_0000L, 0 },                          // subnormal, MSB in hi, top position
+      { 0x0000_0000_0000_0002L, 0x8000_0000_0000_0001L },     // subnormal, MSB in hi, lowest but one position
+      { 0x0000_0000_0000_0001L, 0 },                          // subnormal, hi == 1 (MSB at bit 0 of hi)
+      { 0x0000_0000_0000_0001L, -1L },                        // subnormal, hi == 1, all bits of lo set
+      { 0, 0x8000_0000_0000_0000L },                          // subnormal, MSB in lo, top position
+      { 0, -1L },                                             // subnormal, MSB in lo, all bits set
+      { 0, 3 },                                               // subnormal, MSB in lo, lowest but one position
+      { 0, 1 },                                               // min subnormal (min value)
+  };
+
+  /**
+   * Returns bits of IEEE-754 quadruple-precision values for {@code assignIeee754(...)} tests:
+   * <ul>
+   *   <li>special and edge values of both signs, including all branches for subnormal values;</li>
+   *   <li>random finite values, normal and subnormal.</li>
+   * </ul>
+   *
+   * @return a stream of IEEE-754 bit patterns
+   */
+  public static Stream<Ieee754Bits> ieee754ValuesForAssign() {
+    final Stream.Builder<Ieee754Bits> edge = Stream.builder();
+    for (final long sign : new long[] { 0, 0x8000_0000_0000_0000L })
+      for (final long[] bits : IEEE754_EDGE_BITS)
+        edge.add(new Ieee754Bits(sign | bits[0], bits[1]));
+    return Stream.concat(edge.build(), new RandomGenerator().ieee754Bits(IEEE754_RANDOM_COUNT));
+  }
+
   /**
    * Returns Quadruple values for {@code assign(Quadruple)} tests:
    * <ul>

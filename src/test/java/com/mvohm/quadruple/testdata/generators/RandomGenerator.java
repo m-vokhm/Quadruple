@@ -1,11 +1,13 @@
 package com.mvohm.quadruple.testdata.generators;
 
+import java.math.BigInteger;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import com.mvohm.quadruple.Quadruple;
+import com.mvohm.quadruple.testdata.Ieee754Bits;
 import com.mvohm.quadruple.testdata.QuadParts;
 
 /**
@@ -81,6 +83,28 @@ public class RandomGenerator {
     return Stream.generate(() -> new QuadParts(random.nextBoolean(), random.nextInt(),
                                                random.nextLong(), random.nextLong()))
                  .limit(count);
+  }
+
+  /**
+   * Returns bits of random finite IEEE-754 quadruple-precision values of both signs.
+   * About 1/4 of them are subnormal, with the most significant bit of the significand
+   * evenly distributed over all 112 positions; the rest are normal, with exponents
+   * evenly distributed over the whole range. Zeros are excluded.
+   */
+  public Stream<Ieee754Bits> ieee754Bits(int count) {
+    return Stream.generate(() -> {
+        final long sign = random.nextBoolean()? 0x8000_0000_0000_0000L : 0;
+        final boolean subnormal = random.nextInt(4) == 0;
+        final long exponent = subnormal? 0 : 1 + random.nextInt(0x7FFE);     // 1 .. 0x7FFE
+        BigInteger significand = new BigInteger(112, random);
+        if (subnormal)
+          significand = significand.shiftRight(random.nextInt(112));
+        final long hi = sign | exponent << 48 | significand.shiftRight(64).longValue();
+        final long lo = significand.longValue();                               // lower 64 bits
+        return new Ieee754Bits(hi, lo);
+      })
+      .filter(b -> (b.hi() & 0x7FFF_FFFF_FFFF_FFFFL | b.lo()) != 0)
+      .limit(count);
   }
 
   /**

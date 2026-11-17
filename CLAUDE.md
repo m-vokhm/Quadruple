@@ -36,7 +36,8 @@ src/test/java/com/mvohm/quadruple/
 ```
 
 Классы: `CreationTest` (конструкторы, кроме строкового), `AssignTest` (`assign(...)` со всеми типами,
-в т.ч. на «грязном» экземпляре), `StringParsingTest`, `ConversionTest`,
+в т.ч. на «грязном» экземпляре; `assign(String)`/`assign(BigDecimal)` отложены — у них свои нюансы),
+`StringParsingTest`, `ConversionTest`,
 `ToStringTest`, `ComparisonTest`, арифметика по операциям (`AddSubTest`, `MultiplyTest`, `DivideTest`),
 `SqrtTest`, `SpecialValuesTest`, `ConstantsTest`, `ThreadSafetyTest` (`@Tag("slow")`).
 
