@@ -3,6 +3,9 @@ package com.mvohm.quadruple.testdata.generators;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
+import com.mvohm.quadruple.Quadruple;
 
 /**
  * Generator of pseudo-random test values.
@@ -66,6 +69,23 @@ public class RandomGenerator {
   public LongStream longs(int count) {
     return LongStream.generate(() -> random.nextLong() >> random.nextInt(64))
                      .limit(count);
+  }
+
+  /**
+   * Returns finite Quadruple values with random sign, mantissa ({@code mantHi} and {@code mantLo})
+   * and biased exponent. About 1/8 of the values are subnormal (exponent == 0, zero excluded),
+   * the rest have exponents evenly distributed over the whole range,
+   * excluding {@code EXPONENT_OF_INFINITY}.
+   */
+  public Stream<Quadruple> quadruples(int count) {
+    return Stream.generate(() -> {
+        final boolean negative = random.nextBoolean();
+        final int exponent = random.nextInt(8) == 0? 0 : random.nextInt();
+        return new Quadruple(negative, exponent, random.nextLong(), random.nextLong());
+      })
+      .filter(q -> q.exponent() != Quadruple.EXPONENT_OF_INFINITY
+                   && (q.exponent() != 0 || q.mantHi() != 0 || q.mantLo() != 0))
+      .limit(count);
   }
 
 }

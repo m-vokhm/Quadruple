@@ -27,4 +27,4 @@ since a new instance has `mantHi == 0`.
 
 **Fix (proposed):** assign `mantHi = 0` in the `numOfZeros == 63` case.
 
-**Tests:** to be added in `AssignTest` (not yet written).
+**Tests:** `AssignTest.shouldAssignDoubleMinValueToDirtyInstance` (disabled).
