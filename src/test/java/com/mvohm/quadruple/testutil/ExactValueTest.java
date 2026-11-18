@@ -10,7 +10,9 @@ import static org.assertj.core.api.Assertions.within;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Random;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.mvohm.quadruple.Quadruple;
+import com.mvohm.quadruple.testdata.Ieee754Bits;
 import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 
 /**
@@ -26,7 +29,10 @@ import com.mvohm.quadruple.testdata.generators.RandomGenerator;
  * <ul>
  *   <li>hand-computed cases: ties, near-ties, huge exponent gaps, subnormal results, overflow;</li>
  *   <li>cross-check with an independent BigDecimal computation for random operands with moderate exponents;</li>
- *   <li>round trip Quadruple -> ExactValue -> Quadruple.</li>
+ *   <li>round trip Quadruple -> ExactValue -> Quadruple;</li>
+ *   <li>rounding to other formats: double and float against {@code Double.parseDouble()} and
+ *       {@code Float.parseFloat()}, IEEE-754 quad against {@link Ieee754Reference};
+ *       truncation to long and int against BigDecimal.</li>
  * </ul>
  */
 public class ExactValueTest {
@@ -142,22 +148,22 @@ public class ExactValueTest {
     final Quadruple one = ONE_Q, onePlusUlp = q(false, EXPONENT_OF_ONE, 0, 1);
     final double eps = Math.scalb(1.0, -32);
 
-    final ExactValue.Rounding tie = pow2(0).add(pow2(-129)).round();
+    final ExactValue.Rounding<Quadruple> tie = pow2(0).add(pow2(-129)).round();
     assertThat(tie.accepts(onePlusUlp, 0)).isTrue();
     assertThat(tie.accepts(one, 0)).isFalse();
     assertThat(tie.accepts(one, eps)).isTrue();
 
-    final ExactValue.Rounding nearTie = pow2(0).add(pow2(-129)).subtract(pow2(-300)).round();
+    final ExactValue.Rounding<Quadruple> nearTie = pow2(0).add(pow2(-129)).subtract(pow2(-300)).round();
     assertThat(nearTie.accepts(one, 0)).isTrue();
     assertThat(nearTie.accepts(onePlusUlp, 0)).isFalse();
     assertThat(nearTie.accepts(onePlusUlp, eps)).isTrue();
     assertThat(nearTie.accepts(q(false, EXPONENT_OF_ONE, 0, 2), eps)).isFalse();
 
-    final ExactValue.Rounding third = ExactValue.of(1).divide(ExactValue.of(3)).round();
+    final ExactValue.Rounding<Quadruple> third = ExactValue.of(1).divide(ExactValue.of(3)).round();
     assertThat(third.accepts(third.awayFromZero(), eps)).isFalse();
     assertThat(third.accepts(third.awayFromZero(), 0.2)).isTrue();
 
-    final ExactValue.Rounding exact = pow2(0).round();
+    final ExactValue.Rounding<Quadruple> exact = pow2(0).round();
     assertThat(exact.accepts(one, 0)).isTrue();
     assertThat(exact.accepts(onePlusUlp, 1)).isFalse();
     assertThat(exact.accepts(q(true, EXPONENT_OF_ONE, 0, 0), 1)).isFalse();
@@ -190,7 +196,7 @@ public class ExactValueTest {
   @ParameterizedTest
   @MethodSource("roundTripValues")
   void quadrupleShouldSurviveRoundTrip(Quadruple q) {
-    final ExactValue.Rounding r = ExactValue.of(q).round();
+    final ExactValue.Rounding<Quadruple> r = ExactValue.of(q).round();
     assertThat(r.exact()).isTrue();
     assertSameFields(r.rounded(), q, "round trip");
   }
@@ -232,13 +238,18 @@ public class ExactValueTest {
 
   /** A random value with exponent within +/-300, with ~1/4 of mantissas shortened (for exact ties) */
   private static Quadruple moderateQuadruple(Random random) {
+    return randomQuadruple(random, random.nextInt(601) - 300);
+  }
+
+  /** A random value with the given unbiased exponent, with ~1/4 of mantissas shortened (for exact ties) */
+  private static Quadruple randomQuadruple(Random random, int exponent) {
     long hi = random.nextLong(), lo = random.nextLong();
     if (random.nextInt(4) == 0) {
       final int zeros = random.nextInt(129);                     // clear lowest bits of the 128-bit fraction
       if (zeros >= 64) { lo = 0; hi = zeros == 128? 0 : hi & (-1L << (zeros - 64)); }
       else               lo &= -1L << zeros;
     }
-    return q(random.nextBoolean(), EXPONENT_OF_ONE + random.nextInt(601) - 300, hi, lo);
+    return q(random.nextBoolean(), EXPONENT_OF_ONE + exponent, hi, lo);
   }
 
   /**
@@ -262,11 +273,12 @@ public class ExactValueTest {
    * computed independently with BigDecimal
    */
   private static void checkRoundingAgainst(ExactValue exact, BigDecimal x, String context) {
-    final ExactValue.Rounding r = exact.round();
+    final ExactValue.Rounding<Quadruple> r = exact.round();
     final BigDecimal ax = x.abs();
     final BigDecimal lower = toBigDecimal(r.truncated()).abs();
-    if (r.exact()) {
-      assertThat(lower).as(context).isEqualByComparingTo(ax);
+    if (r.exact()) {        // x may be inexact itself (computed with 400 digits), allow for its error
+      assertThat(ax.subtract(lower).abs()).as(context)
+        .isLessThanOrEqualTo(ulp(r.truncated()).multiply(new BigDecimal("1e-100")));
       assertSameFields(r.rounded(), r.truncated(), context);
       return;
     }
@@ -278,6 +290,143 @@ public class ExactValueTest {
     final double offset = ax.subtract(lower).divide(upper.subtract(lower), MC).subtract(new BigDecimal("0.5")).doubleValue();
     assertThat(r.offsetFromMidpoint()).as(context + ": offset").isCloseTo(offset, within(1e-15));
     assertSameFields(r.rounded(), offset >= 0? r.awayFromZero() : r.truncated(), context);
+  }
+
+  /* ************************************************************************
+   * Other formats: double, float, IEEE-754 quad; integers
+   */
+
+  @Test
+  void tiesShouldBeRoundedAsTheFormatPrescribes() {
+    // double, half-even
+    checkFormat(pow2(0).add(pow2(-53)), BinaryFormat.DOUBLE, 1.0);                          // tie, 1.0 is even
+    checkFormat(pow2(0).add(pow2(-53)).negate(), BinaryFormat.DOUBLE, -1.0);
+    checkFormat(pow2(0).add(ExactValue.of(3).multiply(pow2(-53))), BinaryFormat.DOUBLE,
+                1.0 + Math.scalb(1.0, -51));                                                  // tie, rounded up to even
+    checkFormat(ExactValue.of(Double.MIN_VALUE).divide(ExactValue.of(2)), BinaryFormat.DOUBLE, 0.0);
+    checkFormat(ExactValue.of(Double.MIN_VALUE).multiply(ExactValue.of(1.5)), BinaryFormat.DOUBLE,
+                2 * Double.MIN_VALUE);
+    checkFormat(ExactValue.of(Double.MAX_VALUE).add(pow2(970)), BinaryFormat.DOUBLE, Double.POSITIVE_INFINITY);
+    checkFormat(ExactValue.of(Double.MAX_VALUE).add(pow2(970)).subtract(pow2(0)), BinaryFormat.DOUBLE,
+                Double.MAX_VALUE);
+    // float, half-even
+    checkFormat(pow2(0).add(pow2(-24)), BinaryFormat.FLOAT, 1.0f);
+    checkFormat(pow2(0).add(ExactValue.of(3).multiply(pow2(-24))), BinaryFormat.FLOAT, 1.0f + Math.scalb(1.0f, -22));
+    checkFormat(ExactValue.of(Float.MIN_VALUE).multiply(ExactValue.of(-0.5)), BinaryFormat.FLOAT, -0.0f);
+    // IEEE-754 quad, half-up
+    checkFormat(pow2(0).add(pow2(-113)), BinaryFormat.IEEE754_QUAD, new Ieee754Bits(0x3FFF_0000_0000_0000L, 1));
+    checkFormat(pow2(0).add(ExactValue.of(5).multiply(pow2(-113))), BinaryFormat.IEEE754_QUAD,
+                new Ieee754Bits(0x3FFF_0000_0000_0000L, 3));                                 // 2.5 ulp -> 3 ulp
+    checkFormat(pow2(-16494).divide(ExactValue.of(-2)), BinaryFormat.IEEE754_QUAD,
+                new Ieee754Bits(0x8000_0000_0000_0000L, 1));                                 // -min subnormal / 2
+    checkFormat(pow2(-16494).divide(ExactValue.of(4)), BinaryFormat.IEEE754_QUAD, new Ieee754Bits(0, 0));
+    checkFormat(pow2(-16382).subtract(pow2(-16495)), BinaryFormat.IEEE754_QUAD,
+                new Ieee754Bits(0x0001_0000_0000_0000L, 0));                                 // max subnormal + 1/2 -> min normal
+    checkFormat(pow2(16384).subtract(pow2(16383 - 113)), BinaryFormat.IEEE754_QUAD,
+                new Ieee754Bits(0x7FFF_0000_0000_0000L, 0));                                 // max + 1/2 ulp -> infinity
+  }
+
+  static Stream<ExactValue> doubleCheckValues() {
+    final DoubleStream doubles = DoubleStream.concat(
+        DoubleStream.of(0, Double.MIN_VALUE, Math.nextDown(Double.MIN_NORMAL), Double.MIN_NORMAL,
+                        Math.nextDown(1.0), 1.0, Double.MAX_VALUE),
+        DoubleStream.concat(new RandomGenerator().doubles(500), new RandomGenerator().subnormalDoubles(300)));
+    return Stream.concat(
+        randomValues(-1100, 1050, 2000),
+        doubles.boxed().flatMap(d -> nearMidpoints(ExactValue.of(Math.abs(d)), ExactValue.of(Math.ulp(d)), d < 0)));
+  }
+
+  @ParameterizedTest
+  @MethodSource("doubleCheckValues")
+  void doubleRoundingShouldMatchParseDouble(ExactValue x) {
+    final double expected = Double.parseDouble(x.toBigDecimal().toString());
+    assertCorrectlyRounded(expected, x, BinaryFormat.DOUBLE, 0, "Double.parseDouble");
+  }
+
+  static Stream<ExactValue> floatCheckValues() {
+    final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
+    final Stream<Float> floats = Stream.concat(
+        Stream.of(0f, Float.MIN_VALUE, Math.nextDown(Float.MIN_NORMAL), Float.MIN_NORMAL,
+                  Math.nextDown(1.0f), 1.0f, Float.MAX_VALUE),
+        Stream.generate(() -> random.nextInt(4) == 0?
+                                Float.intBitsToFloat(random.nextInt() & 0x807F_FFFF) :    // subnormal
+                                Float.intBitsToFloat(random.nextInt()))
+              .filter(Float::isFinite).limit(800));
+    return Stream.concat(
+        randomValues(-160, 140, 2000),
+        floats.flatMap(f -> nearMidpoints(ExactValue.of(Math.abs(f)), ExactValue.of(Math.ulp(f)), f < 0)));
+  }
+
+  @ParameterizedTest
+  @MethodSource("floatCheckValues")
+  void floatRoundingShouldMatchParseFloat(ExactValue x) {
+    final float expected = Float.parseFloat(x.toBigDecimal().toString());
+    assertCorrectlyRounded(expected, x, BinaryFormat.FLOAT, 0, "Float.parseFloat");
+  }
+
+  static Stream<Ieee754Bits> ieee754Values() {
+    return Stream.concat(
+        Stream.of(new Ieee754Bits(0, 1), new Ieee754Bits(0x8000_FFFF_FFFF_FFFFL, -1L),         // min, -max subnormal
+                  new Ieee754Bits(0x0001_0000_0000_0000L, 0), new Ieee754Bits(0x7FFE_FFFF_FFFF_FFFFL, -1L),
+                  new Ieee754Bits(0x3FFF_0000_0000_0000L, 0), new Ieee754Bits(0, 0), new Ieee754Bits(Long.MIN_VALUE, 0)),
+        new RandomGenerator().ieee754Bits(2000));
+  }
+
+  @ParameterizedTest
+  @MethodSource("ieee754Values")
+  void ieee754ValuesShouldBeExactInIeee754Format(Ieee754Bits bits) {
+    final ExactValue.Rounding<Ieee754Bits> r = ExactValue.of(Ieee754Reference.expectedQuadruple(bits))
+                                                         .round(BinaryFormat.IEEE754_QUAD);
+    assertThat(r.exact()).as(bits.toString()).isTrue();
+    assertThat(r.rounded()).isEqualTo(bits);
+  }
+
+  static Stream<ExactValue> integerCheckValues() {
+    final ExactValue half = pow2(-1), tiny = pow2(-200);
+    final Stream<ExactValue> edges = Stream.of(pow2(63), pow2(31), pow2(0), half, ExactValue.of(Long.MAX_VALUE),
+                                               ExactValue.of(Integer.MAX_VALUE), pow2(64), pow2(1000))
+        .flatMap(x -> Stream.of(x, x.add(half), x.subtract(half), x.subtract(tiny), x.add(pow2(0))))
+        .flatMap(x -> Stream.of(x, x.negate()));
+    return Stream.concat(edges, randomValues(-3, 70, 2000));
+  }
+
+  @ParameterizedTest
+  @MethodSource("integerCheckValues")
+  void integerTruncationShouldMatchBigDecimal(ExactValue x) {
+    final BigInteger integer = x.toBigDecimal().setScale(0, RoundingMode.DOWN).toBigIntegerExact();
+    assertThat(x.toLongTruncated()).as(x.toString())
+      .isEqualTo(integer.max(BigInteger.valueOf(Long.MIN_VALUE)).min(BigInteger.valueOf(Long.MAX_VALUE)).longValue());
+    assertThat(x.toIntTruncated()).as(x.toString())
+      .isEqualTo(integer.max(BigInteger.valueOf(Integer.MIN_VALUE)).min(BigInteger.valueOf(Integer.MAX_VALUE)).intValue());
+  }
+
+  /**
+   * Random values with exponents in the given range: Quadruples (some with shortened mantissas)
+   * and, for 1/4 of them, their quotients by odd numbers (inexact values)
+   */
+  private static Stream<ExactValue> randomValues(int minExponent, int maxExponent, int count) {
+    final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
+    return Stream.generate(() -> {
+      final ExactValue x = ExactValue.of(randomQuadruple(random, minExponent + random.nextInt(maxExponent - minExponent + 1)));
+      return random.nextInt(4) == 0? x.divide(ExactValue.of(3 + 2 * random.nextInt(1000))) : x;
+    }).limit(count);
+  }
+
+  /**
+   * Values near the midpoint between {@code x} and {@code x + ulp} (exactly, and +/- a tiny fraction of ulp),
+   * and just above {@code x} and just below {@code x + ulp}
+   */
+  private static Stream<ExactValue> nearMidpoints(ExactValue x, ExactValue ulp, boolean negative) {
+    final ExactValue mid = x.add(ulp.divide(ExactValue.of(2))), tiny = ulp.multiply(pow2(-70));
+    final Stream<ExactValue> values = Stream.of(mid, mid.add(tiny), mid.subtract(tiny), x.add(tiny), x.add(ulp).subtract(tiny));
+    return negative? values.map(ExactValue::negate) : values;
+  }
+
+  private static <T> void checkFormat(ExactValue x, BinaryFormat<T> format, T expected) {
+    final T actual = x.round(format).rounded();
+    assertThat(format.same(actual, expected))
+      .withFailMessage("round(%s) to %s:%n  expected: %s%n  actual:   %s", x, format, describe(expected), describe(actual))
+      .isTrue();
   }
 
   /* ************************************************************************
@@ -298,7 +447,7 @@ public class ExactValueTest {
    */
   private static void checkRounding(ExactValue x, Quadruple rounded, Quadruple truncated,
                                     Quadruple awayFromZero, Double offset) {
-    final ExactValue.Rounding r = x.round();
+    final ExactValue.Rounding<Quadruple> r = x.round();
     final String context = "round(" + x + ")";
     assertSameFields(r.rounded(), rounded, context + ": rounded");
     if (offset == null) {

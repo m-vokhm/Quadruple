@@ -49,12 +49,36 @@ public class QuadAssert {
    * @param context description of the checked case, included in the failure message
    */
   public static void assertCorrectlyRounded(Quadruple actual, ExactValue exact, double epsilon, String context) {
-    final ExactValue.Rounding r = exact.round();
+    assertCorrectlyRounded(actual, exact, BinaryFormat.QUADRUPLE, epsilon, context);
+  }
+
+  /**
+   * Asserts that {@code actual} is the value of {@code exact} correctly rounded to the given format,
+   * or, if {@code exact} is closer to the midpoint between two adjacent values of the format
+   * than {@code epsilon} ulp, either of them.
+   *
+   * @param epsilon the allowed uncertainty near the midpoint, in ulps; 0 means strict correct rounding
+   * @param context description of the checked case, included in the failure message
+   */
+  public static <T> void assertCorrectlyRounded(T actual, ExactValue exact, BinaryFormat<T> format,
+                                                double epsilon, String context) {
+    final ExactValue.Rounding<T> r = exact.round(format);
     assertThat(r.accepts(actual, epsilon))
-      .withFailMessage("%s:%n  exact:    %s%n  expected: %s%n  actual:   %s%n"
+      .withFailMessage("%s (%s):%n  exact:    %s%n  expected: %s%n  actual:   %s%n"
                        + "  offset from midpoint: %s ulp, epsilon: %s ulp",
-                       context, exact, fieldsOf(r.rounded()), fieldsOf(actual), r.offsetFromMidpoint(), epsilon)
+                       context, format, exact, describe(r.rounded()), describe(actual), r.offsetFromMidpoint(), epsilon)
       .isTrue();
+  }
+
+  /**
+   * @return a description of a value showing its exact contents:
+   * the fields of a Quadruple, a double or float with its bits in hex, or {@code toString()} for other types
+   */
+  public static String describe(Object value) {
+    if (value instanceof Quadruple q) return fieldsOf(q);
+    if (value instanceof Double d)    return d + " (" + hex(Double.doubleToRawLongBits(d), 16) + ")";
+    if (value instanceof Float f)     return f + " (" + hex(Float.floatToRawIntBits(f) & 0xFFFF_FFFFL, 8) + ")";
+    return String.valueOf(value);
   }
 
   public static boolean sameFields(Quadruple q1, Quadruple q2) {

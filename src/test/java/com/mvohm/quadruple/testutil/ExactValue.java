@@ -49,6 +49,9 @@ import com.mvohm.quadruple.Quadruple;
  * ties away from zero (half-up by magnitude), the same way for normal and subnormal results;
  * values greater than or equal to {@code MAX_VALUE + 0.5 ulp} become infinity,
  * values less than {@code MIN_VALUE / 2} become zero (keeping the sign).
+ * {@link #round(BinaryFormat)} rounds it the same way to other binary formats (IEEE-754 quad, double, float),
+ * with their precision, exponent range and rule for ties; this is the model for conversions of Quadruple
+ * to these types. {@link #toLongTruncated()} and {@link #toIntTruncated()} model narrowing conversions to integers.
  * Special values (NaN, infinities) are not represented.
  */
 public final class ExactValue {
@@ -60,7 +63,6 @@ public final class ExactValue {
   /** The binary exponent of the weight of the least significant bit of subnormal values (and MIN_NORMAL) */
   private static final long MIN_LSB_EXPONENT = 1 - BIAS - 128;
   private static final BigInteger FIVE = BigInteger.valueOf(5);
-  private static final BigInteger MASK_64 = ONE.shiftLeft(64).subtract(ONE);
 
   private final boolean negative;
   private final BigInteger mant;
@@ -198,87 +200,107 @@ public final class ExactValue {
    */
 
   /**
-   * The result of rounding an exact value to Quadruple.
+   * The result of rounding an exact value to a binary format.
    *
-   * @param rounded       the correctly rounded value (to the nearest, ties away from zero)
-   * @param truncated     the nearest Quadruple not greater than the exact value by magnitude
-   * @param awayFromZero  the nearest Quadruple greater than the exact value by magnitude
+   * @param rounded       the correctly rounded value (to the nearest; ties as the format prescribes)
+   * @param truncated     the nearest value of the format not greater than the exact value by magnitude
+   * @param awayFromZero  the nearest value of the format greater than the exact value by magnitude
    *                      (for exactly representable values, equal to {@code truncated})
    * @param offsetFromMidpoint the position of the exact value relative to the midpoint
    *                      between {@code truncated} and {@code awayFromZero}, in ulps, by magnitude:
    *                      from -0.5 (equals {@code truncated}) to 0.5 (exclusive; equals {@code awayFromZero}),
    *                      0 for exact ties
-   * @param exact         true if the exact value is representable as Quadruple
+   * @param exact         true if the exact value is representable in the format
+   * @param format        the format
    */
-  public record Rounding(Quadruple rounded, Quadruple truncated, Quadruple awayFromZero,
-                         double offsetFromMidpoint, boolean exact) {
+  public record Rounding<T>(T rounded, T truncated, T awayFromZero,
+                            double offsetFromMidpoint, boolean exact, BinaryFormat<T> format) {
 
     /**
-     * @return true if {@code q} is the correctly rounded value, or if the exact value is closer
-     * to the midpoint than {@code epsilon} ulp, and {@code q} is either of the two adjacent values.
+     * @return true if {@code value} is the correctly rounded value, or if the exact value is closer
+     * to the midpoint than {@code epsilon} ulp, and {@code value} is either of the two adjacent values.
      */
-    public boolean accepts(Quadruple q, double epsilon) {
-      if (QuadAssert.sameFields(q, rounded)) return true;
+    public boolean accepts(T value, double epsilon) {
+      if (format.same(value, rounded)) return true;
       return !exact
           && Math.abs(offsetFromMidpoint) < epsilon
-          && (QuadAssert.sameFields(q, truncated) || QuadAssert.sameFields(q, awayFromZero));
+          && (format.same(value, truncated) || format.same(value, awayFromZero));
     }
   }
 
-  /** @return the result of rounding this value to Quadruple (see the class description) */
-  public Rounding round() {
+  /** @return the result of rounding this value to Quadruple: to the nearest, ties away from zero */
+  public Rounding<Quadruple> round() {
+    return round(BinaryFormat.QUADRUPLE);
+  }
+
+  /**
+   * Rounds this value to the given format: to the nearest value, ties as the format prescribes,
+   * the same way for normal and subnormal results. Values beyond {@code MAX_VALUE + 0.5 ulp}
+   * (and the tie itself, unless it is rounded down to even) become infinity,
+   * values less than a half of the minimum subnormal value become zero (keeping the sign).
+   */
+  public <T> Rounding<T> round(BinaryFormat<T> format) {
     if (isZero()) {
-      final Quadruple zero = new Quadruple(negative, 0, 0, 0);
-      return new Rounding(zero, zero, zero, -0.5, true);
+      final T zero = format.encode(negative, ZERO, 0);
+      return new Rounding<>(zero, zero, zero, -0.5, true, format);
     }
     final int bitLength = mant.bitLength();
-    final long unbiasedExponent = bitLength - 1 + exp2;              // value is in [2^ue, 2^(ue + 1))
-    final long lsbExponent = Math.max(unbiasedExponent - 128, MIN_LSB_EXPONENT);
+    final long exponent = bitLength - 1 + exp2;                      // value is in [2^exponent, 2^(exponent + 1))
+    final long lsbExponent = Math.max(exponent - (format.precision() - 1), format.minLsbExponent());
     final long shift = lsbExponent - exp2;                          // the number of bits to drop
 
-    if (unbiasedExponent + BIAS > EXPONENT_OF_MAX_VALUE) {          // >= 2 * MAX_VALUE: far beyond the range
-      final Quadruple infinity = new Quadruple(negative, EXPONENT_OF_INFINITY, 0, 0);
-      return new Rounding(infinity, infinity, infinity, -0.5, false);
+    if (exponent > format.maxExponent()) {                           // >= 2 * MAX_VALUE: far beyond the range
+      final T infinity = format.infinity(negative);
+      return new Rounding<>(infinity, infinity, infinity, -0.5, false, format);
     }
 
     if (shift <= 0) {                                                // exactly representable
-      final Quadruple q = toQuadruple(mant.shiftLeft(toInt(-shift)), lsbExponent);
-      return new Rounding(q, q, q, -0.5, true);
+      final T value = format.encode(negative, mant.shiftLeft(toInt(-shift)), lsbExponent);
+      return new Rounding<>(value, value, value, -0.5, true, format);
     }
 
     if (shift > bitLength + 64) {                                    // less than MIN_VALUE * 2^-63: rounds to zero
-      return new Rounding(toQuadruple(ZERO, lsbExponent), toQuadruple(ZERO, lsbExponent),
-                          toQuadruple(ONE, lsbExponent), -0.5, false);
+      final T zero = format.encode(negative, ZERO, lsbExponent);
+      return new Rounding<>(zero, zero, format.encode(negative, ONE, lsbExponent), -0.5, false, format);
     }
 
     final int s = toInt(shift);
     final BigInteger truncated = mant.shiftRight(s);
     final BigInteger remainder = mant.subtract(truncated.shiftLeft(s));
     final BigInteger half = ONE.shiftLeft(s - 1);
+    final int cmp = remainder.compareTo(half);
     final boolean exact = remainder.signum() == 0 && !inexact;
-    final Quadruple lower = toQuadruple(truncated, lsbExponent);
-    final Quadruple upper = exact? lower : toQuadruple(truncated.add(ONE), lsbExponent);
-    final Quadruple rounded = remainder.compareTo(half) >= 0? upper : lower;
-    return new Rounding(rounded, lower, upper, scaled(remainder.subtract(half), s), exact);
+    final T lower = format.encode(negative, truncated, lsbExponent);
+    final T upper = exact? lower : format.encode(negative, truncated.add(ONE), lsbExponent);
+    final boolean roundUp = cmp > 0
+        || cmp == 0 && (format.ties() == BinaryFormat.Ties.AWAY_FROM_ZERO || truncated.testBit(0));
+    return new Rounding<>(roundUp? upper : lower, lower, upper,
+                          scaled(remainder.subtract(half), s), exact, format);
   }
 
   /**
-   * Makes a Quadruple equal to {@code ±q * 2^lsbExponent}, where {@code lsbExponent} is either the
-   * exponent of the LSB of a normal value with the given exponent (q is 129 or 130 bits long),
-   * or {@code MIN_LSB_EXPONENT} (q is not longer than 129 bits).
+   * @return the integer part of this value (truncated toward zero), saturated to the range of {@code long},
+   * as the standard narrowing conversion {@code (long)double} does
    */
-  private Quadruple toQuadruple(BigInteger q, long lsbExponent) {
-    if (q.signum() == 0)
-      return new Quadruple(negative, 0, 0, 0);
-    final int k = q.bitLength() - 1;
-    if (k < 128)                                                     // subnormal
-      return new Quadruple(negative, 0, q.shiftRight(64).longValue(), q.and(MASK_64).longValue());
+  public long toLongTruncated() {
+    return integerPart().max(BigInteger.valueOf(Long.MIN_VALUE)).min(BigInteger.valueOf(Long.MAX_VALUE)).longValue();
+  }
 
-    final long biased = k + lsbExponent + BIAS;
-    if (biased > EXPONENT_OF_MAX_VALUE)
-      return new Quadruple(negative, EXPONENT_OF_INFINITY, 0, 0);
-    final BigInteger fraction = q.clearBit(k).shiftRight(k - 128);  // k is 128 or 129, lost bits are 0
-    return new Quadruple(negative, (int)biased, fraction.shiftRight(64).longValue(), fraction.and(MASK_64).longValue());
+  /**
+   * @return the integer part of this value (truncated toward zero), saturated to the range of {@code int},
+   * as the standard narrowing conversion {@code (int)double} does
+   */
+  public int toIntTruncated() {
+    return integerPart().max(BigInteger.valueOf(Integer.MIN_VALUE)).min(BigInteger.valueOf(Integer.MAX_VALUE)).intValue();
+  }
+
+  /** @return the integer part, or a value beyond the range of long, if the magnitude is not less than 2^64 */
+  private BigInteger integerPart() {
+    if (isZero() || top() <= 0) return ZERO;
+    final BigInteger abs = top() > 64?
+        ONE.shiftLeft(64) :
+        exp2 >= 0? mant.shiftLeft(toInt(exp2)) : mant.shiftRight(toInt(-exp2));
+    return negative? abs.negate() : abs;
   }
 
   /** @return {@code value * 2^-s} as a double */
