@@ -40,6 +40,23 @@ public class QuadAssert {
       .isTrue();
   }
 
+  /**
+   * Asserts that {@code actual} is the correctly rounded value of {@code exact}
+   * (to the nearest, ties away from zero), or, if {@code exact} is closer to the midpoint
+   * between two adjacent Quadruple values than {@code epsilon} ulp, either of them.
+   *
+   * @param epsilon the allowed uncertainty near the midpoint, in ulps; 0 means strict correct rounding
+   * @param context description of the checked case, included in the failure message
+   */
+  public static void assertCorrectlyRounded(Quadruple actual, ExactValue exact, double epsilon, String context) {
+    final ExactValue.Rounding r = exact.round();
+    assertThat(r.accepts(actual, epsilon))
+      .withFailMessage("%s:%n  exact:    %s%n  expected: %s%n  actual:   %s%n"
+                       + "  offset from midpoint: %s ulp, epsilon: %s ulp",
+                       context, exact, fieldsOf(r.rounded()), fieldsOf(actual), r.offsetFromMidpoint(), epsilon)
+      .isTrue();
+  }
+
   public static boolean sameFields(Quadruple q1, Quadruple q2) {
     return q1.isNegative() == q2.isNegative()
         && q1.exponent()   == q2.exponent()
