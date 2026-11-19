@@ -103,3 +103,32 @@ the conversion to float.
 
 **Tests:** `ConversionTest.shouldConvertToFloatWithoutDoubleRounding` (disabled; 5780 cases, all fail).
 These values are excluded from the data of `ConversionTest.shouldConvertToFloat`.
+
+---
+
+## BUG-05 — `toIeee754Longs()`/`toIeee754Bytes()` give 0 for values in `[MIN_VALUE/2, MIN_VALUE)` of IEEE-754
+
+**Status:** open
+**Found:** 2026-11-19
+**Where:** `Quadruple.toIeee754Longs()` (and `toIeee754Bytes()`, which uses it):
+`unbiasedExponent < IEEE754_MIN_EXPONENT` (-16494) returns zero
+
+**Reproduction:**
+```java
+// 2^-16495 = a half of the minimum IEEE-754 subnormal value (a tie), and 1.5 * 2^-16495
+Quadruple tie   = new Quadruple(false, Quadruple.EXPONENT_BIAS - 16495, 0, 0);
+Quadruple above = new Quadruple(false, Quadruple.EXPONENT_BIAS - 16495, 0x8000_0000_0000_0000L, 0);
+tie.toIeee754Longs();     // {0, 0}, expected {0, 1} (the minimum subnormal; half-up)
+above.toIeee754Longs();   // {0, 0}, expected {0, 1} (it is closer to the minimum subnormal than to 0)
+```
+
+**Cause:** the values with the exponent -16495 (i.e. in the range `[MIN_VALUE/2, MIN_VALUE)`) are converted to zero
+without rounding. The javadoc describes this behavior ("the values whose magnitude is less than ...
+(minimum positive value of IEEE-754 Quadruple) are converted to 0"), but it contradicts the beginning
+of the same javadoc ("the IEEE-754 quadruple precision number nearest to the value", "the rounding mode is half-up").
+
+**Fix (proposed):** return zero only for exponents less than -16495, let the subnormal branch round the values
+with the exponent -16495 (check that it handles the shift by 113 bits); fix the javadoc.
+
+**Tests:** `ConversionTest.shouldRoundValuesBelowIeee754MinValueToMinValue` (disabled; 8 cases, all fail).
+These values are excluded from the data of `ConversionTest.shouldConvertToIeee754Longs/Bytes`.

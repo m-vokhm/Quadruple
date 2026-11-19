@@ -12,10 +12,12 @@ import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 import com.mvohm.quadruple.testutil.BinaryFormat;
 import com.mvohm.quadruple.testutil.ExactValue;
+import com.mvohm.quadruple.testutil.Ieee754Reference;
 import com.mvohm.quadruple.testutil.QuadAssert;
 
 /**
- * Data for {@code ConversionTest}: Quadruple values to be converted to int, long, double and float.
+ * Data for {@code ConversionTest}: Quadruple values to be converted to int, long, double, float
+ * and IEEE-754 quadruple precision.
  * <p>
  * Besides random values in the relevant exponent ranges, the sets contain values built
  * near the boundaries of the target types and near the midpoints between adjacent values
@@ -187,6 +189,79 @@ public class ConversionData {
   private static Stream<Labeled> nearFloatMidpoint(String name, float f) {
     final ExactValue x = ExactValue.of(f), ulp = ExactValue.of(Math.ulp(f));
     return nearMidpoint(name, x, ulp, 20, 31, 40);
+  }
+
+  /* ************************************************************************
+   * IEEE-754 quadruple precision
+   */
+
+  /**
+   * Values for {@code toIeee754Longs()} and {@code toIeee754Bytes()} (see {@link #allValuesForIeee754Conversion()}),
+   * except those in the range {@code [MIN_VALUE / 2, MIN_VALUE)} of IEEE-754 (BUG-05, see KNOWN_ISSUES.md).
+   */
+  public static Stream<Named<Quadruple>> valuesForIeee754Conversion() {
+    return allValuesForIeee754Conversion().filter(v -> !isBelowIeee754MinValue(v.getPayload()));
+  }
+
+  /**
+   * The values from {@link #allValuesForIeee754Conversion()} that are less than the minimum IEEE-754 value
+   * by magnitude, but should be rounded to it, i.e. those in the range {@code [MIN_VALUE / 2, MIN_VALUE)} (BUG-05)
+   */
+  public static Stream<Named<Quadruple>> valuesBelowIeee754MinValue() {
+    return allValuesForIeee754Conversion().filter(v -> isBelowIeee754MinValue(v.getPayload()));
+  }
+
+  /** @return true if the value of {@code q} is less than the minimum IEEE-754 value, but is rounded to it */
+  private static boolean isBelowIeee754MinValue(Quadruple q) {
+    if (q.isNaN() || q.isInfinite()) return false;
+    final ExactValue.Rounding<Ieee754Bits> r = ExactValue.of(q).round(BinaryFormat.IEEE754_QUAD);
+    final long magnitudeMask = 0x7FFF_FFFF_FFFF_FFFFL;
+    return (r.truncated().hi() & magnitudeMask) == 0 && r.truncated().lo() == 0       // truncated to zero
+        && (r.rounded().hi() & magnitudeMask) == 0 && r.rounded().lo() == 1;           // rounded to MIN_VALUE
+  }
+
+  /**
+   * All values for {@code toIeee754Longs()} and {@code toIeee754Bytes()}: both signs of
+   * <ul>
+   *   <li>values near the midpoints between adjacent IEEE-754 values (exactly at the midpoint,
+   *       +/- 1 Quadruple ulp (2^-16 of the IEEE-754 ulp), +/- 2^-4 and 2^-10 of the IEEE-754 ulp):
+   *       near 1.0, 0, the minimum subnormal, the maximum subnormal, MIN_NORMAL and MAX_VALUE of IEEE-754
+   *       (the last gives infinity), and near random IEEE-754 values, normal and subnormal;</li>
+   *   <li>extreme Quadruple values, random values with exponents from -16600 to 16500
+   *       (a bit beyond the range of IEEE-754 on both sides).</li>
+   * </ul>
+   */
+  private static Stream<Named<Quadruple>> allValuesForIeee754Conversion() {
+    final ExactValue minSubnormal = pow2(IEEE754_MIN_LSB_EXPONENT), minNormal = pow2(-16382);
+    final ExactValue maxUlp = pow2(16383 - 112);
+    final Stream<Labeled> edges = Stream.of(
+        nearIeee754Midpoint("1",              pow2(0),                           pow2(-112)),
+        nearIeee754Midpoint("1 + ulp",        pow2(0).add(pow2(-112)),           pow2(-112)),
+        nearIeee754Midpoint("0",              ExactValue.of(0),                  minSubnormal),
+        nearIeee754Midpoint("MIN_VALUE",      minSubnormal,                      minSubnormal),
+        nearIeee754Midpoint("max subnormal",  minNormal.subtract(minSubnormal),  minSubnormal),
+        nearIeee754Midpoint("MIN_NORMAL",     minNormal,                         minSubnormal),
+        nearIeee754Midpoint("MAX_VALUE",      pow2(16384).subtract(maxUlp),      maxUlp)
+      ).flatMap(s -> s);
+    final Stream<Labeled> randomMidpoints = new RandomGenerator().ieee754Bits(MIDPOINT_COUNT)
+        .flatMap(bits -> {
+          final ExactValue x = ExactValue.of(Ieee754Reference.expectedQuadruple(bits));
+          final int exponentField = (int)(bits.hi() >>> 48) & 0x7FFF;
+          final ExactValue ulp = pow2(Math.max(exponentField, 1) - 16383 - 112);
+          return nearIeee754Midpoint(bits.toString(), x.isNegative()? x.negate() : x, ulp);
+        });
+    return Stream.of(
+        withBothSigns(Stream.concat(edges, randomMidpoints)),
+        withBothSigns(extremeValues()),
+        labeled(new RandomGenerator().quadruples(RANDOM_COUNT, -16600, 16500))
+      ).flatMap(s -> s).map(Labeled::toNamed);
+  }
+
+  /** The binary exponent of the minimum subnormal IEEE-754 quadruple value */
+  private static final int IEEE754_MIN_LSB_EXPONENT = -16382 - 112;
+
+  private static Stream<Labeled> nearIeee754Midpoint(String name, ExactValue x, ExactValue ulp) {
+    return nearMidpoint(name, x, ulp, 4, 10);   // Quadruple has only 16 bits more than IEEE-754
   }
 
   /* ************************************************************************
