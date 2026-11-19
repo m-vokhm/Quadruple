@@ -66,6 +66,18 @@ public class RandomGenerator {
   }
 
   /**
+   * Returns finite floats with random bit patterns, both signs, exponents evenly distributed
+   * over the whole range; about 1/4 of them are subnormal. Zeros are excluded.
+   */
+  public Stream<Float> floats(int count) {
+    return Stream.generate(() -> random.nextInt(4) == 0?
+                                   Float.intBitsToFloat(random.nextInt() & 0x807F_FFFF) :     // subnormal
+                                   Float.intBitsToFloat(random.nextInt()))
+                 .filter(f -> Float.isFinite(f) && f != 0)
+                 .limit(count);
+  }
+
+  /**
    * Returns longs of both signs whose magnitudes are evenly distributed
    * over bit lengths from 1 to 64 (not concentrated near 2^63).
    */
@@ -122,6 +134,17 @@ public class RandomGenerator {
       .filter(q -> q.exponent() != Quadruple.EXPONENT_OF_INFINITY
                    && (q.exponent() != 0 || q.mantHi() != 0 || q.mantLo() != 0))
       .limit(count);
+  }
+
+  /**
+   * Returns normal Quadruple values with random sign and mantissa, and unbiased exponents
+   * evenly distributed over the given range (e.g. around the range of {@code double}).
+   */
+  public Stream<Quadruple> quadruples(int count, int minExponent, int maxExponent) {
+    return Stream.generate(() -> new Quadruple(random.nextBoolean(),
+                                               Quadruple.EXPONENT_BIAS + minExponent + random.nextInt(maxExponent - minExponent + 1),
+                                               random.nextLong(), random.nextLong()))
+                 .limit(count);
   }
 
 }

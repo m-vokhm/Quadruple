@@ -52,3 +52,54 @@ since a new instance has `mantHi == 0`.
 
 **Tests:** not applicable (the behavior is tested by `CreationTest.shouldCreateFromParts`,
 `AssignTest.shouldAssignPartsToDirtyInstance`, `AssignTest.shouldAssignLongArrayToDirtyInstance`).
+
+---
+
+## BUG-03 — `doubleValue()` rounds ties half-up in the subnormal range of `double`
+
+**Status:** open
+**Found:** 2026-11-19
+**Where:** `Quadruple.doubleValue()`, the branch for subnormal results (`expD < -(EXP_0D - 1)`)
+
+**Reproduction:**
+```java
+Quadruple min = new Quadruple(Double.MIN_VALUE);
+Quadruple.divide(min, 2.0).doubleValue();       // 4.9E-324 (MIN_VALUE), expected 0.0
+Quadruple.multiply(min, 2.5).doubleValue();     // 1.5E-323 (3 * MIN_VALUE), expected 9.9E-324 (2 * MIN_VALUE)
+```
+
+**Cause:** for normal results `doubleValue()` rounds half-even, as documented
+("like `BigDecimal.doubleValue()`"), but the subnormal branch adds a half of the LSB and shifts,
+which rounds exact ties up (away from zero). Only exact ties are affected.
+
+**Fix (proposed):** round half-even in the subnormal branch too (round a tie up only if the result is odd,
+taking into account all the shifted-out bits, including `mantLo`).
+
+**Tests:** `ConversionTest.shouldConvertSubnormalDoubleTiesToEven` (disabled; 1006 ties, 498 of them fail —
+the others are rounded up to even anyway).
+The ties are excluded from the data of `ConversionTest.shouldConvertToDouble`.
+
+---
+
+## BUG-04 — `floatValue()` may be rounded incorrectly (double rounding)
+
+**Status:** open
+**Found:** 2026-11-19
+**Where:** `Quadruple.floatValue()`, implemented as `(float)doubleValue()`
+
+**Reproduction:**
+```java
+Quadruple q = new Quadruple(1.0).add(Math.scalb(1.0, -24)).add(Math.scalb(1.0, -60));  // 1 + 2^-24 + 2^-60
+q.floatValue();    // 1.0, expected 1.0000001 (1 + 2^-23): the value is above the midpoint 1 + 2^-24
+```
+
+**Cause:** the value is rounded twice: first to double, then to float. If the value is slightly off the midpoint
+between two adjacent floats (closer to it than a half ulp of double, i.e. 2^-30 ulp of float),
+the first rounding gives exactly the midpoint, and the second one (half-even) may go the wrong way.
+
+**Fix (proposed):** round the mantissa directly to 24 bits (half-even, taking into account all the bits),
+the same way as `doubleValue()` does it for 53 bits; or round to double with "round to odd" (sticky) before
+the conversion to float.
+
+**Tests:** `ConversionTest.shouldConvertToFloatWithoutDoubleRounding` (disabled; 5780 cases, all fail).
+These values are excluded from the data of `ConversionTest.shouldConvertToFloat`.
