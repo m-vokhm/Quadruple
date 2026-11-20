@@ -32,7 +32,8 @@
 src/test/java/com/mvohm/quadruple/
   *Test.java     — тестовые классы (в пакете com.mvohm.quadruple: доступ к package-private)
   testdata/      — наборы данных (constants/, generators/)
-  testutil/      — эталонные вычисления (ExactValue, BigDecimal), проверка точности
+  testutil/      — эталонные вычисления (ExactValue, BigDecimal), проверка точности,
+                   адаптер форм вызова арифметики (BinaryOperation × CallForm)
 ```
 
 Классы: `CreationTest` (конструкторы, кроме строкового), `AssignTest` (`assign(...)` со всеми типами,
