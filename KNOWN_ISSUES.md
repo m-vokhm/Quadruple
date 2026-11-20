@@ -341,3 +341,34 @@ Quadruple.subtract(a, b);
 
 **Tests:** `AddSubTest.shouldSubtractSubnormalsWithShift129` (disabled; 48 cases, all fail).
 These cases are excluded from the data of `AddSubTest.shouldBeCorrectlyRounded`.
+
+---
+
+## BUG-14 — subnormal products are rounded twice
+
+**Status:** open
+**Found:** 2026-11-20
+**Where:** `Quadruple.multUnsigned()`: `roundBuffer()`, then `normalizeSubnormal()` / `makeSubnormal()`
+
+**Reproduction:**
+```java
+Quadruple a = new Quadruple(false, 0x4000_00E9, 0xCBEC_F7B0_0000_0000L, 0);
+Quadruple b = new Quadruple(false, 0x3FFF_FEF6, 0x0464_3416_BA2D_68B1L, 0xD5A3_9A42_6800_0000L);
+Quadruple.multiply(a, b);
+// exp = 0, mantHi = 0x0000_0000_E9E8_58DA, mantLo = 0x3BF4_64EA_969C_6BE6,
+// expected mantLo = 0x3BF4_64EA_969C_6BE5: the exact product is below the midpoint by 5.8e-11 ulp
+```
+
+**Cause:** the product is first rounded half-up to 128 fractional bits, as for a normal result (`roundBuffer()`),
+and then, if the result is subnormal, it is shifted right and rounded half-up again (`makeSubnormal()`).
+If the first rounding turns a tail like `0111..11|1..` into `1000..00`, the second rounding sees a tie and rounds up,
+though the exact value is below the midpoint. To compensate the first rounding, `normalizeSubnormal()` clears
+the LSB of the rounded value if it was rounded up, which in turn sometimes makes the result rounded down,
+though the exact value is above the midpoint (2 of the cases). Normal results are not affected.
+
+**Fix (proposed):** for subnormal results, round only once: shift the full (unrounded) product right
+and round it at the position of the subnormal LSB, taking into account all the shifted-out bits.
+
+**Tests:** `MultiplyTest.shouldRoundSubnormalProductsOnce` (disabled; 370 cases, all fail).
+The criterion (`MultiplyData.isSubnormalDoubleRoundingCase()`) emulates the rounding of the library
+and selects exactly the failing cases; they are excluded from the data of `MultiplyTest.shouldBeCorrectlyRounded`.
