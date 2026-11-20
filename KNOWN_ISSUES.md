@@ -132,3 +132,103 @@ with the exponent -16495 (check that it handles the shift by 113 bits); fix the 
 
 **Tests:** `ConversionTest.shouldRoundValuesBelowIeee754MinValueToMinValue` (disabled; 8 cases, all fail).
 These values are excluded from the data of `ConversionTest.shouldConvertToIeee754Longs/Bytes`.
+
+---
+
+## BUG-06 — `equals()` returns `false` for two different instances of NaN
+
+**Status:** open
+**Found:** 2026-11-19
+**Where:** `Quadruple.equals(Object)`: `if (isNaN() && other.isNaN()) return false;`
+
+**Reproduction:**
+```java
+Quadruple.nan().equals(Quadruple.nan());   // false, expected true (like Double.valueOf(Double.NaN).equals(Double.NaN))
+```
+
+**Cause:** the code treats all NaNs as different (only an instance is equal to itself), while
+`compareTo()` considers all NaNs equal, `hashCode()` returns the same value for all NaNs
+("Since NaNs are considered equal"), and `Double.equals()` considers all NaNs equal
+(it compares `doubleToLongBits()`, which collapses all NaNs to the canonical one).
+As a result, `equals()` is inconsistent with `compareTo()`, and e.g. a `HashSet` may contain any number of NaNs.
+
+**Fix (proposed):** return `true` if both are NaN (regardless of the sign and the mantissa bits).
+
+**Tests:** `ComparisonTest.shouldConsiderAllNaNsEqual` (disabled; 25 pairs of NaNs, including NaNs
+with different bit patterns, all fail). These pairs are excluded from the data of `ComparisonTest.shouldTestEquality`.
+
+---
+
+## BUG-07 — `min()` and `assignMin()` ignore a NaN operand
+
+**Status:** open
+**Found:** 2026-11-19
+**Where:** `Quadruple.min(Quadruple, Quadruple)`, `Quadruple.assignMin(Quadruple)`
+
+**Reproduction:**
+```java
+Quadruple.min(Quadruple.nan(), Quadruple.one());    // 1.0, expected NaN (like Math.min(Double.NaN, 1.0))
+Quadruple.min(Quadruple.one(), Quadruple.nan());    // 1.0, expected NaN
+Quadruple.one().assignMin(Quadruple.nan());         // 1.0, expected NaN
+Quadruple.nan().assignMin(Quadruple.one());         // 1.0, expected NaN
+```
+
+**Cause:** the methods rely on `compareTo()`, which considers NaN greater than any other value
+(like `Double.compare()`), so the other operand is always the lesser one. `Math.min()` returns NaN
+if any of the operands is NaN. `max()` and `assignMax()` give NaN anyway, since NaN is the greatest.
+
+**Fix (proposed):** return (assign) NaN if any of the operands is NaN; mention it in the javadoc.
+
+**Tests:** `ComparisonTest.shouldGiveNaNAsMinIfAnyOperandIsNaN` (disabled; 450 pairs with exactly one NaN,
+for both `min()` and `assignMin()`, all fail). These pairs are excluded from the data of
+`ComparisonTest.shouldFindMin` and `ComparisonTest.shouldAssignMin`.
+
+---
+
+## BUG-08 — `signum()` should behave like `Math.signum()` (API change for the next release)
+
+**Status:** open (planned API change)
+**Found:** 2026-11-19
+**Where:** `Quadruple.signum()`
+
+**Reproduction:**
+```java
+Quadruple.nan().signum();                        // 1, expected NaN
+new Quadruple(true, 0, 0, 0).signum();           // -1 (as documented), expected -0.0
+```
+
+**Cause:** `signum()` returns `int`, so it can't return NaN for NaN and -0.0 for -0, like `Math.signum(double)`.
+Currently `signum(NaN) == 1` (not documented), `signum(-0) == -1` (documented).
+
+**Fix (planned):** change the return type to `double`, return NaN for NaN, -0.0 for -0, 0.0 for +0,
+-1.0 and 1.0 for other values (including infinities); update the javadoc. This is an incompatible API change,
+it goes to the next release.
+
+**Tests:** `ComparisonTest.shouldReturnSignumOfNaNAndNegativeZeroLikeMathSignum` (disabled; -0 and 4 NaNs,
+all fail). The test code compiles with both `int` and `double` return types.
+These values are excluded from the data of `ComparisonTest.shouldReturnSignum`.
+
+---
+
+## BUG-09 — javadoc of comparison methods does not describe special values (documentation only)
+
+**Status:** open
+**Found:** 2026-11-19
+**Where:** javadoc of `Quadruple`; the code behaves like `Double` (except BUG-06, BUG-07, BUG-08).
+
+1. `compareTo(Quadruple)`, `compareTo(long)`, `compareTo(double)`, `compare()`: should state that the order is
+   that of `Double.compare()`: NaN is greater than any other value (including +Infinity), all NaNs are equal
+   to each other, -0 is less than +0.
+2. `compareMagnitudeTo()`, `compareMagnitudes()`: should state that NaN is greater in magnitude than any
+   other value, all NaNs are equal, Infinity is greater than any finite value, -0 and +0 are equal in magnitude.
+   `compareMagnitudeTo()` promises -1, 0, 1, while `compareMagnitudes()` promises
+   "a negative integer, zero, or a positive integer" — make them consistent (the code returns -1, 0, 1).
+3. `equals()`: should state that, like `Double.equals()`, all NaNs are equal to each other (after BUG-06 is fixed),
+   and -0 is not equal to +0.
+4. `max()`, `min()`, `assignMax()`, `assignMin()`: should state that the result is NaN if any of the operands is NaN
+   (after BUG-07 is fixed), and that -0 is considered less than +0. In `max()` and `min()`, the description of `q2`
+   says "first operand to compare".
+
+**Fix (proposed):** correct the javadoc.
+
+**Tests:** not applicable (the behavior is tested by `ComparisonTest`).

@@ -170,6 +170,25 @@ public class ExactValueTest {
   }
 
   @Test
+  void compareToShouldCompareValuesNumerically() {
+    final ExactValue zero = ExactValue.of(0), negZero = zero.negate(), one = pow2(0);
+    final ExactValue[] ascending = {
+        ExactValue.of(MAX_VALUE_Q).negate(), one.negate(), ExactValue.of(MIN_VALUE_Q).negate(),
+        zero,
+        ExactValue.of(MIN_VALUE_Q), pow2(-129).multiply(ExactValue.of(3)), one.subtract(pow2(-129)), one,
+        one.add(pow2(-129)), ExactValue.of(MAX_VALUE_Q) };
+    for (int i = 0; i < ascending.length; i++)
+      for (int j = 0; j < ascending.length; j++)
+        assertThat(ascending[i].compareTo(ascending[j])).as("compare %s, %s", ascending[i], ascending[j])
+          .isEqualTo(Integer.compare(i, j));
+    assertThat(negZero.compareTo(zero)).isZero();
+    assertThat(negZero.compareTo(one)).isEqualTo(-1);
+    assertThat(one.negate().compareTo(negZero)).isEqualTo(-1);
+    assertThat(ExactValue.of(false, ONE.shiftLeft(1000), -1000).compareTo(one)).isZero();   // the same value
+    assertThat(ExactValue.of(false, ONE.shiftLeft(1000).add(ONE), -1000).compareTo(one)).isEqualTo(1);
+  }
+
+  @Test
   void unsupportedOperationsShouldThrow() {
     final ExactValue inexact = ExactValue.of(1).divide(ExactValue.of(3));
     assertThatThrownBy(() -> inexact.add(pow2(0))).isInstanceOf(IllegalStateException.class);
@@ -228,6 +247,8 @@ public class ExactValueTest {
     final BigDecimal x = toBigDecimal(a), y = toBigDecimal(b);
     final String operands = "(" + fieldsOf(a) + "), (" + fieldsOf(b) + ")";
 
+    assertThat(ea.compareTo(eb)).as("compareTo " + operands).isEqualTo(x.compareTo(y));
+    assertThat(ea.compareTo(ea.negate())).as("compareTo -a " + operands).isEqualTo(x.signum());
     checkSum(ea.add(eb),        x.add(y),      "add " + operands);
     checkSum(ea.subtract(eb),   x.subtract(y), "subtract " + operands);
     checkExact(ea.multiply(eb), x.multiply(y), "multiply " + operands);

@@ -137,6 +137,35 @@ public class RandomGenerator {
   }
 
   /**
+   * Returns pairs of finite Quadruple values (see {@link #quadruples(int)}) for comparisons.
+   * In most pairs, the second value is close to the first one, so that they can be distinguished only
+   * by low-order bits: in about 1/6 of the pairs it is an independent random value, in 1/6 an equal value
+   * (a different instance), in 1/6 the value with the opposite sign, in 1/6 the value with a flipped bit of
+   * {@code mantLo}, in 1/6 with a flipped bit of {@code mantHi}, and in 1/6 with the exponent differing by 1.
+   * Flipping bits of subnormal values may yield zeros.
+   */
+  public Stream<Quadruple[]> quadruplePairs(int count) {
+    return quadruples(count).map(a -> new Quadruple[] {a, closeTo(a)});
+  }
+
+  private Quadruple closeTo(Quadruple a) {
+    final boolean negative = a.isNegative();
+    final int exponent = a.exponent();
+    final long mantHi = a.mantHi(), mantLo = a.mantLo();
+    switch (random.nextInt(6)) {
+      case 0:  return quadruples(1).findFirst().get();
+      case 1:  return new Quadruple(a);
+      case 2:  return new Quadruple(!negative, exponent, mantHi, mantLo);
+      case 3:  return new Quadruple(negative, exponent, mantHi, mantLo ^ 1L << random.nextInt(64));
+      case 4:  return new Quadruple(negative, exponent, mantHi ^ 1L << random.nextInt(64), mantLo);
+      default:
+        final int delta = random.nextBoolean()? 1 : -1;
+        final int e = exponent + delta == Quadruple.EXPONENT_OF_INFINITY? exponent - delta : exponent + delta;
+        return new Quadruple(negative, e, mantHi, mantLo);
+    }
+  }
+
+  /**
    * Returns normal Quadruple values with random sign and mantissa, and unbiased exponents
    * evenly distributed over the given range (e.g. around the range of {@code double}).
    */

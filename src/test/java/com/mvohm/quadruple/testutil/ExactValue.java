@@ -123,6 +123,32 @@ public final class ExactValue {
   /** @return false if the value is only an approximation of the true result (see the class description) */
   public boolean isExact()    { return !inexact; }
 
+  /**
+   * Compares the exact values numerically: zeros of both signs are equal.
+   * Works for any exponents (does not shift the mantissas by more than their lengths).
+   * @return a negative integer, zero, or a positive integer as this value is less than,
+   * equal to, or greater than the other one
+   */
+  public int compareTo(ExactValue other) {
+    requireExact(this, other);
+    if (isZero())
+      return other.isZero()? 0 : other.negative? 1 : -1;
+    if (other.isZero() || negative != other.negative)
+      return negative? -1 : 1;
+    final int magnitude = compareMagnitudes(this, other);
+    return negative? -magnitude : magnitude;
+  }
+
+  /** compares the magnitudes of two non-zero values */
+  private static int compareMagnitudes(ExactValue a, ExactValue b) {
+    final int byTop = Long.compare(a.top(), b.top());
+    if (byTop != 0)
+      return byTop;
+    // the same position of the MSB, so the exponents differ by less than the mantissa lengths
+    final long minExp = Math.min(a.exp2, b.exp2);
+    return a.mant.shiftLeft(toInt(a.exp2 - minExp)).compareTo(b.mant.shiftLeft(toInt(b.exp2 - minExp)));
+  }
+
   /* ************************************************************************
    * Arithmetic
    */
