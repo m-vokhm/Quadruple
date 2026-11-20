@@ -372,3 +372,31 @@ and round it at the position of the subnormal LSB, taking into account all the s
 **Tests:** `MultiplyTest.shouldRoundSubnormalProductsOnce` (disabled; 370 cases, all fail).
 The criterion (`MultiplyData.isSubnormalDoubleRoundingCase()`) emulates the rounding of the library
 and selects exactly the failing cases; they are excluded from the data of `MultiplyTest.shouldBeCorrectlyRounded`.
+
+## BUG-15 — square roots slightly above the midpoint may be rounded down
+
+**Status:** open
+**Found:** 2026-11-20
+**Where:** `Quadruple.sqrt()`: `sqrtMant()` (and `multBySqrt2()` for odd exponents), rounding by the highest bit of `thirdWord`
+
+**Reproduction:**
+```java
+Quadruple q = new Quadruple(false, 0x8000_095C, 0x4254_054A_B753_15E2L, 0x6C31_4590_EFB6_D3BFL);
+Quadruple.sqrt(q);
+// exp = 0x8000_04AD, mantHi = 0x963D_C9AB_69F5_9CDD, mantLo = 0x37B1_B4B0_EF34_DE3B,
+// expected mantLo = 0x37B1_B4B0_EF34_DE3C: the exact root is above the midpoint by 3.3e-28 ulp
+```
+
+**Cause:** the root is computed with 64 extra bits (`thirdWord`) and rounded half-up by the highest of them,
+but only about 31 of the extra bits are correct, and the computed root is slightly less than the exact one.
+So if the exact root is above the midpoint by less than ~2^-31.5 ulp, the result may be rounded down.
+The error is always in this direction; roots farther from the midpoint are always rounded correctly.
+`Math.sqrt()` is correctly rounded (IEEE-754), and so is `Quadruple.divide()`.
+
+**Fix (proposed):** if the computed root is close to the midpoint (the extra bits are within ~2^-30 ulp of `0x8000...`),
+decide the rounding exactly: compare the square of the midpoint with the argument (one 256-bit multiplication).
+
+**Tests:** `SqrtTest.shouldRoundRootsNearMidpointCorrectly` (disabled; 4234 cases closer to the midpoint
+than 2^-31 ulp, 1635 of them fail). There's no exact criterion of failing (it depends on the internal error
+of `sqrtMant()`), so all the values closer to the midpoint than 2^-31 ulp (`SqrtData.isNearMidpoint()`)
+are excluded from the data of `SqrtTest.shouldBeCorrectlyRounded`, which requires correct rounding (ε = 0).
