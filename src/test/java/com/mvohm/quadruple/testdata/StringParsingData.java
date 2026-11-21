@@ -155,6 +155,16 @@ public class StringParsingData {
     list.add(number("1e-999999999",  false, ONE, -999_999_999));
     list.add(number("2.27e-646456993", false, BigInteger.valueOf(227), MIN_NORMAL_EXP10 - 2)); // ~MIN_NORMAL
     list.add(number("1e-646456993", false, ONE, MIN_NORMAL_EXP10));                  // subnormal
+    // From the old tests: rounding of the decimal mantissa with a carry, leading zeros, extreme exponents
+    final String nines51 = "9." + "9".repeat(50), nines70 = "9." + "9".repeat(69);
+    list.add(number(nines51, false, new BigInteger(nines51.replace(".", "")), -50));   // rounds to 10
+    list.add(number(nines70, false, new BigInteger(nines70.replace(".", "")), -69));   // > 59 digits, carry
+    list.add(number("9.99999999990000000000000000000000000000000000000001", false,
+                    new BigInteger("999999999990000000000000000000000000000000000000001"), -50));
+    list.add(number("000", false, ZERO, 0));
+    list.add(number("1.23456e2147483648",  false, BigInteger.valueOf(123456), 2147483648L - 5));   // Infinity
+    list.add(number("-1.23456e2147483648", true,  BigInteger.valueOf(123456), 2147483648L - 5));
+    list.add(number("5.23456e-646457032",  false, BigInteger.valueOf(523456), MIN_EXP10 - 5));     // MIN_VALUE
     return list;
   }
 
@@ -299,7 +309,9 @@ public class StringParsingData {
                      "+-1", "-+1", "--1", "++1", "1-", "1+", "1.2.3", "1..2", "1e2.5", "1e2e3", "1ee2", "1 2", "1. 5",
                      "- 1", "1 e5", "1,5", "1,000", "abc", "1a", "a1", "0x", "#1", "1%", "∞", "١", "1/2",
                      "NaN1", "Na N", "nan.", "Infinityx", "Inf", "+-Infinity", "--Infinity", "++Infinity",
-                     "MAX", "Quadruple.", "Double.MAX_VALUE", "Quadruple.MAX_VALUE.", "Quadruple. MAX_VALUE");
+                     "MAX", "Quadruple.", "Double.MAX_VALUE", "Quadruple.MAX_VALUE.", "Quadruple. MAX_VALUE",
+                     // from the old tests
+                     "Blazing nonsense", "123e.123", "-123.321ee345", "1.2345e+5.5", "1.2345e-5.5", ".e35");
   }
 
   /* ************************************************************************

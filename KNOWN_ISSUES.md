@@ -575,7 +575,7 @@ resulting scales throw `ArithmeticException` (`Underflow` or `Overflow`). Values
 **Fix (proposed):** compute the exponent as `long`, and return Infinity if it exceeds the range of Quadruple
 before any BigDecimal arithmetic.
 
-**Tests:** `BigDecimalConversionTest.shouldConvertHugeBigDecimalToInfinity` (disabled; 52 cases, all fail).
+**Tests:** `BigDecimalConversionTest.shouldConvertHugeBigDecimalToInfinity` (disabled; 56 cases, all fail).
 The criterion (`BigDecimalData.isExponentBeyondInt()`) selects exactly the failing cases, which are excluded
 from the data of `BigDecimalConversionTest.shouldConvertBigDecimalWithDeclaredAccuracy`.
 

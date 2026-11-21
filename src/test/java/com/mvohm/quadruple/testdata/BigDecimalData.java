@@ -48,6 +48,15 @@ public class BigDecimalData {
 
   /** BigDecimal values with their exact values (see the class description), except the cases of BUG-25 */
   public static Stream<Arguments> decimals() {
+    return allDecimals().filter(a -> !isExponentBeyondInt(bigDecimalOf(a)));
+  }
+
+  /** BUG-25: the values of {@link #allDecimals()} not less than {@code 10^(2^31)}, whose decimal exponent does not fit in int */
+  public static Stream<Arguments> exponentBeyondInt() {
+    return allDecimals().filter(a -> isExponentBeyondInt(bigDecimalOf(a)));
+  }
+
+  private static Stream<Arguments> allDecimals() {
     final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
     final List<Arguments> list = new ArrayList<>();
     Stream.concat(StringParsingData.numbers(), StringParsingData.wrappedOverflows()).forEach(a -> {
@@ -65,14 +74,12 @@ public class BigDecimalData {
       if (random.nextInt(8) == 0)
         list.add(decimal(bd.stripTrailingZeros(), exact));
     });
-    edgeScales().filter(a -> !isExponentBeyondInt((BigDecimal)((Named<?>)a.get()[0]).getPayload()))
-                .forEach(list::add);
+    edgeScales().forEach(list::add);
     return list.stream();
   }
 
-  /** BUG-25: values not less than {@code 10^(2^31)}, whose decimal exponent does not fit in int */
-  public static Stream<Arguments> exponentBeyondInt() {
-    return edgeScales().filter(a -> isExponentBeyondInt((BigDecimal)((Named<?>)a.get()[0]).getPayload()));
+  private static BigDecimal bigDecimalOf(Arguments a) {
+    return (BigDecimal)((Named<?>)a.get()[0]).getPayload();
   }
 
   /** The criterion of BUG-25: the exponent of the leading digit, {@code precision - scale - 1}, does not fit in int */
