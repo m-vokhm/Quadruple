@@ -114,6 +114,111 @@ public final class ExactValue {
     return new ExactValue(value < 0, BigInteger.valueOf(value).abs(), 0, false);
   }
 
+  /** The max absolute decimal exponent for which {@link #ofDecimal} computes the power of 10 exactly */
+  static final int EXACT_POWER_LIMIT = 2000;
+  /** Decimal exponents beyond the range of Quadruple by far: such values become infinities or zeros */
+  private static final long HUGE_EXP10 = 700_000_000L;
+
+  /**
+   * @return the value {@code ±digits * 10^exp10}, for any exponent. For {@code |exp10| <= }{@value #EXACT_POWER_LIMIT},
+   * it is computed exactly (with the sticky bit if inexact, like a quotient); for greater exponents,
+   * the power of 10 is computed with guaranteed bounds, and the result is an inexact value with at least
+   * {@value #MIN_PRECISION} significant bits, the true value lying strictly between its adjacent units
+   * (see the class description). Values beyond the range of Quadruple by far (more than
+   * 10^{@value #HUGE_EXP10}, or less than 10^-{@value #HUGE_EXP10}) are replaced by exact values that are
+   * also beyond the range (rounding to infinity or zero).
+   */
+  public static ExactValue ofDecimal(boolean negative, BigInteger digits, long exp10) {
+    return ofDecimal(negative, digits, exp10, EXACT_POWER_LIMIT);
+  }
+
+  /** The same as {@link #ofDecimal(boolean, BigInteger, long)}, with a given limit of exact computation (for tests) */
+  static ExactValue ofDecimal(boolean negative, BigInteger digits, long exp10, int exactLimit) {
+    if (digits.signum() < 0)
+      throw new IllegalArgumentException("digits must not be negative: " + digits);
+    if (digits.signum() == 0)
+      return new ExactValue(negative, ZERO, 0, false);
+    final long magnitude = exp10 + digits.toString().length();      // the value is less than 10^magnitude
+    if (exp10 > HUGE_EXP10)
+      return new ExactValue(negative, ONE, 4 * HUGE_EXP10, false);   // > 2^2.8e9, rounds to infinity
+    if (magnitude < -HUGE_EXP10)
+      return new ExactValue(negative, ONE, -4 * HUGE_EXP10, false);  // < 2^-2.8e9, rounds to zero
+
+    final long n = Math.abs(exp10);
+    if (n <= exactLimit) {
+      final BigInteger pow5 = FIVE.pow(toInt(n));
+      return exp10 >= 0?
+          new ExactValue(negative, digits.multiply(pow5), exp10, false) :         // d * 5^n * 2^n
+          new ExactValue(negative, digits, exp10, false).divide(new ExactValue(false, pow5, 0, false));
+    }
+    for (int precision = 2 * MIN_PRECISION; ; precision *= 2) {     // more precision if the bounds are not enough
+      final BigInteger[] pow5 = pow5Bounds(n, precision);           // 5^n in [lo, hi] * 2^shift
+      if (pow5[0].equals(pow5[1]))                                  // 5^n is short and computed exactly
+        return ofDecimal(negative, digits, exp10, Integer.MAX_VALUE);
+      final long shift = pow5[2].longValueExact();
+      final ExactValue result;
+      if (exp10 > 0) {                                              // d * 5^n * 2^n
+        result = fromBounds(negative, digits.multiply(pow5[0]), digits.multiply(pow5[1]), shift + n);
+      } else {                                                      // d / 5^n * 2^-n
+        final int q = precision + pow5[1].bitLength();
+        final BigInteger scaled = digits.shiftLeft(q);
+        final BigInteger[] qr = scaled.divideAndRemainder(pow5[0]);
+        final BigInteger hi = qr[1].signum() == 0? qr[0] : qr[0].add(ONE);
+        result = fromBounds(negative, scaled.divide(pow5[1]), hi, -q - shift - n);
+      }
+      if (result != null) return result;
+    }
+  }
+
+  /**
+   * @return {lo, hi, shift}, such that {@code lo * 2^shift <= 5^n <= hi * 2^shift},
+   * {@code lo} and {@code hi} having no more than {@code precision} bits
+   */
+  private static BigInteger[] pow5Bounds(long n, int precision) {
+    BigInteger lo = ONE, hi = ONE, baseLo = FIVE, baseHi = FIVE;
+    long shift = 0, baseShift = 0;
+    for (long k = n; k != 0; k >>>= 1) {
+      if ((k & 1) != 0) {
+        lo = lo.multiply(baseLo);
+        hi = hi.multiply(baseHi);
+        shift += baseShift;
+        final int drop = Math.max(0, hi.bitLength() - precision);
+        lo = lo.shiftRight(drop);
+        hi = ceilShiftRight(hi, drop);
+        shift += drop;
+      }
+      if (k > 1) {
+        baseLo = baseLo.multiply(baseLo);
+        baseHi = baseHi.multiply(baseHi);
+        baseShift *= 2;
+        final int drop = Math.max(0, baseHi.bitLength() - precision);
+        baseLo = baseLo.shiftRight(drop);
+        baseHi = ceilShiftRight(baseHi, drop);
+        baseShift += drop;
+      }
+    }
+    return new BigInteger[] {lo, hi, BigInteger.valueOf(shift)};
+  }
+
+  private static BigInteger ceilShiftRight(BigInteger x, int n) {
+    final BigInteger shifted = x.shiftRight(n);
+    return shifted.shiftLeft(n).equals(x)? shifted : shifted.add(ONE);
+  }
+
+  /**
+   * @return an inexact value representing a value from {@code [lo, hi] * 2^exp2}, with at least
+   * {@value #MIN_PRECISION} bits, if the whole interval lies strictly between two adjacent multiples
+   * of its lowest unit; null otherwise (more precision is needed)
+   */
+  private static ExactValue fromBounds(boolean negative, BigInteger lo, BigInteger hi, long exp2) {
+    final int k = hi.bitLength() - MIN_PRECISION - 2;
+    if (k <= 0) return null;
+    final BigInteger j = hi.shiftRight(k);
+    if (!lo.shiftRight(k).equals(j) || j.shiftLeft(k).equals(lo))
+      return null;
+    return new ExactValue(negative, j.shiftLeft(1).add(ONE), exp2 + k - 1, true);
+  }
+
   /* ************************************************************************
    * Properties
    */
@@ -122,6 +227,14 @@ public final class ExactValue {
   public boolean isZero()     { return mant.signum() == 0; }
   /** @return false if the value is only an approximation of the true result (see the class description) */
   public boolean isExact()    { return !inexact; }
+  /**
+   * @return {@code floor(log2(|value|))}, the unbiased binary exponent the value would have with unlimited range
+   * (for inexact values too); the value must not be zero
+   */
+  public long binaryExponent() {
+    if (isZero()) throw new IllegalStateException("Zero has no binary exponent");
+    return top() - 1;
+  }
 
   /**
    * Compares the exact values numerically: zeros of both signs are equal.
@@ -348,6 +461,68 @@ public final class ExactValue {
         new BigDecimal(mant.shiftLeft(toInt(exp2))) :
         new BigDecimal(mant.multiply(FIVE.pow(toInt(-exp2))), toInt(-exp2));  // m * 2^-n == m * 5^n * 10^-n
     return negative? abs.negate() : abs;
+  }
+
+  /**
+   * @return the value with the given number of significant decimal digits, truncated toward zero,
+   * for any exponent (unlike {@link #toBigDecimal()}); for inexact values, the result is correct
+   * if the true value and its representation have the same leading digits (which is almost always the case).
+   * Computed from guaranteed bounds of the power of 10 (exact for moderate exponents).
+   */
+  public BigDecimal toBigDecimal(int digits) {
+    if (isZero()) return BigDecimal.ZERO;
+    long exp10 = (long)Math.floor((top() - 1) * LOG10_2) - digits + 1;   // value / 10^exp10 ~ 10^(digits - 1)
+    while (true) {
+      final BigInteger d = decimalDigits(exp10);
+      final int length = d.toString().length();
+      if (length > digits)      exp10++;
+      else if (length < digits) exp10--;
+      else {
+        final BigDecimal abs = new BigDecimal(d, toInt(-exp10));
+        return negative? abs.negate() : abs;
+      }
+    }
+  }
+
+  private static final double LOG10_2 = Math.log10(2);
+
+  /** @return {@code floor(|value| / 10^exp10)} */
+  private BigInteger decimalDigits(long exp10) {
+    // |value| / 10^exp10 = mant * 2^(exp2 - exp10) * 5^-exp10
+    final long n = Math.abs(exp10);
+    if (n <= EXACT_POWER_LIMIT) {
+      BigInteger num = mant, den = ONE;
+      if (exp10 <= 0) num = num.multiply(FIVE.pow(toInt(n)));
+      else            den = FIVE.pow(toInt(n));
+      final long e = exp2 - exp10;
+      if (e >= 0) num = num.shiftLeft(toInt(e));
+      else        den = den.shiftLeft(toInt(-e));
+      return num.divide(den);
+    }
+    for (int precision = 2 * MIN_PRECISION + mant.bitLength(); ; precision *= 2) {
+      final BigInteger[] pow5 = pow5Bounds(n, precision);           // 5^n in [lo, hi] * 2^shift
+      final long shift = pow5[2].longValueExact();
+      final BigInteger lo, hi;                                      // |value| / 10^exp10 in [lo, hi] * 2^e
+      final long e;
+      if (exp10 < 0) {                                              // mant * 5^n * 2^(exp2 + n)
+        lo = mant.multiply(pow5[0]);
+        hi = mant.multiply(pow5[1]);
+        e = exp2 + n + shift;
+      } else {                                                      // mant / 5^n * 2^(exp2 - n)
+        final int q = precision + pow5[1].bitLength();               // the quotient has ~precision bits
+        final BigInteger scaled = mant.shiftLeft(q);
+        lo = scaled.divide(pow5[1]);
+        hi = scaled.divide(pow5[0]).add(ONE);
+        e = exp2 - n - q - shift;
+      }
+      final BigInteger dLo = floorTimesPow2(lo, e);
+      if (dLo.equals(floorTimesPow2(hi, e))) return dLo;
+    }
+  }
+
+  /** @return {@code floor(x * 2^e)} */
+  private static BigInteger floorTimesPow2(BigInteger x, long e) {
+    return e >= 0? x.shiftLeft(toInt(e)) : x.shiftRight(toInt(Math.min(-e, Integer.MAX_VALUE)));
   }
 
   @Override

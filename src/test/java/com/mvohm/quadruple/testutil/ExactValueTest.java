@@ -6,6 +6,7 @@ import static java.math.BigInteger.ONE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
+import static java.lang.Math.toIntExact;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -311,6 +312,83 @@ public class ExactValueTest {
     final double offset = ax.subtract(lower).divide(upper.subtract(lower), MC).subtract(new BigDecimal("0.5")).doubleValue();
     assertThat(r.offsetFromMidpoint()).as(context + ": offset").isCloseTo(offset, within(1e-15));
     assertSameFields(r.rounded(), offset >= 0? r.awayFromZero() : r.truncated(), context);
+  }
+
+  /* ************************************************************************
+   * Decimal values: ofDecimal() and toBigDecimal(digits)
+   */
+
+  /** Random decimal values {@code digits * 10^exp10}: 1 to 80 digits, {@code |exp10| <= 1500} */
+  static Stream<Arguments> decimals() {
+    final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
+    return Stream.generate(() -> Arguments.of(random.nextBoolean(), randomDigits(random, 1 + random.nextInt(80)),
+                                              (long)(random.nextInt(3001) - 1500)))
+                 .limit(2000);
+  }
+
+  @ParameterizedTest
+  @MethodSource("decimals")
+  void ofDecimalShouldMatchBigDecimal(boolean negative, BigInteger digits, long exp10) {
+    final BigDecimal x = new BigDecimal(negative? digits.negate() : digits, toIntExact(-exp10));
+    final ExactValue exact = ExactValue.ofDecimal(negative, digits, exp10);
+    if (exact.isExact())
+      assertThat(exact.toBigDecimal()).as(x.toString()).isEqualByComparingTo(x);
+    checkRoundingAgainst(exact, x, x.toString());
+  }
+
+  @ParameterizedTest
+  @MethodSource("decimals")
+  void boundedPowersOfTenShouldGiveTheSameRounding(boolean negative, BigInteger digits, long exp10) {
+    final ExactValue.Rounding<Quadruple> exact = ExactValue.ofDecimal(negative, digits, exp10).round();
+    final ExactValue.Rounding<Quadruple> bounded = ExactValue.ofDecimal(negative, digits, exp10, 0).round();
+    final String context = digits + "e" + exp10;
+    assertSameFields(bounded.rounded(), exact.rounded(), context);
+    if (!exact.exact())
+      assertThat(bounded.offsetFromMidpoint()).as(context).isCloseTo(exact.offsetFromMidpoint(), within(1e-60));
+  }
+
+  @Test
+  void hugeAndTinyDecimalsShouldRoundToInfinityAndZero() {
+    assertSameFields(ExactValue.ofDecimal(false, ONE, 700_000_001L).round().rounded(), POS_INFINITY_Q, "1e700000001");
+    assertSameFields(ExactValue.ofDecimal(true, ONE, Long.MAX_VALUE / 2).round().rounded(), NEG_INFINITY_Q, "-1e(huge)");
+    assertSameFields(ExactValue.ofDecimal(true, ONE, -700_000_002L).round().rounded(), q(true, 0, 0, 0), "-1e-700000002");
+    assertSameFields(ExactValue.ofDecimal(false, ONE, Long.MIN_VALUE / 2).round().rounded(), q(false, 0, 0, 0), "1e(-huge)");
+    assertSameFields(ExactValue.ofDecimal(true, BigInteger.ZERO, 5).round().rounded(), q(true, 0, 0, 0), "-0e5");
+  }
+
+  @Test
+  void toBigDecimalWithDigitsShouldMatchExactValue() {
+    final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
+    for (int i = 0; i < 2000; i++) {
+      final Quadruple q = randomQuadruple(random, random.nextInt(8001) - 4000);
+      final int digits = 1 + random.nextInt(80);
+      final BigDecimal expected = toBigDecimal(q).round(new MathContext(digits, RoundingMode.DOWN));
+      final BigDecimal actual = ExactValue.of(q).toBigDecimal(digits);
+      assertThat(actual).as(fieldsOf(q) + ", " + digits + " digits").isEqualByComparingTo(expected);
+      assertThat(actual.precision()).as(fieldsOf(q) + ", " + digits + " digits").isEqualTo(digits);
+    }
+  }
+
+  /** Over the whole range: 45 truncated digits and the same plus a unit of the last digit must give the same value */
+  @ParameterizedTest
+  @MethodSource("roundTripValues")
+  void decimalDigitsShouldRoundBackToTheSameValue(Quadruple q) {
+    if (q.isZero()) return;
+    final BigDecimal d = ExactValue.of(q).toBigDecimal(45);
+    assertThat(d.precision()).isEqualTo(45);
+    final BigInteger digits = d.unscaledValue().abs();
+    final ExactValue truncated = ExactValue.ofDecimal(q.isNegative(), digits, -d.scale());
+    final ExactValue above = ExactValue.ofDecimal(q.isNegative(), digits.add(ONE), -d.scale());
+    assertSameFields(truncated.round().rounded(), q, digits + "e" + -d.scale());
+    assertSameFields(above.round().rounded(), q, digits.add(ONE) + "e" + -d.scale());
+  }
+
+  /** @return a random integer of exactly {@code length} decimal digits */
+  private static BigInteger randomDigits(Random random, int length) {
+    BigInteger digits = BigInteger.valueOf(1 + random.nextInt(9));
+    for (int i = 1; i < length; i++)
+      digits = digits.multiply(BigInteger.TEN).add(BigInteger.valueOf(random.nextInt(10)));
+    return digits;
   }
 
   /* ************************************************************************

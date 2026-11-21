@@ -400,3 +400,107 @@ decide the rounding exactly: compare the square of the midpoint with the argumen
 than 2^-31 ulp, 1635 of them fail). There's no exact criterion of failing (it depends on the internal error
 of `sqrtMant()`), so all the values closer to the midpoint than 2^-31 ulp (`SqrtData.isNearMidpoint()`)
 are excluded from the data of `SqrtTest.shouldBeCorrectlyRounded`, which requires correct rounding (ε = 0).
+
+## BUG-16 — an exponent of more than 18 digits may overflow and give 0 instead of Infinity, or vice versa
+
+**Status:** open
+**Found:** 2026-11-20
+**Where:** `NumberParser.NumberParts.parseLong()` and `NumberParser.buildQuadruple()`: `exp10 += exp10Corr`
+
+**Reproduction:**
+```java
+new Quadruple("123e999999999999999999999");     // 0.0, expected Infinity
+new Quadruple("10e9223372036854775807");        // 0.0, expected Infinity
+new Quadruple("0.01e-99999999999999999999");    // Infinity, expected 0.0
+```
+
+**Cause:** an exponent of more than 18 digits is replaced by `Long.MAX_VALUE` (with the sign, `-Long.MAX_VALUE`),
+and then the correction for the position of the decimal point is added to it (+2 for "123e...", -2 for "0.01e..."),
+which overflows `long`. Strings with the correction 0 (e.g. "1e999...") or -1 (e.g. "0.1e-999...") are not affected.
+
+**Fix (proposed):** saturate the sum (or limit the replacement value to e.g. `Long.MAX_VALUE / 2`).
+
+**Tests:** `StringParsingTest.shouldHandleHugeExponents` (disabled; 7 cases, all fail).
+
+## BUG-17 — javadoc of `toString()` says "43 digits after point", but there are 40 significant digits (documentation only)
+
+**Status:** open
+**Found:** 2026-11-20
+**Where:** javadoc of `Quadruple.toString()`; `SIGNIFICANT_DIGITS = 40`
+
+`new Quadruple(1).toString()` gives `1.000000000000000000000000000000000000000e+00`: 40 significant digits,
+39 after the point. 40 digits are enough for the string to identify the value unambiguously (129 bits need
+`ceil(129 * log10(2)) + 1 = 40` digits), so the javadoc should be corrected.
+
+## BUG-18 — a sign before a designation of a special value is not accepted (except INFINITY)
+
+**Status:** open; to be implemented in the next release
+**Found:** 2026-11-20
+**Where:** `NumberParser.parse()`: the whole string is looked up in `QUADRUPLE_CONSTS`
+
+**Reproduction:**
+```java
+new Quadruple("-NaN");          // NumberFormatException, Double.parseDouble("-NaN") gives NaN
+new Quadruple("-MAX_VALUE");    // NumberFormatException (the message shows "-maxvalue", without '_')
+```
+
+**Expected:** an optional sign before any designation (`MIN_VALUE`, `Quadruple.MAX_VALUE`, `NaN`,
+`POSITIVE_INFINITY`, etc.) negates the value; for NaN the sign is ignored, like in `Double.parseDouble()`.
+So `"-NEGATIVE_INFINITY"` gives +Infinity. The javadoc of `assign(String)` should describe it.
+The message of the exception should show the original string (with the separators '_').
+
+**Tests:** `StringParsingTest.shouldAcceptSignBeforeDesignations` (disabled; 15 cases, all fail).
+
+## BUG-19 — the suffixes `d`, `D`, `f`, `F` and hexadecimal literals are not accepted
+
+**Status:** open; to be implemented in the next release
+**Found:** 2026-11-20
+**Where:** `NumberParser.NumberParts.FP_STRING_PTRN`
+
+**Reproduction:**
+```java
+new Quadruple("1d");            // NumberFormatException, Double.parseDouble("1d") gives 1.0
+new Quadruple("0x1.8p1");       // NumberFormatException, Double.parseDouble("0x1.8p1") gives 3.0
+```
+
+**Expected:** the syntax of `Double.parseDouble()` (extended): the type suffixes are allowed and ignored;
+hexadecimal literals (`0x<hex digits>[.<hex digits>]p<binary exponent>`, with an optional suffix)
+are converted exactly, or rounded half-up if they have more than 129 significant bits.
+
+**Tests:** `StringParsingTest.shouldAcceptSyntaxOfDouble` (disabled; 16 cases, all fail).
+
+## BUG-20 — values from `2^(2^31 + 1)` (~3.52e646456993) up to `1e646456994` give wrong finite values instead of Infinity
+
+**Status:** open
+**Found:** 2026-11-20
+**Where:** `NumberParser.findBinaryMantissa()`: `owner.exponent = (int)exp2;`
+
+**Reproduction:**
+```java
+new Quadruple("3.6e646456993");   // exp = 0x0000_0000, mantHi = 0x0594_14DE_81E0_BCAF, mantLo = 0x378B_0BAE_B7EA_4339
+new Quadruple("9.99e646456993");  // exp = 0x0000_0001, ...: a value near MIN_NORMAL
+// expected Infinity in both cases; "1.77e646456993" and "3.5e646456993" correctly give Infinity
+```
+
+**Cause:** strings with decimal exponents greater than that of `MAX_VALUE` (646456993) are recognized as overflowing
+before the computation (`exceedsAcceptableExponentRange()`). For the others, the biased binary exponent is computed
+as a `long` and then cast to `int`; only the exponent equal to `EXPONENT_OF_INFINITY` is recognized as infinity,
+greater ones wrap around.
+
+**Fix (proposed):** `if (exp2 >= EXPONENT_OF_INFINITY (as unsigned)) assign infinity`.
+
+**Tests:** `StringParsingTest.shouldGiveInfinityForValuesBelow1e646456994` (disabled; 44 cases, all fail).
+The criterion (`StringParsingData.isWrappedOverflow()`) selects exactly the failing cases, which are excluded
+from the data of `StringParsingTest.shouldParseNumbersWithDeclaredAccuracy`.
+
+## BUG-21 — javadoc of `assign(String)` does not mention the separator `_` (documentation only)
+
+**Status:** open
+**Found:** 2026-11-20
+**Where:** javadoc of `Quadruple.assign(String)` and `Quadruple(String)`; `NumberParser.parse()`: `source.replaceAll("\\_", "")`
+
+The parser removes all the characters `_` from a numeric string before parsing it, wherever they are:
+`"1_000"` gives 1000, but `"_1_"`, `"1e1_0"` (1e10) and `"1_._5"` are accepted too. `Double.parseDouble()`
+does not accept `_` at all. The javadoc should describe the separator, and where it is allowed;
+if it should be allowed only between digits (like in Java literals), it's a change of behavior.
+Currently tested (`StringParsingTest`) only between digits of the mantissa.
