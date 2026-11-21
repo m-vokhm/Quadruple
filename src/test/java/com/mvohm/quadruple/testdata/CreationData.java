@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -9,9 +10,9 @@ import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 
 public class CreationData {
 
-  private static final int D2Q_RANDOM_COUNT = 3000;
-  private static final int D2Q_SUBNORMAL_RANDOM_COUNT = 1000;
-  private static final int L2Q_RANDOM_COUNT = 3000;
+  private static final int D2Q_RANDOM_COUNT = scaled(3000);
+  private static final int D2Q_SUBNORMAL_RANDOM_COUNT = scaled(1000);
+  private static final int L2Q_RANDOM_COUNT = scaled(3000);
 
   /**
    * Returns a stream of double values for testing creation of Quadruple

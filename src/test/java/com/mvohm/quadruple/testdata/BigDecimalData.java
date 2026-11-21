@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
 
@@ -37,8 +38,8 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  */
 public class BigDecimalData {
 
-  private static final int MIDPOINT_COUNT = 1000;
-  private static final int RANDOM_COUNT   = 3000;
+  private static final int MIDPOINT_COUNT = scaled(1000);
+  private static final int RANDOM_COUNT   = scaled(3000);
   private static final int DIGITS         = 100;
 
   /* ************************************************************************

@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.testdata.DataHelpers.abs;
 import static com.mvohm.quadruple.testdata.DataHelpers.copy;
 import static com.mvohm.quadruple.testdata.DataHelpers.named;
@@ -49,11 +50,11 @@ import com.mvohm.quadruple.testutil.ExactValue;
  */
 public class AddSubData {
 
-  private static final int CLOSE_PAIR_COUNT    = 2000;
-  private static final int WIDE_PAIR_COUNT     = 500;
-  private static final int TIE_COUNT           = 1000;
-  private static final int CANCELLATION_COUNT  = 500;
-  private static final int NUMBER_COUNT        = 1000;   // doubles and longs
+  private static final int CLOSE_PAIR_COUNT    = scaled(2000);
+  private static final int WIDE_PAIR_COUNT     = scaled(500);
+  private static final int TIE_COUNT           = scaled(1000);
+  private static final int CANCELLATION_COUNT  = scaled(500);
+  private static final int NUMBER_COUNT        = scaled(1000);   // doubles and longs
 
   private static final long HIGH_BIT = 0x8000_0000_0000_0000L;
   /** The binary exponent of the LSB of subnormal values */

@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.TEN;
@@ -47,11 +48,11 @@ import com.mvohm.quadruple.testutil.ExactValue;
  */
 public class StringParsingData {
 
-  private static final int RANDOM_COUNT       = 3000;
-  private static final int LONG_COUNT         = 50;
-  private static final int NEAR_MIDPOINT_COUNT = 2000;
-  private static final int TIE_COUNT          = 300;
-  private static final int DOUBLE_COUNT       = 500;
+  private static final int RANDOM_COUNT       = scaled(3000);
+  private static final int LONG_COUNT         = scaled(50);
+  private static final int NEAR_MIDPOINT_COUNT = scaled(2000);
+  private static final int TIE_COUNT          = scaled(300);
+  private static final int DOUBLE_COUNT       = scaled(500);
 
   /** The decimal exponents of MAX_VALUE (1.76e646456993) and MIN_VALUE (6.67e-646457032) */
   private static final long MAX_EXP10 = 646_456_993L, MIN_EXP10 = -646_457_032L;

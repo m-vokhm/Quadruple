@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.testdata.DataHelpers.abs;
 import static com.mvohm.quadruple.testdata.DataHelpers.copy;
 import static com.mvohm.quadruple.testdata.DataHelpers.named;
@@ -48,11 +49,11 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  */
 public class SqrtData {
 
-  private static final int NEAR_MIDPOINT_COUNT = 2000;
+  private static final int NEAR_MIDPOINT_COUNT = scaled(2000);
   /** Near-midpoint roots slightly above the midpoint, at ~2^-36..2^-29 ulp, where the library's error is the greatest */
-  private static final int CRITICAL_ZONE_COUNT = 3000;
-  private static final int EXACT_COUNT         = 500;
-  private static final int RANDOM_COUNT        = 2000;
+  private static final int CRITICAL_ZONE_COUNT = scaled(3000);
+  private static final int EXACT_COUNT         = scaled(500);
+  private static final int RANDOM_COUNT        = scaled(2000);
 
   /** The distance from the midpoint, in ulps, within which the library's root may be rounded wrongly (BUG-15) */
   private static final double NEAR_MIDPOINT_ZONE = Math.scalb(1.0, -31);

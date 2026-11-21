@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.testdata.DataHelpers.pow2;
 import static com.mvohm.quadruple.testdata.DataHelpers.toQuadruple;
 import static com.mvohm.quadruple.testdata.DataHelpers.unbiasedExponent;
@@ -31,8 +32,8 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  */
 public class ConversionData {
 
-  private static final int RANDOM_COUNT    = 3000;
-  private static final int MIDPOINT_COUNT  = 1000;
+  private static final int RANDOM_COUNT    = scaled(3000);
+  private static final int MIDPOINT_COUNT  = scaled(1000);
 
   /* ************************************************************************
    * int, long

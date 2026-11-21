@@ -21,6 +21,33 @@ public final class DataHelpers {
 
   private DataHelpers() {}
 
+  /** The name of the system property: the multiplier of the volume of random data (default 1, e.g. 10 for a long run) */
+  public static final String VOLUME_PROPERTY = "test.volume";
+
+  /** The multiplier of the volume of random data, from the system property {@value #VOLUME_PROPERTY} */
+  public static final double VOLUME = volume();
+
+  /**
+   * @return the given number of random cases multiplied by {@link #VOLUME} (at least 1); hand-made and constructed
+   * edge cases don't depend on it
+   */
+  public static int scaled(int count) {
+    return (int)Math.max(1, Math.min(Integer.MAX_VALUE, Math.round(count * VOLUME)));
+  }
+
+  private static double volume() {
+    final String s = System.getProperty(VOLUME_PROPERTY, "1");
+    final double v;
+    try {
+      v = Double.parseDouble(s.trim());
+    } catch (final NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid value of -D" + VOLUME_PROPERTY + ": '" + s + "', must be a positive number");
+    }
+    if (!(v > 0) || Double.isInfinite(v))
+      throw new IllegalArgumentException("Invalid value of -D" + VOLUME_PROPERTY + ": '" + s + "', must be a positive number");
+    return v;
+  }
+
   /** @return the exact value {@code 2^exponent} */
   public static ExactValue pow2(long exponent) {
     return ExactValue.of(false, ONE, exponent);

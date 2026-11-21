@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.testdata.DataHelpers.copy;
 import static com.mvohm.quadruple.testdata.DataHelpers.named;
 import static com.mvohm.quadruple.testdata.DataHelpers.negated;
@@ -50,12 +51,12 @@ import com.mvohm.quadruple.testutil.ExactValue;
  */
 public class MultiplyData {
 
-  private static final int TIE_COUNT             = 1500;
-  private static final int SUBNORMAL_TIE_COUNT   = 1000;
-  private static final int MODERATE_PAIR_COUNT   = 1500;
-  private static final int THRESHOLD_PAIR_COUNT  = 500;    // near overflow and near underflow, each
-  private static final int WIDE_PAIR_COUNT       = 500;
-  private static final int NUMBER_COUNT          = 1000;   // doubles and longs
+  private static final int TIE_COUNT             = scaled(1500);
+  private static final int SUBNORMAL_TIE_COUNT   = scaled(1000);
+  private static final int MODERATE_PAIR_COUNT   = scaled(1500);
+  private static final int THRESHOLD_PAIR_COUNT  = scaled(500);    // near overflow and near underflow, each
+  private static final int WIDE_PAIR_COUNT       = scaled(500);
+  private static final int NUMBER_COUNT          = scaled(1000);   // doubles and longs
 
   /** The binary exponent of the LSB of subnormal values */
   private static final long MIN_LSB_EXPONENT = 1L - EXPONENT_BIAS - 128;

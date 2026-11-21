@@ -1,5 +1,6 @@
 package com.mvohm.quadruple;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.testutil.QuadAssert.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +37,7 @@ import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 @Tag("slow")
 public class ThreadSafetyTest {
 
-  private static final int DATA_SIZE = 20_000;
+  private static final int DATA_SIZE = scaled(20_000);
   private static final int ROUNDS = 5;
   private static final int THREADS = Math.max(4, Runtime.getRuntime().availableProcessors());
   private static final int TIMEOUT_MINUTES = 10;

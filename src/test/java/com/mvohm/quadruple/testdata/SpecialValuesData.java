@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.testdata.DataHelpers.abs;
 import static com.mvohm.quadruple.testdata.DataHelpers.copy;
 import static com.mvohm.quadruple.testdata.DataHelpers.named;
@@ -27,7 +28,7 @@ public class SpecialValuesData {
   /** The kind of a value, for the classification methods ({@code isNaN()} etc.) */
   public enum Kind { NAN, INFINITY, ZERO, FINITE }
 
-  private static final int RANDOM_COUNT = 100;
+  private static final int RANDOM_COUNT = scaled(100);
   private static final long HIGH_BIT = 0x8000_0000_0000_0000L;
 
   /** NaNs with different bit patterns, infinities and zeros */

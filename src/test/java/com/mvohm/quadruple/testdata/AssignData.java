@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.Quadruple.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  */
 public class AssignData {
 
-  private static final int Q2Q_RANDOM_COUNT = 1000;
+  private static final int Q2Q_RANDOM_COUNT = scaled(1000);
 
   /**
    * Returns a new list of new "dirty" instances, i.e. instances that already hold
@@ -70,7 +71,7 @@ public class AssignData {
     return CreationData.longValuesForCreation();
   }
 
-  private static final int RAW_PARTS_RANDOM_COUNT = 1000;
+  private static final int RAW_PARTS_RANDOM_COUNT = scaled(1000);
 
   /** Exponents (as stored in the field, i.e. biased) to combine with {@link #EDGE_MANTISSAS} */
   private static final int[] EDGE_EXPONENTS = {
@@ -111,7 +112,7 @@ public class AssignData {
     return Stream.concat(edge.build(), new RandomGenerator().quadrupleParts(RAW_PARTS_RANDOM_COUNT));
   }
 
-  private static final int IEEE754_RANDOM_COUNT = 2000;
+  private static final int IEEE754_RANDOM_COUNT = scaled(2000);
 
   /**
    * Bit patterns of special and edge IEEE-754 quadruple-precision values, positive only

@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.testdata.DataHelpers.copy;
 import static com.mvohm.quadruple.testdata.DataHelpers.named;
 import static com.mvohm.quadruple.testdata.DataHelpers.negated;
@@ -33,9 +34,9 @@ import com.mvohm.quadruple.testdata.generators.RandomGenerator;
  */
 public class ComparisonData {
 
-  private static final int RANDOM_PAIR_COUNT   = 3000;
-  private static final int RANDOM_VALUE_COUNT  = 200;     // to be compared with special values
-  private static final int RANDOM_NUMBER_COUNT = 1000;    // longs and doubles
+  private static final int RANDOM_PAIR_COUNT   = scaled(3000);
+  private static final int RANDOM_VALUE_COUNT  = scaled(200);     // to be compared with special values
+  private static final int RANDOM_NUMBER_COUNT = scaled(1000);    // longs and doubles
 
   private static final long HIGH_BIT = 0x8000_0000_0000_0000L;
 

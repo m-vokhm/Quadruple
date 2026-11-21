@@ -1,5 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
 
@@ -41,9 +42,9 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  */
 public class ToStringData {
 
-  private static final int RANDOM_COUNT        = 5000;
-  private static final int EXACT_TIE_COUNT     = 1000;
-  private static final int NEAR_MIDPOINT_COUNT = 1000;
+  private static final int RANDOM_COUNT        = scaled(5000);
+  private static final int EXACT_TIE_COUNT     = scaled(1000);
+  private static final int NEAR_MIDPOINT_COUNT = scaled(1000);
   private static final int MAX_POWER_OF_TEN    = 400;
 
 

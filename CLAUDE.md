@@ -69,7 +69,8 @@ src/test/java/com/mvohm/quadruple/
     `BigDecimal.pow(n, mc)` принимает |n| ≤ 999 999 999 — степени 2 до 2³¹ считать в два приёма.
     Для перевода Quadruple → BigDecimal в эталоне не использовать тестируемый `bigDecimalValue()`.
 - Случайные данные: свой `Random` с фиксированным seed на каждый набор; распределение по битам/экспоненте,
-  а не равномерное по диапазону. Объём — через системное свойство (быстрый прогон по умолчанию).
+  а не равномерное по диапазону. Объём — множитель `-Dtest.volume=N` (по умолчанию 1; `DataHelpers.scaled(n)`
+  для всех счётчиков случайных данных `*_COUNT`; ручные и построенные краевые случаи не масштабируются).
 - Падающие тесты не подгонять: `@Disabled("BUG-xx ...")` + запись в `KNOWN_ISSUES.md` (в корне, коммитится; вход для задачи 4).
 - Порядок: перенос → генераторы → Creation → AssignTest → testutil (ExactValue) →
   Conversion → Comparison → SpecialValues → Arithmetic → Sqrt → StringParsing/ToString.

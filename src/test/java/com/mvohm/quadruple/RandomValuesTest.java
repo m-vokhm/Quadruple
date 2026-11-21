@@ -1,5 +1,6 @@
 package com.mvohm.quadruple;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
 import static com.mvohm.quadruple.Quadruple.*;
 import static com.mvohm.quadruple.testutil.QuadAssert.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +25,7 @@ import com.mvohm.quadruple.testdata.generators.RandomGenerator;
  */
 public class RandomValuesTest {
 
-  private static final int COUNT = 100_000;
+  private static final int COUNT = scaled(100_000);
 
   @Test
   void valuesShouldBeInRangeFromZeroToOne() {
