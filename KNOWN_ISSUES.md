@@ -422,7 +422,7 @@ which overflows `long`. Strings with the correction 0 (e.g. "1e999...") or -1 (e
 
 **Tests:** `StringParsingTest.shouldHandleHugeExponents` (disabled; 7 cases, all fail).
 
-## BUG-17 — javadoc of `toString()` says "43 digits after point", but there are 40 significant digits (documentation only)
+## BUG-17 — javadoc of `toString()` does not match its output (documentation only)
 
 **Status:** open
 **Found:** 2026-11-20
@@ -431,6 +431,11 @@ which overflows `long`. Strings with the correction 0 (e.g. "1e999...") or -1 (e
 `new Quadruple(1).toString()` gives `1.000000000000000000000000000000000000000e+00`: 40 significant digits,
 39 after the point. 40 digits are enough for the string to identify the value unambiguously (129 bits need
 `ceil(129 * log10(2)) + 1 = 40` digits), so the javadoc should be corrected.
+
+The javadoc should also state the rounding: half-up, but within ~3e-18 of the unit of the last digit from the midpoint
+between two adjacent 40-digit decimals (including exact midpoints, e.g. `2^-58`, which has 41 digits ending in 5)
+the direction is unpredictable (`ToStringTest` accepts both within 1e-17); and that the string is always read back
+exactly by `Quadruple(String)`.
 
 ## BUG-18 — a sign before a designation of a special value is not accepted (except INFINITY)
 
@@ -504,3 +509,24 @@ The parser removes all the characters `_` from a numeric string before parsing i
 does not accept `_` at all. The javadoc should describe the separator, and where it is allowed;
 if it should be allowed only between digits (like in Java literals), it's a change of behavior.
 Currently tested (`StringParsingTest`) only between digits of the mantissa.
+
+## BUG-22 — `toHexString()` puts a space after `e`, and its output can't be parsed back
+
+**Status:** open; to be implemented in the next release (together with BUG-19)
+**Found:** 2026-11-21
+**Where:** `Quadruple.hexString()`: `"%s%s %s e %s"`; `NumberParser`
+
+**Reproduction:**
+```java
+new Quadruple(-1.5).toHexString();   // "-8000_0000_0000_0000 0000_0000_0000_0000 e 7fff_ffff"
+// the javadoc gives "-8000_0000_0000_0000 0000_0000_0000_0000 e7fff_ffff"
+new Quadruple(new Quadruple(-1.5).toHexString());   // NumberFormatException
+```
+
+**Expected:** the format of the javadoc, without the space: `±hhhh_hhhh_hhhh_hhhh hhhh_hhhh_hhhh_hhhh ehhhh_hhhh`
+(mantHi, mantLo, the biased exponent, as they are). `assign(String)` should accept this format and set the fields
+as they are, so that `new Quadruple(q.toHexString())` has the same fields as `q` for all values
+(for NaN, at least a NaN).
+
+**Tests:** `ToStringTest.shouldGiveFieldsInHexString` and `ToStringTest.shouldBeReadBackFromHexString`
+(disabled; all cases fail).
