@@ -530,3 +530,14 @@ as they are, so that `new Quadruple(q.toHexString())` has the same fields as `q`
 
 **Tests:** `ToStringTest.shouldGiveFieldsInHexString` and `ToStringTest.shouldBeReadBackFromHexString`
 (disabled; all cases fail).
+
+## BUG-23 — javadoc of the constructors from parts says the exponent is unbiased, but it is biased (documentation only)
+
+**Status:** open
+**Found:** 2026-11-21
+**Where:** javadoc of `Quadruple(boolean negative, int exponent, long mantHi, long mantLo)` and
+`Quadruple(int exponent, long mantHi, long mantLo)`: "@param exponent the binary exponent (unbiased)"
+
+The constructors set the field `exponent` as it is, i.e. the biased exponent: `new Quadruple(false, 0x7FFF_FFFF, 0, 0)`
+is 1.0 (`EXPONENT_OF_ONE`), `new Quadruple(false, 0, 0, 1)` is `MIN_VALUE`. The javadoc should say
+"the binary exponent (biased), as returned by `exponent()`", and refer to `EXPONENT_BIAS`.
