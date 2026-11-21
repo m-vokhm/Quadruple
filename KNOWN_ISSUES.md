@@ -33,7 +33,7 @@ since a new instance has `mantHi == 0`.
 
 ## BUG-02 — javadoc errors in low-level constructors and `assign` methods (documentation only)
 
-**Status:** open
+**Status:** fixed in the javadoc (2026-11-21); item 1 is the same as BUG-23
 **Found:** 2026-11-17
 **Where:** javadoc of `Quadruple`; the code behaves consistently, only the descriptions are wrong.
 
@@ -212,7 +212,7 @@ These values are excluded from the data of `ComparisonTest.shouldReturnSignum`.
 
 ## BUG-09 — javadoc of comparison methods does not describe special values (documentation only)
 
-**Status:** open
+**Status:** fixed in the javadoc (2026-11-21); for `equals()` and `min()` it describes the intended behavior (until BUG-06, BUG-07 are fixed)
 **Found:** 2026-11-19
 **Where:** javadoc of `Quadruple`; the code behaves like `Double` (except BUG-06, BUG-07, BUG-08).
 
@@ -424,7 +424,7 @@ which overflows `long`. Strings with the correction 0 (e.g. "1e999...") or -1 (e
 
 ## BUG-17 — javadoc of `toString()` does not match its output (documentation only)
 
-**Status:** open
+**Status:** fixed in the javadoc (2026-11-21)
 **Found:** 2026-11-20
 **Where:** javadoc of `Quadruple.toString()`; `SIGNIFICANT_DIGITS = 40`
 
@@ -500,7 +500,7 @@ from the data of `StringParsingTest.shouldParseNumbersWithDeclaredAccuracy`.
 
 ## BUG-21 — javadoc of `assign(String)` does not mention the separator `_` (documentation only)
 
-**Status:** open
+**Status:** fixed in the javadoc (2026-11-21): `_` is described as ignored wherever it is (the current behavior)
 **Found:** 2026-11-20
 **Where:** javadoc of `Quadruple.assign(String)` and `Quadruple(String)`; `NumberParser.parse()`: `source.replaceAll("\\_", "")`
 
@@ -533,7 +533,7 @@ as they are, so that `new Quadruple(q.toHexString())` has the same fields as `q`
 
 ## BUG-23 — javadoc of the constructors from parts says the exponent is unbiased, but it is biased (documentation only)
 
-**Status:** open
+**Status:** fixed in the javadoc (2026-11-21)
 **Found:** 2026-11-21
 **Where:** javadoc of `Quadruple(boolean negative, int exponent, long mantHi, long mantLo)` and
 `Quadruple(int exponent, long mantHi, long mantLo)`: "@param exponent the binary exponent (unbiased)"
@@ -581,10 +581,10 @@ from the data of `BigDecimalConversionTest.shouldConvertBigDecimalWithDeclaredAc
 
 ## BUG-26 — javadoc should state the accuracy of operations and conversions, as confirmed by the tests (documentation only)
 
-**Status:** open; a separate commit for all the javadoc
+**Status:** fixed in the javadoc (2026-11-21): the section "Accuracy" in the class description, a reference to it in all forms of the arithmetic operations and `sqrt()`, and the details in `toString()`, `bigDecimalValue()`
 **Found:** 2026-11-21
 
-What the tests have confirmed (besides the bugs listed above), to be described where appropriate:
+What the tests have confirmed (besides the bugs listed above), to be described where appropriate (done):
 
 | Method | Accuracy (half-up, ties away from zero, unless stated otherwise) | Test |
 |---|---|---|
@@ -596,3 +596,6 @@ What the tests have confirmed (besides the bugs listed above), to be described w
 | `toString()` | 40 digits; within ~3e-18 of the unit of the last digit from the midpoint (including exact midpoints): either; always read back exactly (BUG-17) | `ToStringTest` |
 | `bigDecimalValue()` | 100 digits HALF_EVEN; within ~3.7e-21 of the unit of the last digit from the midpoint: either, exact midpoints: to even; always read back exactly | `BigDecimalConversionTest` |
 | conversions to `double`, `float`, IEEE-754 quad, `long`, `int` | see `ConversionTest` | `ConversionTest` |
+
+Also fixed with it: the class description said that the class is not thread safe, even with different instances;
+it is conditionally thread safe (confirmed by `ThreadSafetyTest`), and the description says so now.

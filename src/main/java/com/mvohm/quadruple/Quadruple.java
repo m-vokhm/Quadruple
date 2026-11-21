@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 /**
  * A floating-point number with a 128-bit fractional part of the mantissa and 32-bit
  * exponent. Normal values range from approximately {@code 2.271e-646456993}
- * to {@code 1.761e+646456993} with precision not worse than {@code 1,469368e-39}
+ * to {@code 1.761e+646456993} with precision not worse than {@code 1.469368e-39}
  * ({@code 2^-129}, half the less significant bit).
  * <p>
  * Like standard {@code double}, it can store and process subnormal values,
@@ -56,8 +56,10 @@ import java.util.regex.Pattern;
  * to compute
  * <p style="margin-left:20px;">{@code a = (a + 2) * 5 / 3}.<br>
  * <p>
- * <b><i>The class is not thread safe.</i></b> Different threads should not simultaneously
- * perform operations even with different instances of the class.
+ * <b><i>The class is conditionally thread safe:</i></b> different instances may be used by different threads
+ * simultaneously, but an instance must not be modified by a thread while it is used by another one.
+ * The static methods don't modify their arguments, so the same instances may be used as their arguments
+ * by different threads simultaneously.
  * <p>
  * An instance internally contains boolean flag for the value's sign,
  * 32-bit (an {@code int}) of binary exponent, and 128 bits (2 {@code longs}) of fractional part of the mantissa.
@@ -126,6 +128,33 @@ import java.util.regex.Pattern;
  * MIN_VALUE:  2^-2147483774 =
  *             = 6.67282948260747430814835377499134611597699952e-646457032
  * }</pre>
+ *
+ * <h2 id="accuracy">Accuracy</h2>
+ * Unless stated otherwise, the results are rounded <i>half-up</i>: to the nearest {@code Quadruple} value,
+ * and if the exact result is exactly in the middle between two adjacent values, away from zero;
+ * subnormal results are rounded the same way. Results greater than or equal to {@code MAX_VALUE + LSB / 2}
+ * by magnitude become {@code Infinity} of the same sign, results less than {@code MIN_VALUE / 2} by magnitude
+ * become zero of the same sign.
+ * <ul>
+ * <li>{@code add()}, {@code subtract()}, {@code multiply()}, {@code divide()}, all forms: the exact result
+ *   is correctly rounded. An exact zero sum or difference of two finite values is {@code +0}.
+ * <li>{@code sqrt()}: the exact root is correctly rounded, except that roots exceeding the midpoint between
+ *   two adjacent values by less than {@code 2^-31} LSB may be rounded down.
+ * <li>{@code Quadruple(String)}, {@code assign(String)}: values below the midpoint by less than {@code 1e-17} LSB
+ *   may be rounded either way, see {@link #assign(String)}.
+ * <li>{@code Quadruple(BigDecimal)}, {@code assign(BigDecimal)}: values below the midpoint by less than
+ *   {@code 1e-40} LSB may be rounded either way, see {@link #assign(BigDecimal)}.
+ * <li>{@code doubleValue()}, {@code floatValue()}: correctly rounded to the nearest {@code double}
+ *   ({@code float}), ties to even, like the standard conversions; {@code longValue()}, {@code intValue()}:
+ *   truncated toward zero and saturated to the range of the type.
+ * <li>{@code toIeee754Longs()}, {@code toIeee754Bytes()}: correctly rounded half-up.
+ * <li>{@code toString()}: 40 significant digits, rounded half-up, except that values closer than {@code 1e-17}
+ *   of a unit in the last digit to the midpoint between two adjacent 40-digit decimals may be rounded either way;
+ *   the string is always read back exactly.
+ * <li>{@code bigDecimalValue()}: 100 significant digits, rounded half-even, except that values closer than
+ *   {@code 1e-20} of a unit in the last digit to the midpoint between two adjacent 100-digit decimals
+ *   may be rounded either way; the result is always converted back exactly.
+ * </ul>
  *
  * @author M.Vokhmentsev
  */
@@ -260,7 +289,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Creates a new {@code Quadruple} built from the given parts.<br>
    * @param negative  the sign of the value ({@code true} signifies negative values)
-   * @param exponent  the binary exponent (unbiased)
+   * @param exponent  the biased binary exponent, as returned by {@link #exponent()} (see {@link #EXPONENT_BIAS})
    * @param mantHi  the most significant 64 bits of fractional part of the mantissa
    * @param mantLo  the least significant 64 bits of fractional part of the mantissa
    */
@@ -273,7 +302,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /**
    * Creates a new {@code Quadruple} with a positive value built from the given parts.<br>
-   * @param exponent  the binary exponent (unbiased)
+   * @param exponent  the biased binary exponent, as returned by {@link #exponent()} (see {@link #EXPONENT_BIAS})
    * @param mantHi  the most significant 64 bits of fractional part of the mantissa
    * @param mantLo  the least significant 64 bits of fractional part of the mantissa
    */
@@ -482,6 +511,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * floating-point value in any conventional string form or a string designation
    * of one of special values, and assigns the corresponding value to the instance.<br>
    * Parsing is case-insensitive.<br>
+   * The underscore characters ({@code '_'}) in numeric strings are ignored, wherever they are;
+   * they are intended to separate groups of digits, e.g. {@code "1_000_000.000_001"}.<br>
    * The admittable string designations for special values are the following:<ul>
    * <li>"Quadruple.MIN_VALUE", <li>"MIN_VALUE", <li>"Quadruple.MAX_VALUE", <li>"MAX_VALUE",
    * <li>"Quadruple.MIN_NORMAL", <li>"MIN_NORMAL", <li>"Quadruple.NaN", <li>"NaN",
@@ -579,7 +610,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Builds a Quadruple value from the given low-level parts and assigns it to the instance.<br>
    * Treats the {@code exponent} parameter as the biased exponent value,
-   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0xFFFF_FFFEL})
+   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0x7FFF_FFFF})
    * corresponds to the {@code Quadruple} value of 1.0.
    * @param negative   the sign of the value ({@code true} for negative)
    * @param exponent  Binary exponent (biased, so that 0x7FFF_FFFF corresponds to 2^0)
@@ -616,7 +647,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Builds a non-negative Quadruple value from the given low-level parts and assigns it to the instance.<br>
    * Treats the {@code exponent} parameter as the biased exponent value,
-   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0xFFFF_FFFEL})
+   * so that its value equal to {@link #EXPONENT_OF_ONE} ({@code 0x7FFF_FFFF})
    * corresponds to the {@code Quadruple} value of 1.0.
    * @param exponent  Binary exponent (biased, 0x7FFF_FFFF means 2^0)
    * @param mantHi  The most significant 64 bits of the fractional part of the mantissa
@@ -646,7 +677,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * value[0] -- sign flag in bit 63 (1 means negative),
    *             biased exponent in bits 31 .. 0
    * value[1] -- The most significant 64 bits of the fractional part of the mantissa
-   * value[2] -- The most significant 64 bits of the fractional part of the mantissa}</pre>
+   * value[2] -- The least significant 64 bits of the fractional part of the mantissa}</pre>
    * @param value array of {@code long} containing the low-level parts of the Quadruple value
    * @return the instance after assigning it the required value
    * @see #toLongWords()
@@ -863,6 +894,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Builds and returns a {@code BigDecimal} instance holding the same value as the given Quadruple
    * (rounded to 100 significant decimal digits, with {@link java.math.RoundingMode#HALF_EVEN}, the usual mode
    * of {@code BigDecimal}, unlike the half-up rounding used in the rest of {@code Quadruple}).
+   * If the exact value is closer than {@code 1e-20} of a unit in the last digit to the midpoint between
+   * two adjacent 100-digit decimals, the last digit may differ by one; exact midpoints are rounded to even.
+   * The result has no trailing zeros, and is always converted back exactly by {@link #Quadruple(BigDecimal)}.
    * @return a {@code BigDecimal} holding the same value as the given {@code Quadruple}
    * @throws NumberFormatException if the value of the instance is not convertible to {@code BigDecimal}
    * (i.e. it is {@code Infinity}, {@code -Infinity},  or {@code NaN})
@@ -890,7 +924,13 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /**
    * Returns a decimal string representation of the value of this {@code Quadruple}
-   * in a scientific (exponential) notation, rounded to 43 digits after point.<br>
+   * in a scientific (exponential) notation, with 40 significant digits (39 after the point),
+   * e.g. {@code 1.500000000000000000000000000000000000000e+00},
+   * or {@code "NaN"}, {@code "Infinity"}, {@code "-Infinity"}, {@code "0.0"}, {@code "-0.0"}.<br>
+   * The digits are rounded half-up; if the exact value is closer than {@code 1e-17} of a unit in the last digit
+   * to the midpoint between two adjacent 40-digit decimals, the last digit may differ by one.
+   * The string is always read back exactly by {@link #Quadruple(String)}: 40 digits are enough
+   * to identify the value.<br>
    * For other String representations, see {@code format(String)}
    * @see #format(String)
    * @see java.lang.Object#toString()
@@ -1074,6 +1114,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /**
    * Compares the value of this instance with the value of the specified instance.
+   * The order is that of {@link Double#compare(double, double)}: {@code -0} is less than {@code +0},
+   * NaN is greater than any other value (including {@code Infinity}), and all NaNs are equal to each other.
    * @param other the {@code Quadruple} to compare with
    * @return a negative integer, zero, or a positive integer as the value of this instance is less than,
    * equal to, or greater than the value of the specified instance.
@@ -1128,6 +1170,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /**
    * Indicates whether the other {@code Quadruple} is equal to this one.
+   * Like {@link Double#equals(Object)}, all NaNs are equal to each other, and {@code -0} is not equal to {@code +0}.
    * @param obj the object to compare with
    * @return {@code true} if the given object is Quadruple and its value is equal to
    * the value of this {@code Quadruple} instance, {@code false} otherwise.
@@ -1166,7 +1209,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   } // public int hashCode() {
 
   /**
-   * Compares the values of two instances.
+   * Compares the values of two instances, in the same order as {@link #compareTo(Quadruple)}.
    * @param q1 the instance to compare with the other one
    * @param q2 the instance to compare with
    * @return a negative integer, zero, or a positive integer as the value of the first
@@ -1179,6 +1222,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Compares the magnitude (absolute value) of this instance
    * with the magnitude of the other instance.
+   * NaN is greater in magnitude than any other value, all NaNs are equal in magnitude,
+   * {@code Infinity} is greater in magnitude than any finite value, {@code -0} and {@code +0} are equal in magnitude.
    * @param other the Quadruple to compare with
    * @return 1 if this instance is greater in magnitude than the {@code other} instance,
    * 0 if the argument is equal in magnitude to this instance, -1 if this instance is less in magnitude, than the argument
@@ -1207,9 +1252,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /**
    * Compares the magnitudes (absolute values) of the two Quadruples.
+   * NaN is greater in magnitude than any other value, all NaNs are equal in magnitude,
+   * {@code Infinity} is greater in magnitude than any finite value, {@code -0} and {@code +0} are equal in magnitude.
    * @param q1 the instance to compare with the other one
    * @param q2 the instance to compare with
-   * @return a negative integer, zero, or a positive integer as the magnitude of the first
+   * @return -1, 0, or 1 as the magnitude of the first
    * instance is less than, equal to, or greater than the magnitude of the second instance.
    */
   public static int compareMagnitudes(Quadruple q1, Quadruple q2) {
@@ -1219,8 +1266,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Returns a new instance of {@code Quadruple} with the value of the
    * maximum of the values of the operands.
-   * @param q1 first operand to compare
-   * @param q2 first operand to compare
+   * Like {@link Math#max(double, double)}, the result is NaN if any of the operands is NaN,
+   * and {@code -0} is considered less than {@code +0}.
+   * @param q1 the first operand to compare
+   * @param q2 the second operand to compare
    * @return a new instance of {@code Quadruple} whose value is
    *      equal to the value of the greater of the operands.
    */
@@ -1234,8 +1283,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Returns a new instance of {@code Quadruple} with the value of the
    * minimum of the values of the operands.
-   * @param q1 first operand to compare
-   * @param q2 first operand to compare
+   * Like {@link Math#min(double, double)}, the result is NaN if any of the operands is NaN,
+   * and {@code -0} is considered less than {@code +0}.
+   * @param q1 the first operand to compare
+   * @param q2 the second operand to compare
    * @return a new instance of {@code Quadruple} whose value is
    *      equal to the value of the lesser of the operands.
    */
@@ -1249,6 +1300,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Assigns to this instance the maximum of the
    * values of {@code this} instance and the operand.
+   * Like {@link Math#max(double, double)}, the result is NaN if any of the operands is NaN,
+   * and {@code -0} is considered less than {@code +0}.
    * @param other the operand to compare with
    * @return {@code this} instance, after setting its value
    *      to the value of the greater of {@code this} and the operand.
@@ -1262,6 +1315,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Assigns to this instance the minimum of the
    * values of {@code this} instance and the operand.
+   * Like {@link Math#min(double, double)}, the result is NaN if any of the operands is NaN,
+   * and {@code -0} is considered less than {@code +0}.
    * @param other the operand to compare with
    * @return {@code this} instance, after setting its value
    *      to the value of the lesser of {@code this} and the operand.
@@ -1281,6 +1336,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Adds the value of the given {@code Quadruple} summand to the value of this Quadruple.
    * The instance acquires a new value that equals the sum of the previous value and the value of the summand.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param summand the value to add
    * @return the reference to this object, which holds a new value that equals
    * the sum of its previous value and the value of the summand
@@ -1321,6 +1378,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Adds the value of the given {@code long} summand to the value of this Quadruple.
    * The value of the {@code long} operand is preliminarily converted to a {@code Quadruple} value.
    * The instance acquires the new value that equals the sum of the previous value and the value of the summand.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param summand the value to add
    * @return the reference to this object, which holds a new value that equals
    * the sum of its previous value and the value of the summand
@@ -1333,6 +1392,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Adds the value of the given {@code double} summand to the value of this Quadruple.
    * The value of the {@code double} operand is preliminarily converted to a {@code Quadruple} value.
    * The instance acquires the new value that equals the sum of the previous value and the value of the summand.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param summand the value to add
    * @return the reference to this object, which holds a new value that equals
    * the sum of its previous value and the value of the summand
@@ -1344,6 +1405,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /** Adds the value of the given {@code Quadruple op2} to the value of {@code Quadruple op1}
    * and creates a new instance of Quadruple containing the sum.
    * The operands remain unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param op1 the first operand to add
    * @param op2 the second operand to add
    * @return a new instance of Quadruple containing the sum of the operands
@@ -1357,6 +1420,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * and creates a new instance of Quadruple containing the sum.
    * The value of the {@code long} operand is preliminarily converted to a {@code Quadruple} value.
    * The Quadruple operand remains unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param op1 the first operand to add
    * @param op2 the second operand to add
    * @return a new instance of Quadruple containing the sum of the operands
@@ -1370,6 +1435,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * and creates a new instance of Quadruple containing the sum.
    * The value of the {@code double} operand is preliminarily converted to a {@code Quadruple} value.
    * The Quadruple operand remains unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param op1 the first operand to add
    * @param op2 the second operand to add
    * @return a new instance of Quadruple containing the sum of the operands
@@ -1382,6 +1449,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Subtracts the value of the given {@code Quadruple} subtrahend from the value of this Quadruple.
    * The instance acquires a new value that equals the difference between the previous value and the value of the subtrahend.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param subtrahend the value to be subtracted from the current value of this Quadruple
    * @return the reference to this object, which holds a new value that equals
    * the difference between its previous value and the value of the subtrahend
@@ -1423,6 +1492,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Subtracts the value of the given {@code long} subtrahend from the value of this Quadruple.
    * The value of the {@code long} subtrahend is preliminarily converted to a {@code Quadruple} value.
    * The instance acquires a new value that equals the difference between the previous value and the value of the subtrahend.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param subtrahend the value to be subtracted from the current value of this Quadruple
    * @return the reference to this object, which holds a new value that equals
    * the difference between its previous value and the value of the subtrahend
@@ -1435,6 +1506,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Subtracts the value of the given {@code double} subtrahend from the value of this Quadruple.
    * The value of the {@code double} subtrahend is preliminarily converted to a {@code Quadruple} value.
    * The instance acquires a new value that equals the difference between the previous value and the value of the subtrahend.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param subtrahend the value to be subtracted from the current value of this Quadruple
    * @return the reference to this object, which holds a new value that equals
    * the difference between its previous value and the value of the subtrahend
@@ -1447,6 +1520,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Subtracts the value of the {@code Quadruple} {@code subtrahend} from the value of the {@code minuend},
    * creates and returns a new  instance of Quadruple that contains the difference.
    * The operands remain unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param minuend the value from which the subtrahend is to be subtracted
    * @param subtrahend the value to be subtracted from the minuend
    * @return a new instance of Quadruple containing the difference
@@ -1461,6 +1536,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * creates and returns a new  instance of Quadruple that contains the difference.
    * The value of the {@code long} subtrahend is preliminarily converted to a {@code Quadruple} value.
    * The Quadruple minuend remains unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param minuend the value from which the subtrahend is to be subtracted
    * @param subtrahend the value to be subtracted from the minuend
    * @return a new instance of Quadruple containing the difference
@@ -1476,6 +1553,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * creates and returns a new  instance of Quadruple that contains the difference.
    * The value of the {@code double} subtrahend is preliminarily converted to a {@code Quadruple} value.
    * The Quadruple minuend remains unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param minuend the value from which the subtrahend is to be subtracted
    * @param subtrahend the value to be subtracted from the minuend
    * @return a new instance of Quadruple containing the difference
@@ -1489,6 +1568,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Multiplies the value of this Quadruple by the value of the given {@code Quadruple} factor.
    * The instance acquires a new value that equals the product of the previous value and the value of the factor.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param factor the value to multiply the current value of this Quadruple by.
    * @return the reference to this object, which holds a new value that equals
    * the product of its previous value and the value of the factor
@@ -1520,6 +1601,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Multiplies the value of this Quadruple by the value of the given {@code long} factor.
    * The value of the {@code long} factor is preliminarily converted to a {@code Quadruple} value.
    * The instance acquires a new value that equals the product of the previous value and the value of the factor.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param factor the value to multiply the current value of this Quadruple by.
    * @return the reference to this object, which holds a new value that equals
    * the product of its previous value and the value of the factor
@@ -1532,6 +1615,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Multiplies the value of this Quadruple by the value of the given {@code double} factor.
    * The value of the {@code double} factor is preliminarily converted to a {@code Quadruple} value.
    * The instance acquires a new value that equals the product of the previous value and the value of the factor.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param factor the value to multiply the current value of this Quadruple by.
    * @return the reference to this object, which holds a new value that equals
    * the product of its previous value and the value of the factor
@@ -1544,6 +1629,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Multiplies the value of the given {@code Quadruple factor1} by the {@code Quadruple factor2},
    * creates and returns a new instance of Quadruple containing the product.
    * The operands remain unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param factor1 the 1st factor to be multiplied by the second one
    * @param factor2 the 2nd factor to be multiplied by the first one
    * @return a new instance of Quadruple containing the value of the product
@@ -1558,6 +1645,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * creates and returns a new instance of Quadruple containing the product.
    * The value of the {@code long} factor is preliminarily converted to a {@code Quadruple} value.
    * The operands remain unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param factor1 the 1st factor to be multiplied by the second one
    * @param factor2 the 2nd factor to be multiplied by the first one
    * @return a new instance of Quadruple containing the value of the product
@@ -1572,6 +1661,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * creates and returns a new instance of Quadruple containing the product.
    * The value of the {@code double} factor is preliminarily converted to a {@code Quadruple} value.
    * The operands remain unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param factor1 the 1st factor to be multiplied by the second one
    * @param factor2 the 2nd factor to be multiplied by the first one
    * @return a new instance of Quadruple containing the value of the product
@@ -1584,6 +1675,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Divides the value of this Quadruple by the value of the given {@code Quadruple} divisor.
    * The instance acquires a new value that equals the quotient.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param divisor the divisor to divide the current value of this Quadruple by
    * @return the reference to this object, which holds a new value that equals
    * the quotient of the previous value of this Quadruple divided by the given divisor
@@ -1619,6 +1712,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Divides the value of this Quadruple by the value of the given {@code long} divisor.
    * The instance acquires a new value that equals the quotient.
    * The value of the {@code long} divisor is preliminarily converted to a {@code Quadruple} value.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param divisor the divisor to divide the current value of this Quadruple by
    * @return the reference to this object, which holds a new value that equals
    * the quotient of the previous value of this Quadruple divided by the given divisor
@@ -1631,6 +1726,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Divides the value of this Quadruple by the value of the given {@code double} divisor.
    * The instance acquires a new value that equals the quotient.
    * The value of the {@code double} divisor is preliminarily converted to a {@code Quadruple} value.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param divisor the divisor to divide the current value of this Quadruple by
    * @return the reference to this object, which holds a new value that equals
    * the quotient of the previous value of this Quadruple divided by the given divisor
@@ -1643,6 +1740,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Divides the value of the given dividend by the value of the given {@code Quadruple} divisor,
    * creates and returns a new instance of Quadruple containing the quotient.
    * The operands remain unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param dividend the value to be divided by the divisor
    * @param divisor the divisor to divide the dividend by
    * @return a new instance of Quadruple, which holds the value of the quotient
@@ -1657,6 +1756,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * creates and returns a new instance of Quadruple containing the quotient.
    * The value of the {@code long} divisor is preliminarily converted to a {@code Quadruple} value.
    * The operands remain unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param dividend the value to be divided by the divisor
    * @param divisor the divisor to divide the dividend by
    * @return a new instance of Quadruple, which holds the value of the quotient
@@ -1671,6 +1772,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * creates and returns a new instance of Quadruple containing the quotient.
    * The value of the {@code double} divisor is preliminarily converted to a {@code Quadruple} value.
    * The operands remain unchanged.
+   * The exact result is rounded to the nearest {@code Quadruple} value, ties away from zero
+   * (see <a href="#accuracy">Accuracy</a>).
    * @param dividend the value to be divided by the divisor
    * @param divisor the divisor to divide the dividend by
    * @return a new instance of Quadruple, which holds the value of the quotient
@@ -1687,6 +1790,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Computes a square root of the value of this {@code Quadruple}
    * and replaces the old value of this instance with the newly-computed value.
+   * The exact root is rounded to the nearest {@code Quadruple} value, except that roots exceeding the midpoint
+   * between two adjacent values by less than {@code 2^-31} LSB may be rounded down (see <a href="#accuracy">Accuracy</a>).
    * @return the reference to this instance, which holds a new value that equals
    * to the square root of its previous value
    */
@@ -1727,6 +1832,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Computes a square root of the value of the given {@code Quadruple},
    * creates and returns a new instance of Quadruple containing the value of the square root.
    * The parameter remains unchanged.
+   * The exact root is rounded to the nearest {@code Quadruple} value, except that roots exceeding the midpoint
+   * between two adjacent values by less than {@code 2^-31} LSB may be rounded down (see <a href="#accuracy">Accuracy</a>).
    * @param square the value to find the square root of
    * @return a new instance of Quadruple containing the value of the square root of the given argument
    */
