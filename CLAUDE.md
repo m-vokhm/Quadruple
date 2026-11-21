@@ -79,6 +79,8 @@ src/test/java/com/mvohm/quadruple/
 - `KNOWN_ISSUES.md` — подтверждённые баги (BUG-xx).
 - Ветка `newTests` — разработка новой подсистемы тестирования на замену старой.
 - Зависимости тестов: JUnit 5, AssertJ; бенчмарки — JMH.
+- Медленные тесты (`@Tag("slow")`, сейчас `ThreadSafetyTest`) по умолчанию исключены (`test.excludedGroups` в pom);
+  запуск: `mvn test -Dtest.excludedGroups=none -Dgroups=slow` (только они) или `-Dtest.excludedGroups=none` (все).
 
 ## Журнал работы
 

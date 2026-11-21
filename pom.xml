@@ -17,6 +17,8 @@
     <junit.version>5.10.2</junit.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <!-- JUnit tags excluded by default; run slow tests with -Dtest.excludedGroups=none -Dgroups=slow -->
+    <test.excludedGroups>slow</test.excludedGroups>
     
     <!-- For benchmarking, added 21.06.06 -->
     <jmh.version>1.29</jmh.version>
@@ -103,6 +105,8 @@
           <excludes>
             <exclude>**/QuadTest.java</exclude>   <!-- old tests, main()-based, not JUnit -->
           </excludes>
+
+          <excludedGroups>${test.excludedGroups}</excludedGroups>
 
         </configuration>
       </plugin>
