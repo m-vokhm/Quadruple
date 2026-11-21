@@ -2,9 +2,7 @@ package com.mvohm.quadruple.testdata;
 
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
-import static java.math.BigInteger.TEN;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,6 +12,7 @@ import org.junit.jupiter.api.Named;
 import org.junit.jupiter.params.provider.Arguments;
 
 import com.mvohm.quadruple.Quadruple;
+import com.mvohm.quadruple.testdata.generators.DecimalMidpoints;
 import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 import com.mvohm.quadruple.testutil.ExactValue;
 import com.mvohm.quadruple.testutil.QuadAssert;
@@ -22,7 +21,7 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  * Data for {@code ToStringTest}: finite values (including zeros) to convert to strings, and special values.
  * <p>
  * {@code toString()} gives 40 significant digits, so the interesting cases are the values close to the midpoint
- * between two adjacent 40-digit decimals. They are constructed:
+ * between two adjacent 40-digit decimals. They are constructed (see {@link DecimalMidpoints}):
  * <ul>
  *   <li><b>exact decimal midpoints</b>: {@code m * 2^-k}, where {@code m * 5^k} has exactly 41 digits,
  *       so that the 41st digit is 5 (e.g. {@code 2^-58 = 3.4694469519536141888238489627838134765625e-18});</li>
@@ -47,16 +46,14 @@ public class ToStringData {
   private static final int NEAR_MIDPOINT_COUNT = 1000;
   private static final int MAX_POWER_OF_TEN    = 400;
 
-  private static final BigInteger FIVE = BigInteger.valueOf(5);
-  private static final double LOG2_10 = Math.log(10) / Math.log(2);
 
   /** Finite values (see the class description) */
   public static Stream<Named<Quadruple>> values() {
     final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
     final List<Quadruple> list = new ArrayList<>(edgeCases());
     list.addAll(powersOfTen());
-    list.addAll(exactTies(random));
-    list.addAll(nearMidpoints(random));
+    list.addAll(DecimalMidpoints.exactMidpoints(random, 40, EXACT_TIE_COUNT));
+    list.addAll(DecimalMidpoints.nearMidpoints(random, 40, NEAR_MIDPOINT_COUNT));
     new RandomGenerator().quadruples(RANDOM_COUNT).forEach(list::add);
     new RandomGenerator(RandomGenerator.DEFAULT_RANDOM_SEED + 1).quadruples(RANDOM_COUNT / 2, -400, 400)
       .forEach(list::add);
@@ -99,50 +96,6 @@ public class ToStringData {
     return list;
   }
 
-  /** {@code m * 2^-k}, where {@code m * 5^k} has exactly 41 digits ({@code m} is odd) */
-  private static List<Quadruple> exactTies(Random random) {
-    final List<Quadruple> list = new ArrayList<>();
-    final BigInteger min = TEN.pow(40), max = TEN.pow(41).subtract(ONE);
-    final List<Integer> ks = new ArrayList<>();                   // k such that the range of m is not empty
-    for (int k = 1; k <= 58; k++) {
-      final BigInteger pow5 = FIVE.pow(k);
-      if (max.divide(pow5).compareTo(min.add(pow5).subtract(ONE).divide(pow5)) >= 0)
-        ks.add(k);
-    }
-    while (list.size() < EXACT_TIE_COUNT) {
-      final int k = ks.get(random.nextInt(ks.size()));
-      final BigInteger pow5 = FIVE.pow(k);
-      final BigInteger mMin = min.add(pow5).subtract(ONE).divide(pow5), mMax = max.divide(pow5);
-      final BigInteger m = randomBetween(random, mMin, mMax).setBit(0);
-      if (m.compareTo(mMax) > 0 || m.bitLength() > 129) continue;
-      list.add(exactly(m, -k));
-    }
-    return list;
-  }
-
-  /**
-   * Integers {@code x = m * 2^k} of {@code 40 + s} digits, such that the last {@code s} digits are
-   * {@code 2^(s-1) * (5^s ± c)}, i.e. the distance from the midpoint is {@code c / 2 * 5^-s} units of the 40th digit
-   */
-  private static List<Quadruple> nearMidpoints(Random random) {
-    final List<Quadruple> list = new ArrayList<>();
-    while (list.size() < NEAR_MIDPOINT_COUNT) {
-      final int s = 1 + random.nextInt(45);
-      final BigInteger pow5 = FIVE.pow(s);
-      final BigInteger c = BigInteger.valueOf(2 * random.nextInt(1000) + 1);
-      final BigInteger tail = ONE.shiftLeft(s - 1).multiply(random.nextBoolean()? pow5.add(c) : pow5.subtract(c));
-      final int k = Math.max(s, (int)Math.ceil((s + 40) * LOG2_10 - 129) + 1);  // m < 2^129
-      final BigInteger r = tail.multiply(ONE.shiftLeft(k).modInverse(pow5)).mod(pow5);   // m == r (mod 5^s)
-      final BigInteger lo = TEN.pow(s + 39).shiftRight(k).add(ONE), hi = TEN.pow(s + 40).shiftRight(k);
-      BigInteger m = randomBetween(random, lo, hi);
-      m = m.subtract(m.subtract(r).mod(pow5));
-      if (m.compareTo(lo) < 0) m = m.add(pow5);
-      if (m.compareTo(hi) > 0 || m.bitLength() > 129) continue;
-      list.add(exactly(m, k));                     // x == m * 2^k == tail (mod 10^s), since 2^s divides both
-    }
-    return list;
-  }
-
   /* ************************************************************************
    * Special values: {Quadruple, the expected string}
    */
@@ -172,18 +125,6 @@ public class ToStringData {
   /* ************************************************************************
    * Helpers
    */
-
-  private static Quadruple exactly(BigInteger mant, long exp2) {
-    final ExactValue.Rounding<Quadruple> r = ExactValue.of(false, mant, exp2).round();
-    if (!r.exact())
-      throw new IllegalStateException("Test data error: the value is not representable: " + mant + " * 2^" + exp2);
-    return r.rounded();
-  }
-
-  private static BigInteger randomBetween(Random random, BigInteger min, BigInteger max) {
-    final BigInteger range = max.subtract(min).add(ONE);
-    return min.add(new BigInteger(range.bitLength() + 16, random).mod(range));
-  }
 
   /** The next value toward zero (for positive non-zero values) */
   private static Quadruple nextDown(Quadruple q) {

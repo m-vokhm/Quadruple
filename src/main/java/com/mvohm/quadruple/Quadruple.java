@@ -861,7 +861,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /**
    * Builds and returns a {@code BigDecimal} instance holding the same value as the given Quadruple
-   * (rounded to 100 significant decimal digits).
+   * (rounded to 100 significant decimal digits, with {@link java.math.RoundingMode#HALF_EVEN}, the usual mode
+   * of {@code BigDecimal}, unlike the half-up rounding used in the rest of {@code Quadruple}).
    * @return a {@code BigDecimal} holding the same value as the given {@code Quadruple}
    * @throws NumberFormatException if the value of the instance is not convertible to {@code BigDecimal}
    * (i.e. it is {@code Infinity}, {@code -Infinity},  or {@code NaN})

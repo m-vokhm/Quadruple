@@ -60,6 +60,9 @@ src/test/java/com/mvohm/quadruple/
   - `toString()`: 40 значащих цифр half-up; эталон — 80 точных цифр (`ExactValue.toBigDecimal(80)`), ε = 1e-17
     единицы 40-й цифры, симметрично, включая точные середины (их различение — вопрос точности, не цель);
     плюс обратное чтение `new Quadruple(q.toString())` — точно.
+  - `BigDecimal` → Quadruple: эталон `ExactValue.ofDecimal`, ε = 1e-40 ulp ниже середины (по javadoc; замер 1.4e-41).
+    `bigDecimalValue()`: 100 цифр HALF_EVEN (в javadoc), без хвостовых нулей; ε = 1e-20 единицы 100-й цифры
+    (замер 3.7e-21), точные середины — строго к чётному. `format(String)` = `String.format(f, bigDecimalValue())`.
   - Преобразования String/BigDecimal ↔ Quadruple: эталон на `BigDecimal` с ограниченной точностью
     (на 10–20 порядков точнее тестируемой), ε — по javadoc плюс запас на неточность эталона.
     Ошибку мерить в ulp результата (ulp нижнего соседа), а не относительно значения.

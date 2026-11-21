@@ -541,3 +541,40 @@ as they are, so that `new Quadruple(q.toHexString())` has the same fields as `q`
 The constructors set the field `exponent` as it is, i.e. the biased exponent: `new Quadruple(false, 0x7FFF_FFFF, 0, 0)`
 is 1.0 (`EXPONENT_OF_ONE`), `new Quadruple(false, 0, 0, 1)` is `MIN_VALUE`. The javadoc should say
 "the binary exponent (biased), as returned by `exponent()`", and refer to `EXPONENT_BIAS`.
+
+## BUG-24 — `nextRandom()` fills the free low bits wrongly if the 64 high bits of the mantissa are zero (low priority)
+
+**Status:** open; low priority (probability ~2^-64 per call, not reachable by tests)
+**Found:** 2026-11-21
+**Where:** `Quadruple.nextRandom(Random)`: `randQ.mantLo |= rand.nextLong() >>> 64 - expDiff;`
+
+After `1.f - 1` is normalized, its lowest `expDiff` bits are zero and are to be filled with random bits.
+If `expDiff > 64` (i.e. the 64 high bits of the random fraction are zero), the shift `64 - expDiff` is negative
+and taken modulo 64, so a wrong number of bits is filled, and the free bits of `mantHi` are not filled at all.
+
+**Fix (proposed):** fill `expDiff` bits in both words (or generate the value bit by bit with a loop over words).
+
+## BUG-25 — `assign(BigDecimal)` throws `ArithmeticException` for values not less than `10^(2^31)`
+
+**Status:** open
+**Found:** 2026-11-21
+**Where:** `Quadruple.assign(BigDecimal)`: `findBinaryExponent()`: `int exp10 = value.precision() - value.scale() - 1`,
+`raise10toPower(exp10)`; also `value.stripTrailingZeros()` for scales near `Integer.MIN_VALUE`
+
+**Reproduction:**
+```java
+new Quadruple(new BigDecimal(BigInteger.valueOf(123), Integer.MIN_VALUE));   // 123e2147483648
+// ArithmeticException: Underflow (from BigDecimal.divide()), expected Infinity
+```
+
+**Cause:** the decimal exponent of the leading digit, `precision - scale - 1`, is computed as `int` and overflows
+if it is not less than 2^31 (the scale is close to `Integer.MIN_VALUE`); then BigDecimal operations with the
+resulting scales throw `ArithmeticException` (`Underflow` or `Overflow`). Values with smaller exponents
+(e.g. 1e2147483647) correctly give Infinity, tiny values (scales near `Integer.MAX_VALUE`) correctly give 0.
+
+**Fix (proposed):** compute the exponent as `long`, and return Infinity if it exceeds the range of Quadruple
+before any BigDecimal arithmetic.
+
+**Tests:** `BigDecimalConversionTest.shouldConvertHugeBigDecimalToInfinity` (disabled; 52 cases, all fail).
+The criterion (`BigDecimalData.isExponentBeyondInt()`) selects exactly the failing cases, which are excluded
+from the data of `BigDecimalConversionTest.shouldConvertBigDecimalWithDeclaredAccuracy`.
