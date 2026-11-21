@@ -1,5 +1,11 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.copy;
+import static com.mvohm.quadruple.testdata.DataHelpers.named;
+import static com.mvohm.quadruple.testdata.DataHelpers.negated;
+import static com.mvohm.quadruple.testdata.DataHelpers.pow2;
+import static com.mvohm.quadruple.testdata.DataHelpers.randomNormal;
+import static com.mvohm.quadruple.testdata.DataHelpers.toQuadruple;
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
 
@@ -17,7 +23,6 @@ import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 import com.mvohm.quadruple.testutil.BinaryOperation;
 import com.mvohm.quadruple.testutil.CallForm;
 import com.mvohm.quadruple.testutil.ExactValue;
-import com.mvohm.quadruple.testutil.QuadAssert;
 
 /**
  * Data for {@code DivideTest}: pairs of finite non-zero dividends and divisors, used in all forms of the call
@@ -210,12 +215,6 @@ public class DivideData {
     return pair(randomNormal(random, exponentB + difference), randomNormal(random, exponentB));
   }
 
-  /** A random normal value with the given unbiased exponent and a random sign */
-  private static Quadruple randomNormal(Random random, long exponent) {
-    final long mantLo = random.nextInt(4) == 0? 0 : random.nextLong();     // some shorter mantissas
-    return new Quadruple(random.nextBoolean(), (int)(EXPONENT_BIAS + exponent), random.nextLong(), mantLo);
-  }
-
   /* ************************************************************************
    * Helpers
    */
@@ -226,31 +225,6 @@ public class DivideData {
 
   private static Pair pair(String nameA, ExactValue a, String nameB, ExactValue b) {
     return new Pair(Named.of(nameA, toQuadruple(a)), Named.of(nameB, toQuadruple(b)));
-  }
-
-  /** @return the Quadruple exactly equal to the given value; throws if it's not representable */
-  private static Quadruple toQuadruple(ExactValue value) {
-    final ExactValue.Rounding<Quadruple> r = value.round();
-    if (!r.exact())
-      throw new IllegalStateException("Test data error: the value is not representable as Quadruple: " + value);
-    return r.rounded();
-  }
-
-  private static ExactValue pow2(long exponent) {
-    return ExactValue.of(false, ONE, exponent);
-  }
-
-  private static Named<Quadruple> named(Quadruple q) {
-    return Named.of(QuadAssert.fieldsOf(q), q);
-  }
-
-  private static Named<Quadruple> negated(Named<Quadruple> v) {
-    final Quadruple q = v.getPayload();
-    return Named.of("-(" + v.getName() + ")", new Quadruple(!q.isNegative(), q.exponent(), q.mantHi(), q.mantLo()));
-  }
-
-  private static Named<Quadruple> copy(Named<Quadruple> v) {
-    return Named.of(v.getName(), new Quadruple(v.getPayload()));
   }
 
 }

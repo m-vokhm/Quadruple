@@ -1,7 +1,9 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.pow2;
+import static com.mvohm.quadruple.testdata.DataHelpers.toQuadruple;
+import static com.mvohm.quadruple.testdata.DataHelpers.unbiasedExponent;
 import static com.mvohm.quadruple.Quadruple.*;
-import static java.math.BigInteger.ONE;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -316,22 +318,6 @@ public class ConversionData {
 
   private static Labeled labeled(String label, ExactValue value) {
     return new Labeled(label, toQuadruple(value));
-  }
-
-  /** @return the Quadruple exactly equal to the given value; throws if it's not representable */
-  private static Quadruple toQuadruple(ExactValue value) {
-    final ExactValue.Rounding<Quadruple> r = value.round();
-    if (!r.exact())
-      throw new IllegalStateException("Test data error: the value is not representable as Quadruple: " + value);
-    return r.rounded();
-  }
-
-  private static long unbiasedExponent(Quadruple q) {
-    return (q.exponent() & 0xFFFF_FFFFL) - EXPONENT_BIAS;
-  }
-
-  private static ExactValue pow2(long exponent) {
-    return ExactValue.of(false, ONE, exponent);
   }
 
 }

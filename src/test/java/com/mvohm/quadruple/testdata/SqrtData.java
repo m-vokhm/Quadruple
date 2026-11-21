@@ -1,5 +1,9 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.abs;
+import static com.mvohm.quadruple.testdata.DataHelpers.copy;
+import static com.mvohm.quadruple.testdata.DataHelpers.named;
+import static com.mvohm.quadruple.testdata.DataHelpers.pow2;
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
 
@@ -80,7 +84,7 @@ public class SqrtData {
     for (int i = 0; i < NEAR_MIDPOINT_COUNT; i++) values.add(nearMidpoint(random, 1 + random.nextInt(126), true));
     for (int i = 0; i < CRITICAL_ZONE_COUNT; i++) values.add(nearMidpoint(random, 92 + random.nextInt(8), false));
     for (int i = 0; i < EXACT_COUNT; i++)         values.add(exactSquare(random));
-    new RandomGenerator().quadruples(RANDOM_COUNT).map(SqrtData::abs).forEach(q -> values.add(named(q)));
+    new RandomGenerator().quadruples(RANDOM_COUNT).map(DataHelpers::abs).forEach(q -> values.add(named(q)));
     for (int i = 0; i < RANDOM_COUNT / 2; i++)
       values.add(named(new Quadruple(false, EXPONENT_BIAS + random.nextInt(2001) - 1000, random.nextLong(),
                                      random.nextInt(4) == 0? 0 : random.nextLong())));
@@ -89,7 +93,7 @@ public class SqrtData {
       final long mantLo = mantHi == 0? random.nextLong() >>> random.nextInt(64) | 1 : random.nextLong();
       values.add(named(new Quadruple(false, 0, mantHi, mantLo)));               // subnormal
     }
-    return values.stream().map(SqrtData::copy);
+    return values.stream().map(DataHelpers::copy);
   }
 
   /* ************************************************************************
@@ -188,22 +192,6 @@ public class SqrtData {
     if (!r.exact())
       throw new IllegalStateException("Test data error: the value is not representable as Quadruple: " + value);
     return Named.of(name + ": " + QuadAssert.fieldsOf(r.rounded()), r.rounded());
-  }
-
-  private static ExactValue pow2(long exponent) {
-    return ExactValue.of(false, ONE, exponent);
-  }
-
-  private static Quadruple abs(Quadruple q) {
-    return new Quadruple(false, q.exponent(), q.mantHi(), q.mantLo());
-  }
-
-  private static Named<Quadruple> named(Quadruple q) {
-    return Named.of(QuadAssert.fieldsOf(q), q);
-  }
-
-  private static Named<Quadruple> copy(Named<Quadruple> v) {
-    return Named.of(v.getName(), new Quadruple(v.getPayload()));
   }
 
 }

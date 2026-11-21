@@ -1,5 +1,8 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.copy;
+import static com.mvohm.quadruple.testdata.DataHelpers.named;
+import static com.mvohm.quadruple.testdata.DataHelpers.negated;
 import static com.mvohm.quadruple.Quadruple.*;
 
 import java.util.ArrayList;
@@ -13,7 +16,6 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.testdata.generators.RandomGenerator;
-import com.mvohm.quadruple.testutil.QuadAssert;
 
 /**
  * Data for {@code ComparisonTest}: pairs of Quadruple values, and pairs of a Quadruple and a long or a double.
@@ -275,7 +277,7 @@ public class ComparisonData {
   public static Stream<Named<Quadruple>> valuesForSignum() {
     return Stream.concat(
         ladder().stream().filter(v -> !isNegativeZeroOrNaN(v.getPayload())),
-        new RandomGenerator().quadruples(RANDOM_VALUE_COUNT).map(ComparisonData::named));
+        new RandomGenerator().quadruples(RANDOM_VALUE_COUNT).map(DataHelpers::named));
   }
 
   /** -0 and NaNs with different bit patterns, BUG-08 */
@@ -297,19 +299,6 @@ public class ComparisonData {
 
   private static Named<Quadruple> q(String name, boolean negative, int exponent, long mantHi, long mantLo) {
     return Named.of(name, new Quadruple(negative, exponent, mantHi, mantLo));
-  }
-
-  private static Named<Quadruple> negated(Named<Quadruple> v) {
-    final Quadruple q = v.getPayload();
-    return Named.of("-(" + v.getName() + ")", new Quadruple(!q.isNegative(), q.exponent(), q.mantHi(), q.mantLo()));
-  }
-
-  private static Named<Quadruple> named(Quadruple q) {
-    return Named.of(QuadAssert.fieldsOf(q), q);
-  }
-
-  private static Named<Quadruple> copy(Named<Quadruple> v) {
-    return Named.of(v.getName(), new Quadruple(v.getPayload()));
   }
 
 }

@@ -1,5 +1,14 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.abs;
+import static com.mvohm.quadruple.testdata.DataHelpers.copy;
+import static com.mvohm.quadruple.testdata.DataHelpers.named;
+import static com.mvohm.quadruple.testdata.DataHelpers.negated;
+import static com.mvohm.quadruple.testdata.DataHelpers.pow2;
+import static com.mvohm.quadruple.testdata.DataHelpers.randomNormal;
+import static com.mvohm.quadruple.testdata.DataHelpers.toQuadruple;
+import static com.mvohm.quadruple.testdata.DataHelpers.unbiasedExponent;
+import static com.mvohm.quadruple.testdata.DataHelpers.unsigned;
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
 
@@ -17,7 +26,6 @@ import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 import com.mvohm.quadruple.testutil.BinaryOperation;
 import com.mvohm.quadruple.testutil.CallForm;
 import com.mvohm.quadruple.testutil.ExactValue;
-import com.mvohm.quadruple.testutil.QuadAssert;
 
 /**
  * Data for {@code AddSubTest}: pairs of finite non-zero operands, each of them used for both addition and subtraction
@@ -48,7 +56,6 @@ public class AddSubData {
   private static final int NUMBER_COUNT        = 1000;   // doubles and longs
 
   private static final long HIGH_BIT = 0x8000_0000_0000_0000L;
-  private static final BigInteger MASK_64 = ONE.shiftLeft(64).subtract(ONE);
   /** The binary exponent of the LSB of subnormal values */
   private static final long MIN_LSB_EXPONENT = 1L - EXPONENT_BIAS - 128;
 
@@ -299,12 +306,6 @@ public class AddSubData {
         cancellation(random) : pair(a, b);
   }
 
-  /** A random normal value with the given unbiased exponent and a random sign */
-  private static Quadruple randomNormal(Random random, int exponent) {
-    final long mantLo = random.nextInt(4) == 0? 0 : random.nextLong();     // some shorter mantissas
-    return new Quadruple(random.nextBoolean(), EXPONENT_BIAS + exponent, random.nextLong(), mantLo);
-  }
-
   /** A random normal value with an exponent within 70 of the given one */
   private static Quadruple withExponentNear(Random random, int exponent) {
     return randomNormal(random, exponent + random.nextInt(141) - 70);
@@ -320,43 +321,6 @@ public class AddSubData {
 
   private static Pair pair(String nameA, ExactValue a, String nameB, ExactValue b) {
     return new Pair(Named.of(nameA, toQuadruple(a)), Named.of(nameB, toQuadruple(b)));
-  }
-
-  /** @return the Quadruple exactly equal to the given value; throws if it's not representable */
-  private static Quadruple toQuadruple(ExactValue value) {
-    final ExactValue.Rounding<Quadruple> r = value.round();
-    if (!r.exact())
-      throw new IllegalStateException("Test data error: the value is not representable as Quadruple: " + value);
-    return r.rounded();
-  }
-
-  private static BigInteger unsigned(long value) {
-    return BigInteger.valueOf(value).and(MASK_64);
-  }
-
-  private static Quadruple abs(Quadruple q) {
-    return new Quadruple(false, q.exponent(), q.mantHi(), q.mantLo());
-  }
-
-  private static long unbiasedExponent(Quadruple q) {
-    return (q.exponent() & 0xFFFF_FFFFL) - EXPONENT_BIAS;
-  }
-
-  private static ExactValue pow2(long exponent) {
-    return ExactValue.of(false, ONE, exponent);
-  }
-
-  private static Named<Quadruple> named(Quadruple q) {
-    return Named.of(QuadAssert.fieldsOf(q), q);
-  }
-
-  private static Named<Quadruple> negated(Named<Quadruple> v) {
-    final Quadruple q = v.getPayload();
-    return Named.of("-(" + v.getName() + ")", new Quadruple(!q.isNegative(), q.exponent(), q.mantHi(), q.mantLo()));
-  }
-
-  private static Named<Quadruple> copy(Named<Quadruple> v) {
-    return Named.of(v.getName(), new Quadruple(v.getPayload()));
   }
 
 }

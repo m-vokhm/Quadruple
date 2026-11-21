@@ -1,5 +1,12 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.copy;
+import static com.mvohm.quadruple.testdata.DataHelpers.named;
+import static com.mvohm.quadruple.testdata.DataHelpers.negated;
+import static com.mvohm.quadruple.testdata.DataHelpers.pow2;
+import static com.mvohm.quadruple.testdata.DataHelpers.randomNormal;
+import static com.mvohm.quadruple.testdata.DataHelpers.toQuadruple;
+import static com.mvohm.quadruple.testdata.DataHelpers.unsigned;
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
 
@@ -17,7 +24,6 @@ import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 import com.mvohm.quadruple.testutil.BinaryOperation;
 import com.mvohm.quadruple.testutil.CallForm;
 import com.mvohm.quadruple.testutil.ExactValue;
-import com.mvohm.quadruple.testutil.QuadAssert;
 
 /**
  * Data for {@code MultiplyTest}: pairs of finite non-zero factors, used in all forms of the call
@@ -150,10 +156,6 @@ public class MultiplyData {
   /** @return the binary exponent of the LSB of the significand */
   private static long lsbExponent(Quadruple q) {
     return q.exponent() == 0? MIN_LSB_EXPONENT : (q.exponent() & 0xFFFF_FFFFL) - EXPONENT_BIAS - 128;
-  }
-
-  private static BigInteger unsigned(long value) {
-    return BigInteger.valueOf(value).and(ONE.shiftLeft(64).subtract(ONE));
   }
 
   private static List<Pair> allPairs() {
@@ -315,12 +317,6 @@ public class MultiplyData {
     return randomPair(random, exponentA, sum - exponentA);
   }
 
-  /** A random normal value with the given unbiased exponent and a random sign */
-  private static Quadruple randomNormal(Random random, long exponent) {
-    final long mantLo = random.nextInt(4) == 0? 0 : random.nextLong();     // some shorter mantissas
-    return new Quadruple(random.nextBoolean(), (int)(EXPONENT_BIAS + exponent), random.nextLong(), mantLo);
-  }
-
   /* ************************************************************************
    * Helpers
    */
@@ -342,33 +338,8 @@ public class MultiplyData {
     return new Pair(Named.of(nameA, toQuadruple(a)), Named.of(nameB, b));
   }
 
-  /** @return the Quadruple exactly equal to the given value; throws if it's not representable */
-  private static Quadruple toQuadruple(ExactValue value) {
-    final ExactValue.Rounding<Quadruple> r = value.round();
-    if (!r.exact())
-      throw new IllegalStateException("Test data error: the value is not representable as Quadruple: " + value);
-    return r.rounded();
-  }
-
   private static Quadruple toQuadrupleRounded(ExactValue value) {
     return value.round().rounded();
-  }
-
-  private static ExactValue pow2(long exponent) {
-    return ExactValue.of(false, ONE, exponent);
-  }
-
-  private static Named<Quadruple> named(Quadruple q) {
-    return Named.of(QuadAssert.fieldsOf(q), q);
-  }
-
-  private static Named<Quadruple> negated(Named<Quadruple> v) {
-    final Quadruple q = v.getPayload();
-    return Named.of("-(" + v.getName() + ")", new Quadruple(!q.isNegative(), q.exponent(), q.mantHi(), q.mantLo()));
-  }
-
-  private static Named<Quadruple> copy(Named<Quadruple> v) {
-    return Named.of(v.getName(), new Quadruple(v.getPayload()));
   }
 
 }

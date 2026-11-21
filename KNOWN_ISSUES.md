@@ -578,3 +578,21 @@ before any BigDecimal arithmetic.
 **Tests:** `BigDecimalConversionTest.shouldConvertHugeBigDecimalToInfinity` (disabled; 52 cases, all fail).
 The criterion (`BigDecimalData.isExponentBeyondInt()`) selects exactly the failing cases, which are excluded
 from the data of `BigDecimalConversionTest.shouldConvertBigDecimalWithDeclaredAccuracy`.
+
+## BUG-26 — javadoc should state the accuracy of operations and conversions, as confirmed by the tests (documentation only)
+
+**Status:** open; a separate commit for all the javadoc
+**Found:** 2026-11-21
+
+What the tests have confirmed (besides the bugs listed above), to be described where appropriate:
+
+| Method | Accuracy (half-up, ties away from zero, unless stated otherwise) | Test |
+|---|---|---|
+| `add`, `subtract`, `multiply` (all forms) | correctly rounded (except BUG-11..14) | `AddSubTest`, `MultiplyTest` |
+| `divide` (all forms) | correctly rounded | `DivideTest` |
+| `sqrt` | correctly rounded, except roots above the midpoint by less than ~2^-31.5 ulp (BUG-15) | `SqrtTest` |
+| `Quadruple(String)`, `assign(String)` | below the midpoint by less than 1e-17 ulp: either (measured max 5.8e-18); the midpoint and above: up (already in the javadoc) | `StringParsingTest` |
+| `Quadruple(BigDecimal)`, `assign(BigDecimal)` | below the midpoint by less than 1e-40 ulp: either (measured max 1.4e-41) (already in the javadoc) | `BigDecimalConversionTest` |
+| `toString()` | 40 digits; within ~3e-18 of the unit of the last digit from the midpoint (including exact midpoints): either; always read back exactly (BUG-17) | `ToStringTest` |
+| `bigDecimalValue()` | 100 digits HALF_EVEN; within ~3.7e-21 of the unit of the last digit from the midpoint: either, exact midpoints: to even; always read back exactly | `BigDecimalConversionTest` |
+| conversions to `double`, `float`, IEEE-754 quad, `long`, `int` | see `ConversionTest` | `ConversionTest` |

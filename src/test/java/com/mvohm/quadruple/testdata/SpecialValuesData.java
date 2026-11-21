@@ -1,5 +1,9 @@
 package com.mvohm.quadruple.testdata;
 
+import static com.mvohm.quadruple.testdata.DataHelpers.abs;
+import static com.mvohm.quadruple.testdata.DataHelpers.copy;
+import static com.mvohm.quadruple.testdata.DataHelpers.named;
+import static com.mvohm.quadruple.testdata.DataHelpers.negated;
 import static com.mvohm.quadruple.Quadruple.*;
 
 import java.util.ArrayList;
@@ -13,7 +17,6 @@ import com.mvohm.quadruple.Quadruple;
 import com.mvohm.quadruple.testdata.generators.RandomGenerator;
 import com.mvohm.quadruple.testutil.BinaryOperation;
 import com.mvohm.quadruple.testutil.CallForm;
-import com.mvohm.quadruple.testutil.QuadAssert;
 
 /**
  * Data for {@code SpecialValuesTest}: special values (NaN, infinities, zeros) and finite values of different kinds,
@@ -111,7 +114,7 @@ public class SpecialValuesData {
     return allValues().stream()
         .filter(v -> isSpecial(v.getPayload()) || v.getPayload().isNegative())
         .filter(v -> !isNegativeZero(v.getPayload()))
-        .map(SpecialValuesData::copy);
+        .map(DataHelpers::copy);
   }
 
   /** -0, whose square root must be -0, like {@code Math.sqrt(-0.0)} (BUG-10) */
@@ -156,22 +159,6 @@ public class SpecialValuesData {
 
   private static Named<Quadruple> q(String name, boolean negative, int exponent, long mantHi, long mantLo) {
     return Named.of(name, new Quadruple(negative, exponent, mantHi, mantLo));
-  }
-
-  private static Quadruple negated(Quadruple q) {
-    return new Quadruple(!q.isNegative(), q.exponent(), q.mantHi(), q.mantLo());
-  }
-
-  private static Quadruple abs(Quadruple q) {
-    return new Quadruple(false, q.exponent(), q.mantHi(), q.mantLo());
-  }
-
-  private static Named<Quadruple> named(Quadruple q) {
-    return Named.of(QuadAssert.fieldsOf(q), q);
-  }
-
-  private static Named<Quadruple> copy(Named<Quadruple> v) {
-    return Named.of(v.getName(), new Quadruple(v.getPayload()));
   }
 
 }
