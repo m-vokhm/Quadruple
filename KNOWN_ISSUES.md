@@ -349,7 +349,7 @@ exactly 1/4 of the LSB is a tie, rounded up to the minuend.
 
 ## BUG-14 — subnormal products are rounded twice
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-20
 **Where:** `Quadruple.multUnsigned()`: `roundBuffer()`, then `normalizeSubnormal()` / `makeSubnormal()`
 
@@ -369,12 +369,13 @@ though the exact value is below the midpoint. To compensate the first rounding, 
 the LSB of the rounded value if it was rounded up, which in turn sometimes makes the result rounded down,
 though the exact value is above the midpoint (2 of the cases). Normal results are not affected.
 
-**Fix (proposed):** for subnormal results, round only once: shift the full (unrounded) product right
-and round it at the position of the subnormal LSB, taking into account all the shifted-out bits.
+**Fix:** if the product is going to be subnormal (the preliminary exponent, plus 1 if the product of the mantissas
+is 2 or more, is 0 or less), `multUnsigned()` calls `makeSubnormalProduct()`, which takes the bits of the subnormal
+mantissa directly from the full unrounded 258-bit product and rounds it once, half-up by the highest shifted-out bit
+(a carry gives `MIN_NORMAL`). `normalizeSubnormal()`, with its compensation of the first rounding, is removed.
 
-**Tests:** `MultiplyTest.shouldRoundSubnormalProductsOnce` (disabled; 370 cases, all fail).
-The criterion (`MultiplyData.isSubnormalDoubleRoundingCase()`) emulates the rounding of the library
-and selects exactly the failing cases; they are excluded from the data of `MultiplyTest.shouldBeCorrectlyRounded`.
+**Tests:** `MultiplyTest.shouldBeCorrectlyRounded` (all the data, including 370 cases that failed before the fix);
+also passes with `-Dtest.volume=20` (426 290 cases).
 
 ## BUG-15 — square roots slightly above the midpoint may be rounded down
 

@@ -2,7 +2,6 @@ package com.mvohm.quadruple;
 
 import static com.mvohm.quadruple.testutil.QuadAssert.*;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -31,14 +30,6 @@ public class MultiplyTest {
     final Quadruple actual = op.apply(form, a, b);
     final ExactValue exact = op.applyToExactValues(ExactValue.of(a), ExactValue.of(b));
     assertCorrectlyRounded(actual, exact, 0, op.describe(form, a, b));
-  }
-
-  @Disabled("BUG-14: subnormal products are rounded twice (to 129 bits, then to the subnormal LSB),"
-            + " see KNOWN_ISSUES.md")
-  @ParameterizedTest(name = "{0}: {1}, a = {2}, b = {3}")
-  @MethodSource(DATA + "subnormalDoubleRoundingCases")
-  void shouldRoundSubnormalProductsOnce(BinaryOperation op, CallForm form, Quadruple a, Quadruple b) {
-    shouldBeCorrectlyRounded(op, form, a, b);
   }
 
 }

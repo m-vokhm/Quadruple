@@ -7,7 +7,6 @@ import static com.mvohm.quadruple.testdata.DataHelpers.negated;
 import static com.mvohm.quadruple.testdata.DataHelpers.pow2;
 import static com.mvohm.quadruple.testdata.DataHelpers.randomNormal;
 import static com.mvohm.quadruple.testdata.DataHelpers.toQuadruple;
-import static com.mvohm.quadruple.testdata.DataHelpers.unsigned;
 import static com.mvohm.quadruple.Quadruple.*;
 import static java.math.BigInteger.ONE;
 
@@ -64,24 +63,15 @@ public class MultiplyData {
   private static final long MIN_EXPONENT = 1L - EXPONENT_BIAS, MAX_EXPONENT = EXPONENT_OF_MAX_VALUE - EXPONENT_BIAS;
 
   /**
-   * {@code (operation, form, a, b)}: all the pairs (see the class description), in all forms of the call,
-   * except the cases of BUG-14 (see KNOWN_ISSUES.md)
+   * {@code (operation, form, a, b)}: all the pairs (see the class description), in all forms of the call
    */
   public static Stream<Arguments> operations() {
-    return allCases().filter(c -> !isSubnormalDoubleRoundingCase(c.a(), c.b())).map(Case::toArguments);
-  }
-
-  /**
-   * The cases of BUG-14: subnormal products, for which the double rounding performed by the library
-   * (see {@link #isSubnormalDoubleRoundingCase(Quadruple, Quadruple)}) gives a result different from the correct one.
-   */
-  public static Stream<Arguments> subnormalDoubleRoundingCases() {
-    return allCases().filter(c -> isSubnormalDoubleRoundingCase(c.a(), c.b())).map(Case::toArguments);
+    return allCases().map(Case::toArguments);
   }
 
   private record Pair(Named<Quadruple> a, Named<Quadruple> b) {}
 
-  private record Case(CallForm form, Quadruple a, Quadruple b, Pair pair) {
+  private record Case(CallForm form, Pair pair) {
     Arguments toArguments() { return Arguments.of(BinaryOperation.MULTIPLY, form, copy(pair.a()), copy(pair.b())); }
   }
 
@@ -90,73 +80,8 @@ public class MultiplyData {
     for (final Pair p : allPairs())
       for (final CallForm form : CallForm.values())
         if (form.accepts(p.b().getPayload()))
-          result.add(new Case(form, p.a().getPayload(), p.b().getPayload(), p));
+          result.add(new Case(form, p));
     return result.stream();
-  }
-
-  /* ************************************************************************
-   * The criterion of BUG-14
-   */
-
-  /**
-   * Emulates the rounding of a subnormal product as the library does it, and compares the result
-   * with the correctly rounded one:
-   * <ol>
-   *   <li>the product of the normalized 129-bit significands is rounded half-up to 128 fractional bits
-   *       (as for a normal result), and to 129 bits if it is &gt;= 2 (without the second rounding,
-   *       if the first one rounded up);</li>
-   *   <li>if the product is subnormal and step 1 rounded it up, the LSB of the 129-bit value is cleared;</li>
-   *   <li>the value is rounded half-up to the LSB of subnormal values.</li>
-   * </ol>
-   * @return true if the product is subnormal (by the result of step 1), and the result of step 3
-   * differs from the correctly rounded exact product
-   */
-  private static boolean isSubnormalDoubleRoundingCase(Quadruple a, Quadruple b) {
-    final BigInteger sa = significand(a), sb = significand(b);
-    final BigInteger product = sa.multiply(sb);
-    final long lsbOfProduct = lsbExponent(a) + lsbExponent(b);
-
-    // Step 1: normalize the factors to 129 bits, round the product to 128 fractional bits
-    final BigInteger normalized = sa.shiftLeft(129 - sa.bitLength()).multiply(sb.shiftLeft(129 - sb.bitLength()));
-    long lsb = lsbOfProduct - (129 - sa.bitLength()) - (129 - sb.bitLength()) + 128;
-    final boolean roundedUp = normalized.testBit(127);
-    BigInteger r = normalized.shiftRight(128);
-    if (roundedUp)
-      r = r.add(ONE);
-    if (r.bitLength() > 129) {                       // >= 2: shift by 1 bit, rounding unless already rounded up
-      final boolean lowestBit = r.testBit(0);
-      r = r.shiftRight(1);
-      lsb++;
-      if (lowestBit && !roundedUp)
-        r = r.add(ONE);
-    }
-    if (lsb + 128 >= MIN_EXPONENT)                   // not subnormal
-      return false;
-
-    // Step 2, 3
-    if (roundedUp)
-      r = r.clearBit(0);
-    final BigInteger doublyRounded = roundHalfUp(r, MIN_LSB_EXPONENT - lsb);
-    return !doublyRounded.equals(roundHalfUp(product, MIN_LSB_EXPONENT - lsbOfProduct));
-  }
-
-  /** @return {@code value} shifted right by {@code shift} bits and rounded half-up ({@code shift > 0}) */
-  private static BigInteger roundHalfUp(BigInteger value, long shift) {
-    if (shift > value.bitLength() + 1)
-      return BigInteger.ZERO;
-    final BigInteger shifted = value.shiftRight((int)shift);
-    return value.testBit((int)shift - 1)? shifted.add(ONE) : shifted;
-  }
-
-  /** @return the significand of a finite value (with the implicit unity for normal values) */
-  private static BigInteger significand(Quadruple q) {
-    final BigInteger mant = unsigned(q.mantHi()).shiftLeft(64).or(unsigned(q.mantLo()));
-    return q.exponent() == 0? mant : mant.setBit(128);
-  }
-
-  /** @return the binary exponent of the LSB of the significand */
-  private static long lsbExponent(Quadruple q) {
-    return q.exponent() == 0? MIN_LSB_EXPONENT : (q.exponent() & 0xFFFF_FFFFL) - EXPONENT_BIAS - 128;
   }
 
   private static List<Pair> allPairs() {

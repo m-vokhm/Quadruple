@@ -4597,18 +4597,15 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       return assignZero(false);
 
     multiplyBuffers(factor1, factor2, product);               // Leaves the higher half-words empty
+    if (productExponent + (product[1] > 1? 1 : 0) <= 0)       // Result is subnormal: round it only once,
+      return makeSubnormalProduct(product, productExponent);  // at the position of its LSB
+
     final boolean isRoundedUp = roundBuffer(product);
-
-
     productExponent = normalizeProduct(product, productExponent, isRoundedUp);
     if (productExponent > EXPONENT_OF_MAX_VALUE)                            // Overflow, return infinity
       return assignInfinity(false);
 
     packBufferToMantissa(product);
-
-    if (productExponent <= 0)                                 // Result is subnormal
-      productExponent = normalizeSubnormal(productExponent, isRoundedUp);
-
     exponent = (int)productExponent;
     return this;
   } // private void multUnsigned(Quadruple factor) {
@@ -4734,18 +4731,47 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   } // private void packBufferToMantissa(long[] buffer) {
 
   /**
-   * Normalizes a subnormal value (with negative exponent),
-   * shifting the bits of its mantissa rightwards according to the exponent's value and clearing
-   * @param productExponent the exponent of the product (always negative for subnormal results)
-   * @param isRoundedUp a flag to prevent taking into account the shifted-out LSB when rounding the value
-   * (in case if the value was already rounded-up)
-   * @return the exponent value of a subnormal Quadruple, that is 0
+   * Assigns to this instance the subnormal value of the product of two mantissas, contained in the given buffer
+   * as an unrounded 258-bit value {@code P} (the integer part in {@code product[1]},
+   * 256 bits of the fractional part in the lower halves of {@code product[2]..product[9]}).
+   * The value of the product is {@code P * 2^(productExponent - EXPONENT_BIAS - 256)}, so the mantissa
+   * of the subnormal result is {@code P >>> (129 - productExponent)}, rounded half-up by the highest shifted-out bit.
+   * If the rounding gives {@code 2^128}, the result is {@code MIN_NORMAL}.
+   * @param product the buffer containing the product of the mantissas
+   * @param productExponent the preliminary biased exponent of the product (as if the product were less than 2),
+   * from 0 to -129 (from -1, if the integer part of the product is 2 or 3)
+   * @return this instance, with the new value
    */
-  private long normalizeSubnormal(long productExponent, boolean isRoundedUp) {
-    if (isRoundedUp) mantLo &= -2L;     // Clear LSB to avoid excessive rounding up
-    productExponent = makeSubnormal(productExponent);
-    return productExponent;
-  } // private long normalizeSubnormal(long productExponent, boolean alreadyRounded) {
+  private Quadruple makeSubnormalProduct(long[] product, long productExponent) {
+    final int shift = (int)(129 - productExponent);          // 129..258
+    mantLo = bitsOfBuffer(product, shift);
+    mantHi = bitsOfBuffer(product, shift + 64);
+    exponent = 0;
+    if ((bitsOfBuffer(product, shift - 1) & 1) != 0)          // The highest shifted-out bit is 1, round up
+      if (++mantLo == 0 && ++mantHi == 0)
+        exponent = 1;                                         // MIN_NORMAL
+    return this;
+  } // private Quadruple makeSubnormalProduct(long[] product, long productExponent) {
+
+  /**
+   * Extracts 64 bits from an unpacked buffer, containing 32 bits in each word, the lowest bits in the last word.
+   * @param buffer the buffer
+   * @param position the position of the lowest bit to extract (0 is the lowest bit of the last word)
+   * @return the bits from {@code position} to {@code position + 63}; the bits beyond the buffer are 0
+   */
+  private static long bitsOfBuffer(long[] buffer, int position) {
+    final int lastWord = buffer.length - 1;
+    long result = 0;
+    for (int word = position / 32; word <= position / 32 + 2 && word <= lastWord; word++) {
+      final long bits = buffer[lastWord - word] & LOWER_32_BITS;
+      final int offset = word * 32 - position;               // the position of the lowest bit of the word in the result
+      if (offset < 0)
+        result |= bits >>> -offset;
+      else if (offset < 64)
+        result |= bits << offset;
+    }
+    return result;
+  } // private static long bitsOfBuffer(long[] buffer, int position) {
 
   /**
    * Shifts the contents of a buffer, containing the unpacked mantissa
