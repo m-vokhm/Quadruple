@@ -2973,9 +2973,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   private Quadruple makeQuadOfSubnormDoubleAsLong(long doubleAsLong) {
     final int numOfZeros = Long.numberOfLeadingZeros(doubleAsLong); // sign is cleared, exponent is 0 -- so it's the number of zeros to the left of the most significant bit
     exponent = EXPONENT_BIAS - EXP_0D - (numOfZeros - 12);           // bias - position of MSB relative to implied high bit in normal double
-    if (numOfZeros < 63)    // 19.11.25 20:17:33: To prevent using unchanged doubleAsLong that otherwise happens
-                            // when numOfZeros == 63, since d << 64 does nothing
-      mantHi = doubleAsLong << numOfZeros + 1;                    // msb to the normal position (to the left from the highest bit)
+    mantHi = numOfZeros < 63?                                     // msb to the normal position (to the left from the highest bit);
+        doubleAsLong << numOfZeros + 1 :                          // for Double.MIN_VALUE (numOfZeros == 63) d << 64 would do nothing,
+        0;                                                        // and its mantissa is 0 (only the implicit unity)
     return this;
   } // private Quadruple makeQuadOfSubnormDoubleAsLong(long doubleAsLong) {
 

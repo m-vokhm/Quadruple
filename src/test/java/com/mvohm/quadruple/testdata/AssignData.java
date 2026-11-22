@@ -50,15 +50,13 @@ public class AssignData {
   }
 
   /**
-   * Returns the double values for {@code assign(double)} tests:
-   * the same as for the creation tests, except {@code ±Double.MIN_VALUE}
-   * (see BUG-01 in KNOWN_ISSUES.md; these values are tested separately).
+   * Returns the double values for {@code assign(double)} tests,
+   * the same as for the creation tests (including {@code ±Double.MIN_VALUE}, BUG-01).
    *
    * @return a stream of double values
    */
   public static Stream<Double> doubleValuesForAssign() {
-    return CreationData.doubleValuesForCreation()
-                       .filter(d -> Math.abs(d) != Double.MIN_VALUE);
+    return CreationData.doubleValuesForCreation();
   }
 
   /**

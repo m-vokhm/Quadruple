@@ -9,7 +9,7 @@ Status: **open** — confirmed, not fixed; **fixed** — fixed, tests re-enabled
 
 ## BUG-01 — `assign(double)` with ±`Double.MIN_VALUE` keeps stale mantissa
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-16
 **Where:** `Quadruple.makeQuadOfSubnormDoubleAsLong(long)`, called from `assign(double)`
 
@@ -25,9 +25,9 @@ q.doubleValue();   // 9.9E-324, expected 4.9E-324
 of the previous contents of the instance. Constructors are not affected,
 since a new instance has `mantHi == 0`.
 
-**Fix (proposed):** assign `mantHi = 0` in the `numOfZeros == 63` case.
+**Fix:** `mantHi = 0` in the `numOfZeros == 63` case.
 
-**Tests:** `AssignTest.shouldAssignDoubleMinValueToDirtyInstance` (disabled).
+**Tests:** `AssignTest.shouldAssignDoubleToDirtyInstance` (all the data, including 17 cases of `±Double.MIN_VALUE`).
 
 ---
 

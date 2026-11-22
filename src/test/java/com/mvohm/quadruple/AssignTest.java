@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static com.mvohm.quadruple.Quadruple.*;
 import static com.mvohm.quadruple.testutil.QuadAssert.*;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
@@ -46,25 +45,11 @@ public class AssignTest {
   /**
    * Verifies that {@code assign(double)} produces the same fields as the constructor,
    * whatever value the instance held before.
-   * <p>
-   * {@code ±Double.MIN_VALUE} are excluded from the data (BUG-01),
-   * they are tested by {@link #shouldAssignDoubleMinValueToDirtyInstance(double)}.
    */
   @ParameterizedTest
   @MethodSource("com.mvohm.quadruple.testdata.AssignData#doubleValuesForAssign")
   @DisplayName("assign(double) on a dirty instance should give the same result as the constructor")
   void shouldAssignDoubleToDirtyInstance(double value) {
-    checkAssignDouble(value);
-  }
-
-  /**
-   * The same as {@link #shouldAssignDoubleToDirtyInstance(double)}, for {@code ±Double.MIN_VALUE}.
-   */
-  @Disabled("BUG-01: assign(±Double.MIN_VALUE) keeps stale mantHi, see KNOWN_ISSUES.md")
-  @ParameterizedTest
-  @ValueSource(doubles = { Double.MIN_VALUE, -Double.MIN_VALUE })
-  @DisplayName("assign(±Double.MIN_VALUE) on a dirty instance should give the same result as the constructor")
-  void shouldAssignDoubleMinValueToDirtyInstance(double value) {
     checkAssignDouble(value);
   }
 
