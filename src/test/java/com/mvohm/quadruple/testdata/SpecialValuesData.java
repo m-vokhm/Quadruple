@@ -110,17 +110,11 @@ public class SpecialValuesData {
     return result.stream();
   }
 
-  /** Values whose square root is a special value: special values except -0 (BUG-10), and negative values */
+  /** Values whose square root is a special value: special values (including -0) and negative values */
   public static Stream<Named<Quadruple>> valuesForSqrt() {
     return allValues().stream()
         .filter(v -> isSpecial(v.getPayload()) || v.getPayload().isNegative())
-        .filter(v -> !isNegativeZero(v.getPayload()))
         .map(DataHelpers::copy);
-  }
-
-  /** -0, whose square root must be -0, like {@code Math.sqrt(-0.0)} (BUG-10) */
-  public static Stream<Named<Quadruple>> negativeZero() {
-    return Stream.of(q("-0", true, 0, 0, 0));
   }
 
   /* ************************************************************************
@@ -152,10 +146,6 @@ public class SpecialValuesData {
 
   private static boolean isSpecial(Quadruple q) {
     return kindOf(q) != Kind.FINITE;
-  }
-
-  private static boolean isNegativeZero(Quadruple q) {
-    return kindOf(q) == Kind.ZERO && q.isNegative();
   }
 
   private static Named<Quadruple> q(String name, boolean negative, int exponent, long mantHi, long mantLo) {

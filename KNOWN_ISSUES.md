@@ -236,7 +236,7 @@ These values are excluded from the data of `ComparisonTest.shouldReturnSignum`.
 
 ## BUG-10 — `sqrt(-0)` returns NaN instead of -0
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-20
 **Where:** `Quadruple.sqrt()`: `if (negative) return assignNaN();` precedes the check for zero
 
@@ -251,8 +251,8 @@ Quadruple.sqrt(new Quadruple(-0.0));     // NaN, expected -0
 **Fix (proposed):** check `isZero()` (and NaN) before the sign: `sqrt(±0) = ±0`, `sqrt(NaN) = NaN`,
 `sqrt(x < 0) = NaN`; mention it in the javadoc.
 
-**Tests:** `SpecialValuesTest.shouldComputeSqrtOfNegativeZeroLikeMathSqrt` (disabled; the only case, fails).
--0 is excluded from the data of `SpecialValuesTest.shouldComputeSqrtOfSpecialValuesLikeMathSqrt`.
+**Tests:** `SpecialValuesTest.shouldComputeSqrtOfSpecialValuesLikeMathSqrt` (all special and negative values,
+including -0, which failed before the fix).
 
 ---
 

@@ -1792,12 +1792,15 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * and replaces the old value of this instance with the newly-computed value.
    * The exact root is rounded to the nearest {@code Quadruple} value, except that roots exceeding the midpoint
    * between two adjacent values by less than {@code 2^-31} LSB may be rounded down (see <a href="#accuracy">Accuracy</a>).
+   * Like {@link Math#sqrt(double)}, the square root of a negative value or NaN is NaN,
+   * the square root of {@code -0} is {@code -0}, and the square root of {@code Infinity} is {@code Infinity}.
    * @return the reference to this instance, which holds a new value that equals
    * to the square root of its previous value
    */
   public Quadruple sqrt() {
+    if (isNaN() || isZero()) return this;               // sqrt(NaN) = NaN, sqrt(-0) = -0, like Math.sqrt()
     if (negative) return assignNaN();
-    if (isNaN() || isInfinite() || isZero()) return this;
+    if (isInfinite()) return this;
 
     long absExp = (exponent & LOWER_32_BITS) - EXPONENT_BIAS; // unbiased exponent
     if (exponent == 0)                                  // subnormal
@@ -1834,6 +1837,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * The parameter remains unchanged.
    * The exact root is rounded to the nearest {@code Quadruple} value, except that roots exceeding the midpoint
    * between two adjacent values by less than {@code 2^-31} LSB may be rounded down (see <a href="#accuracy">Accuracy</a>).
+   * Like {@link Math#sqrt(double)}, the square root of a negative value or NaN is NaN,
+   * the square root of {@code -0} is {@code -0}, and the square root of {@code Infinity} is {@code Infinity}.
    * @param square the value to find the square root of
    * @return a new instance of Quadruple containing the value of the square root of the given argument
    */

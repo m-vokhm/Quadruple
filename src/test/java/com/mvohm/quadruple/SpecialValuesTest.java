@@ -3,7 +3,6 @@ package com.mvohm.quadruple;
 import static com.mvohm.quadruple.testutil.QuadAssert.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -84,13 +83,6 @@ public class SpecialValuesTest {
     final Quadruple fromInstance = q.sqrt();
     assertThat(fromInstance).as("q.sqrt() must return this").isSameAs(q);
     checkSpecial(fromInstance, reference, "q.sqrt(): " + context);
-  }
-
-  @Disabled("BUG-10: sqrt(-0) returns NaN instead of -0 (like Math.sqrt(-0.0)), see KNOWN_ISSUES.md")
-  @ParameterizedTest
-  @MethodSource(DATA + "negativeZero")
-  void shouldComputeSqrtOfNegativeZeroLikeMathSqrt(Quadruple q) {
-    shouldComputeSqrtOfSpecialValuesLikeMathSqrt(q);
   }
 
   /* ************************************************************************
