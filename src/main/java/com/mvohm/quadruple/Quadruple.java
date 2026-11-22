@@ -4451,6 +4451,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       return this;
     }
 
+    if (shift == 129)                                   // Here lz == 0, the subtrahend is >= 1/4 and < 1/2 of the LSB of the minuend
+      return subtractSubnormal_1e_129(minuendLo, minuendHi);
+
     final long shiftedOutBits = shiftMantissaRight(shift);  // Shift the subtrahend's mantissa rightwards to align by bits' values
     long borrow = Long.compareUnsigned(shiftedOutBits, HIGH_BIT) > 0? 1 : 0; // greater than 1/2 of LSB
 
@@ -4468,6 +4471,27 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       }
     return this;
   } // private Quadruple subtractSubnormalFromNormal(long minuendLo, long minuendHi) {
+
+  /**
+   * Subtracts a subnormal value with the highest bit of the mantissa set, whose mantissa is contained by this instance,
+   * from a normal value with the exponent 130, whose mantissa is contained in {@code minuendLo} and {@code minuendHi} parameters.
+   * The subtrahend is at least 1/4 and less than 1/2 of the LSB of the minuend, so the result is the minuend,
+   * except the case when the minuend is a power of 2 and the subtrahend is greater than 1/4 of its LSB:
+   * then the difference is in the lower binade, where the LSB is a half as much, and it is rounded to the minuend
+   * minus a half of its LSB (a subtrahend of exactly 1/4 of the LSB gives a tie, which is rounded up, to the minuend)
+   * @param minuendLo the lower 64 bits of the mantissa of the minuend
+   * @param minuendHi the higher 64 bits of the mantissa of the minuend
+   * @return  this instance with a new value that equals the difference
+   */
+  private Quadruple subtractSubnormal_1e_129(long minuendLo, long minuendHi) {
+    final boolean greaterThanQuarter = ((mantHi & ~HIGH_BIT) | mantLo) != 0;
+    if ((minuendHi | minuendLo) == 0 && greaterThanQuarter) {  // 2^n - (2^(n-130), 2^(n-129)) = 1.FFFF_... * 2^(n-1)
+      exponent--; mantHi = mantLo = 0xFFFF_FFFF_FFFF_FFFFL;
+    } else {
+      mantHi = minuendHi; mantLo = minuendLo;
+    }
+    return this;
+  } // private Quadruple subtractSubnormal_1e_129(long minuendLo, long minuendHi) {
 
   /**
    * Subtracts a subnormal value, whose mantissa is contained by this instance,

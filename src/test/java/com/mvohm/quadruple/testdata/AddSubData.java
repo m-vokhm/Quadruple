@@ -62,32 +62,15 @@ public class AddSubData {
   private static final long MIN_LSB_EXPONENT = 1L - EXPONENT_BIAS - 128;
 
   /**
-   * {@code (operation, form, a, b)}: all the pairs (see the class description), for addition and subtraction,
-   * except the cases of BUG-13 (see KNOWN_ISSUES.md)
+   * {@code (operation, form, a, b)}: all the pairs (see the class description), for addition and subtraction
    */
   public static Stream<Arguments> operations() {
-    return allCases().filter(c -> !isSubnormalSubtractedWithShift129(c))
-                     .map(Case::toArguments);
-  }
-
-  /**
-   * The cases of BUG-13: the effective operation is subtraction, the lesser operand is subnormal
-   * with the highest bit of the mantissa set, and the greater one has the biased exponent 130,
-   * so that the subnormal mantissa is to be shifted by 129 bits.
-   */
-  public static Stream<Arguments> subnormalsSubtractedWithShift129() {
-    return allCases().filter(AddSubData::isSubnormalSubtractedWithShift129).map(Case::toArguments);
+    return allCases().map(Case::toArguments);
   }
 
   private record Pair(Named<Quadruple> a, Named<Quadruple> b) {}
 
   private record Case(BinaryOperation op, CallForm form, Named<Quadruple> a, Named<Quadruple> b) {
-    Quadruple qa() { return a.getPayload(); }
-    Quadruple qb() { return b.getPayload(); }
-    /** true if the magnitudes are added: a + b with the same signs, a - b with different signs */
-    boolean isEffectiveAddition() {
-      return (op == BinaryOperation.ADD) == (qa().isNegative() == qb().isNegative());
-    }
     Arguments toArguments() { return Arguments.of(op, form, copy(a), copy(b)); }
   }
 
@@ -99,18 +82,6 @@ public class AddSubData {
           if (form.accepts(p.b().getPayload()))
             result.add(new Case(op, form, p.a(), p.b()));
     return result.stream();
-  }
-
-  /* ************************************************************************
-   * Criteria of the known bugs
-   */
-
-  private static boolean isSubnormalSubtractedWithShift129(Case c) {
-    if (c.isEffectiveAddition())
-      return false;
-    final int ea = c.qa().exponent(), eb = c.qb().exponent();
-    return ea == 0 && c.qa().mantHi() < 0 && eb == 130
-        || eb == 0 && c.qb().mantHi() < 0 && ea == 130;
   }
 
   private static List<Pair> allPairs() {

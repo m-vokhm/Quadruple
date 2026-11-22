@@ -2,7 +2,6 @@ package com.mvohm.quadruple;
 
 import static com.mvohm.quadruple.testutil.QuadAssert.*;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -34,14 +33,6 @@ public class AddSubTest {
       assertSameFields(actual, new Quadruple(false, 0, 0, 0), context + " (the exact result is 0)");
     else
       assertCorrectlyRounded(actual, exact, 0, context);
-  }
-
-  @Disabled("BUG-13: subtracting a subnormal value with the highest bit set from a value with the exponent 130"
-            + " (a shift by 129 bits) gives a wrong result, see KNOWN_ISSUES.md")
-  @ParameterizedTest(name = "{0}: {1}, a = {2}, b = {3}")
-  @MethodSource(DATA + "subnormalsSubtractedWithShift129")
-  void shouldSubtractSubnormalsWithShift129(BinaryOperation op, CallForm form, Quadruple a, Quadruple b) {
-    shouldBeCorrectlyRounded(op, form, a, b);
   }
 
 }

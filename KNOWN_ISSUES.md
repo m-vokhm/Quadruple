@@ -319,7 +319,7 @@ but the check did not work as intended.
 
 ## BUG-13 — subtracting a subnormal value from a value with the exponent 130 may give a wrong result
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-20
 **Where:** `Quadruple.subtractSubnormalFromNormal()`: the check `shift + lz > 129` lets `shift == 129`
 pass when the highest bit of the subnormal mantissa is set (`lz == 0`), and `shiftMantissaRight(129)`
@@ -338,10 +338,12 @@ Quadruple.subtract(a, b);
 **Cause:** see above; the subtraction of normal values handles the shifts of 129 and 130 bits by special methods
 (`subtract_1e_129()`, `subtract_1e_130()`), the subtraction of a subnormal value has no such special cases.
 
-**Fix (proposed):** handle `shift == 129` separately (like `subtract_1e_129()`), or extend `shiftMantissaRight()`.
+**Fix:** a special case for `shift == 129`, `subtractSubnormal_1e_129()` (only `lz == 0` gets there):
+the subtrahend is in `[1/4, 1/2)` of the LSB of the minuend, so the result is the minuend, except a power of 2
+minus more than 1/4 of its LSB, which gives the minuend minus a half of the LSB (in the lower binade);
+exactly 1/4 of the LSB is a tie, rounded up to the minuend.
 
-**Tests:** `AddSubTest.shouldSubtractSubnormalsWithShift129` (disabled; 48 cases, all fail).
-These cases are excluded from the data of `AddSubTest.shouldBeCorrectlyRounded`.
+**Tests:** `AddSubTest.shouldBeCorrectlyRounded` (all the data, including 48 cases that failed before the fix).
 
 ---
 
