@@ -4070,7 +4070,9 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Shifts the mantissa of this instance by {@code shift} bits to the right,
    * without setting the implicit unity,
    * and returns the bits of the former mantissa that dont't fit in 128 bits after the shift (shifted-out bits).
-   * (e.g. if the value of {@code shift} was 3, the lowest 3 bits of {@code mantLo} will be returned in bits 63-61 of the result, the other bits will be 0)
+   * (e.g. if the value of {@code shift} was 3, the lowest 3 bits of {@code mantLo} will be returned in bits 63-61 of the result, the other bits will be 0).
+   * If more than 64 bits are shifted out, only the highest 64 of them are returned, and the lowest bit of the result
+   * is set if any of the rest is 1 (a sticky bit), so that the result can be compared with a half of the LSB.
    * @param shift the distance to shift the mantissa
    * @return the bits of mantissa that was shifted out
    */
@@ -4079,7 +4081,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     if (shift == 0) return 0;
 
     if (shift == 128) {
-      shiftedOutBits = mantHi;
+      shiftedOutBits = mantHi | (mantLo != 0? 1 : 0);  // the sticky bit
       mantHi = mantLo = 0;
       return shiftedOutBits;
     }
@@ -4087,6 +4089,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     shiftedOutBits = (shift <= 64) ?
         (mantLo << 64 - shift) :
         (mantHi << 128 - shift | mantLo >>> shift - 64);
+    if (shift > 64 && shift < 128 && mantLo << 128 - shift != 0)
+      shiftedOutBits |= 1;                              // the sticky bit: the lower bits that don't fit in 64 bits
 
     if (shift >= 64) {
       mantLo = mantHi >>> shift - 64;

@@ -1,7 +1,6 @@
 package com.mvohm.quadruple.testdata;
 
 import static com.mvohm.quadruple.testdata.DataHelpers.scaled;
-import static com.mvohm.quadruple.testdata.DataHelpers.abs;
 import static com.mvohm.quadruple.testdata.DataHelpers.copy;
 import static com.mvohm.quadruple.testdata.DataHelpers.named;
 import static com.mvohm.quadruple.testdata.DataHelpers.negated;
@@ -9,9 +8,7 @@ import static com.mvohm.quadruple.testdata.DataHelpers.pow2;
 import static com.mvohm.quadruple.testdata.DataHelpers.randomNormal;
 import static com.mvohm.quadruple.testdata.DataHelpers.toQuadruple;
 import static com.mvohm.quadruple.testdata.DataHelpers.unbiasedExponent;
-import static com.mvohm.quadruple.testdata.DataHelpers.unsigned;
 import static com.mvohm.quadruple.Quadruple.*;
-import static java.math.BigInteger.ONE;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -62,22 +59,11 @@ public class AddSubData {
 
   /**
    * {@code (operation, form, a, b)}: all the pairs (see the class description), for addition and subtraction,
-   * except the cases of BUG-11, BUG-12 and BUG-13 (see KNOWN_ISSUES.md)
+   * except the cases of BUG-12 and BUG-13 (see KNOWN_ISSUES.md)
    */
   public static Stream<Arguments> operations() {
-    return allCases().filter(c -> !isSubtractionNearTie(c) && !isSubnormalAddedToHugeValue(c)
-                                  && !isSubnormalSubtractedWithShift129(c))
+    return allCases().filter(c -> !isSubnormalAddedToHugeValue(c) && !isSubnormalSubtractedWithShift129(c))
                      .map(Case::toArguments);
-  }
-
-  /**
-   * The cases of BUG-11: the effective operation is subtraction, the exponents differ by more than 64,
-   * and the bits of the lesser operand shifted out beyond the LSB of the greater one are {@code 100..00xx..xx},
-   * where the first 64 bits are {@code 100..00}, and not all of the rest are 0 (a half of the ulp plus a little),
-   * and the result remains in the binade of the greater operand.
-   */
-  public static Stream<Arguments> subtractionNearTies() {
-    return allCases().filter(AddSubData::isSubtractionNearTie).map(Case::toArguments);
   }
 
   /**
@@ -122,30 +108,6 @@ public class AddSubData {
   /* ************************************************************************
    * Criteria of the known bugs
    */
-
-  private static boolean isSubtractionNearTie(Case c) {
-    if (c.isEffectiveAddition())
-      return false;
-    final boolean aIsGreater = ExactValue.of(abs(c.qa())).compareTo(ExactValue.of(abs(c.qb()))) > 0;
-    final Quadruple greater = aIsGreater? c.qa() : c.qb(), lesser = aIsGreater? c.qb() : c.qa();
-    if (greater.exponent() == 0)                                         // both are subnormal, exact
-      return false;
-    final long greaterExp = greater.exponent() & 0xFFFF_FFFFL, lesserExp = lesser.exponent() & 0xFFFF_FFFFL;
-    final BigInteger mant = unsigned(lesser.mantHi()).shiftLeft(64).or(unsigned(lesser.mantLo()));
-    final BigInteger significand = lesserExp == 0? mant : mant.setBit(128);  // in units of the LSB of the lesser
-    final long shift = greaterExp - Math.max(lesserExp, 1);             // the LSB of the greater in units of that LSB
-    if (shift <= 64 || shift >= 129)
-      return false;
-    final BigInteger shiftedOut = significand.and(ONE.shiftLeft((int)shift).subtract(ONE));
-    final int belowFirst64 = (int)shift - 64;
-    if (!shiftedOut.shiftRight(belowFirst64).equals(ONE.shiftLeft(63))
-        || shiftedOut.and(ONE.shiftLeft(belowFirst64).subtract(ONE)).signum() == 0)
-      return false;
-    // The result must remain in the binade of the greater operand
-    // (in the lower binade, the ulp is a half as much, and the shifted-out bits are handled correctly)
-    final ExactValue difference = ExactValue.of(abs(greater)).subtract(ExactValue.of(abs(lesser)));
-    return difference.compareTo(pow2(greaterExp - EXPONENT_BIAS)) >= 0;
-  }
 
   private static boolean isSubnormalSubtractedWithShift129(Case c) {
     if (c.isEffectiveAddition())

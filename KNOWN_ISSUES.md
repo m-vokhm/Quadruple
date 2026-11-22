@@ -258,7 +258,7 @@ including -0, which failed before the fix).
 
 ## BUG-11 — subtraction may round "a half of the ulp plus a little" as a tie
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-20
 **Where:** `Quadruple.subtractDifferentExp()` and `Quadruple.subtractSubnormalFromNormal()`
 (called from `subtract()`, and from `add()` for operands of different signs)
@@ -279,13 +279,14 @@ are lost, so that a half of the ulp plus a value less than 2^-64 ulp is treated 
 and the result is rounded up instead of down. In addition it is not a problem, since rounding half-up
 needs only the highest shifted-out bit. If the result goes down to the lower binade, the result is correct.
 
-**Fix (proposed):** take into account a sticky bit: whether any of the bits shifted out beyond the 64 kept bits is 1
-(e.g. `shiftedOutBits == HIGH_BIT && lowerBitsNonZero` means "more than a half").
+**Fix:** `shiftMantissaRight()` sets the lowest bit of the returned shifted-out bits (a sticky bit)
+if any of the bits beyond the 64 kept ones is 1 (shifts from 65 to 128). All the thresholds the shifted-out bits
+are compared with (1/2, 1/4, 3/4 of the LSB) have the lowest bit 0, so the comparisons become exact.
 
-**Tests:** `AddSubTest.shouldRoundSubtractionNearTiesCorrectly` (disabled; 62 cases, all fail).
-The criterion (shift from 65 to 128 bits, the shifted-out bits are `100..00` in the first 64 bits and not all zeros
-in the rest, the result in the binade of the greater operand) is in `AddSubData.isSubtractionNearTie()`;
-these cases are excluded from the data of `AddSubTest.shouldBeCorrectlyRounded`.
+**Tests:** `AddSubTest.shouldBeCorrectlyRounded` (all the data, including 62 cases that failed before the fix).
+A probe of 300 000 subtractions with shifts from 65 to 128 and the shifted-out bits near 1/4, 1/2, 3/4 of the LSB
+(with and without the sticky bits): 13 607 failures before the fix, none with shifts from 65 to 127 after it;
+the remaining failures are BUG-27.
 
 ---
 

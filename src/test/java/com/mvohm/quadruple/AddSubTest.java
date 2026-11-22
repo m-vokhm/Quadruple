@@ -36,14 +36,6 @@ public class AddSubTest {
       assertCorrectlyRounded(actual, exact, 0, context);
   }
 
-  @Disabled("BUG-11: subtraction ignores the bits of the subtrahend shifted out beyond 64 bits below the LSB,"
-            + " so that a half of the ulp plus a little is rounded as a tie, see KNOWN_ISSUES.md")
-  @ParameterizedTest(name = "{0}: {1}, a = {2}, b = {3}")
-  @MethodSource(DATA + "subtractionNearTies")
-  void shouldRoundSubtractionNearTiesCorrectly(BinaryOperation op, CallForm form, Quadruple a, Quadruple b) {
-    shouldBeCorrectlyRounded(op, form, a, b);
-  }
-
   @Disabled("BUG-12: adding a subnormal value to a value with the exponent >= 0x8000_0001 gives a wrong result,"
             + " see KNOWN_ISSUES.md")
   @ParameterizedTest(name = "{0}: {1}, a = {2}, b = {3}")
