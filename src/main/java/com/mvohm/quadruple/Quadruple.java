@@ -1956,8 +1956,15 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     final long mantHi = rand.nextLong();
     final long mantLo = rand.nextLong();
     final Quadruple randQ = new Quadruple(false, EXPONENT_OF_ONE, mantHi, mantLo).subtract(ONE);
-    final int expDiff = EXPONENT_BIAS - randQ.exponent;
-    randQ.mantLo |= rand.nextLong() >>> 64 - expDiff;
+    if (randQ.isZero())                                 // Both words were 0 (2^-128): 0 is a valid value
+      return randQ;
+    final int expDiff = EXPONENT_BIAS - randQ.exponent; // The number of the lowest bits freed by normalization, 1..128
+    if (expDiff <= 64)
+      randQ.mantLo |= rand.nextLong() >>> 64 - expDiff;
+    else {                                              // The 64 high bits were 0, all bits of mantLo are free,
+      randQ.mantLo = rand.nextLong();                   // and expDiff - 64 bits of mantHi
+      randQ.mantHi |= rand.nextLong() >>> 128 - expDiff;
+    }
     return randQ;
   } // public static Quadruple nextNormalRandom(Random rand) {
 

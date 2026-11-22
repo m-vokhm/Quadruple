@@ -557,7 +557,7 @@ is 1.0 (`EXPONENT_OF_ONE`), `new Quadruple(false, 0, 0, 1)` is `MIN_VALUE`. The 
 
 ## BUG-24 — `nextRandom()` fills the free low bits wrongly if the 64 high bits of the mantissa are zero (low priority)
 
-**Status:** open; low priority (probability ~2^-64 per call, not reachable by tests)
+**Status:** fixed (2026-11-22); was low priority (probability ~2^-64 per call)
 **Found:** 2026-11-21
 **Where:** `Quadruple.nextRandom(Random)`: `randQ.mantLo |= rand.nextLong() >>> 64 - expDiff;`
 
@@ -565,7 +565,12 @@ After `1.f - 1` is normalized, its lowest `expDiff` bits are zero and are to be 
 If `expDiff > 64` (i.e. the 64 high bits of the random fraction are zero), the shift `64 - expDiff` is negative
 and taken modulo 64, so a wrong number of bits is filled, and the free bits of `mantHi` are not filled at all.
 
-**Fix (proposed):** fill `expDiff` bits in both words (or generate the value bit by bit with a loop over words).
+**Fix:** if `expDiff > 64`, all of `mantLo` and `expDiff - 64` low bits of `mantHi` are filled with random bits
+(for `expDiff <= 64` the sequence of values for a given `Random` is the same as before). Also, if both random words
+are 0 (probability 2^-128), the result is 0; before, the free bits of the zero were filled, giving a subnormal value.
+
+**Tests:** `RandomValuesTest.shouldFillFreeBitsWhenHighWordOfFractionIsZero` (a `Random` with a given sequence
+of `nextLong()` values: 2^-64, 2^-65, 2^-96, 2^-128 and 0; fails before the fix).
 
 ## BUG-25 — `assign(BigDecimal)` throws `ArithmeticException` for values not less than `10^(2^31)`
 

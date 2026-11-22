@@ -103,9 +103,50 @@ public class RandomValuesTest {
         .isBetween(COUNT / 2 - 5 * sigma, COUNT / 2 + 5 * sigma);
   }
 
+  /**
+   * The cases that random data practically never hit (probability ~2^-64 and 2^-128): the 64 high bits of the
+   * random fraction are zero, so that more than 64 low bits become free after normalization, and both words are zero.
+   * A {@link Random} with a given sequence of {@code nextLong()} values is used: two words of the fraction,
+   * then the words to fill the free bits (BUG-24).
+   */
+  @Test
+  void shouldFillFreeBitsWhenHighWordOfFractionIsZero() {
+    // 2^-96: 96 free bits, all of mantLo and 32 low bits of mantHi
+    assertSameFields(Quadruple.nextRandom(scripted(0, 0x0000_0001_0000_0000L, -1L, -1L)),
+                     new Quadruple(false, EXPONENT_OF_ONE - 96, 0x0000_0000_FFFF_FFFFL, -1L), "2^-96 + random bits");
+    assertSameFields(Quadruple.nextRandom(scripted(0, 0x0000_0001_0000_0000L, 0x1234_5678_9ABC_DEF0L, 0x0FED_CBA9_8765_4321L)),
+                     new Quadruple(false, EXPONENT_OF_ONE - 96, 0x0FED_CBA9L, 0x1234_5678_9ABC_DEF0L), "2^-96 + random bits");
+    // 2^-128: all 128 bits are free
+    assertSameFields(Quadruple.nextRandom(scripted(0, 1, 0x1111_2222_3333_4444L, 0x5555_6666_7777_8888L)),
+                     new Quadruple(false, EXPONENT_OF_ONE - 128, 0x5555_6666_7777_8888L, 0x1111_2222_3333_4444L),
+                     "2^-128 + random bits");
+    // 2^-65: 65 free bits, all of mantLo and the lowest bit of mantHi
+    assertSameFields(Quadruple.nextRandom(scripted(0, HIGH_BIT_OF_LONG, -1L, -1L)),
+                     new Quadruple(false, EXPONENT_OF_ONE - 65, 1, -1L), "2^-65 + random bits");
+    // 2^-64: 64 free bits, all of mantLo (as before)
+    assertSameFields(Quadruple.nextRandom(scripted(1, 0, -1L)),
+                     new Quadruple(false, EXPONENT_OF_ONE - 64, 0, -1L), "2^-64 + random bits");
+    // both words are zero: 0
+    assertSameFields(Quadruple.nextRandom(scripted(0, 0, -1L, -1L)), new Quadruple(false, 0, 0, 0), "zero");
+  }
+
   /* ************************************************************************
    * Helpers
    */
+
+  private static final long HIGH_BIT_OF_LONG = 0x8000_0000_0000_0000L;
+
+  /** A {@link Random} whose {@code nextLong()} returns the given values in turn */
+  private static Random scripted(long... values) {
+    return new Random() {
+      private static final long serialVersionUID = 1L;
+      private int index;
+      @Override
+      public long nextLong() {
+        return values[index++];
+      }
+    };
+  }
 
   private static void checkRange(Quadruple q) {
     assertThat(q.isNaN() || q.isInfinite()).as("%s must be finite", fieldsOf(q)).isFalse();
