@@ -66,7 +66,7 @@ public class StringParsingData {
    */
 
   /** Numeric strings with their exact values (see the class description) */
-  private static Stream<Arguments> allNumbers() {
+  public static Stream<Arguments> numbers() {
     final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
     final List<Arguments> list = new ArrayList<>(handWritten());
     for (int i = 0; i < RANDOM_COUNT; i++) list.add(randomNumber(random, 1 + random.nextInt(80)));
@@ -75,37 +75,6 @@ public class StringParsingData {
     for (int i = 0; i < TIE_COUNT; i++)    exactTies(random).forEach(list::add);
     new RandomGenerator().doubles(DOUBLE_COUNT).forEach(d -> list.add(fromBigDecimal(Double.toString(d))));
     return list.stream();
-  }
-
-  /** Numeric strings with their exact values, except the cases of BUG-20 */
-  public static Stream<Arguments> numbers() {
-    return allNumbers().filter(a -> !isWrappedOverflow(a));
-  }
-
-  /** BUG-20: the cases of {@link #allNumbers()} with values not less than {@code 2^(2^31 + 1)} */
-  public static Stream<Arguments> wrappedOverflows() {
-    return Stream.concat(allNumbers(), Stream.of(
-                           number("3.6e646456993",   false, BigInteger.valueOf(36), MAX_EXP10 - 1),
-                           number("-9.99e646456993", true,  BigInteger.valueOf(999), MAX_EXP10 - 2)))
-                 .filter(StringParsingData::isWrappedOverflow);
-  }
-
-  /**
-   * The criterion of BUG-20: the value is not less than {@code 2^(2^31 + 1)} (~3.52e646456993, twice the threshold
-   * of overflow), but its decimal exponent does not exceed that of MAX_VALUE, so that the binary exponent
-   * computed by the parser exceeds the range of int.
-   * Strings with greater decimal exponents are recognized as overflowing before the computation.
-   */
-  private static boolean isWrappedOverflow(Arguments a) {
-    final String s = ((Named<?>)a.get()[0]).getPayload().toString();
-    final ExactValue exact = (ExactValue)a.get()[1];
-    if (exact.isZero() || exact.binaryExponent() < (1L << 31) + 1) return false;
-    try {
-      final BigDecimal d = new BigDecimal(s);
-      return d.precision() - d.scale() - 1 <= MAX_EXP10;          // the exponent of the leading digit
-    } catch (final NumberFormatException e) {                     // not in the syntax of BigDecimal, e.g. 1e(20 digits)
-      return false;
-    }
   }
 
   private static List<Arguments> handWritten() {
@@ -142,6 +111,8 @@ public class StringParsingData {
     list.add(number("1e646456993",   false, ONE, MAX_EXP10));                        // < MAX_VALUE
     list.add(number("1.8e646456993", false, BigInteger.valueOf(18), MAX_EXP10 - 1)); // > MAX_VALUE: Infinity
     list.add(number("-3.5e646456993", true, BigInteger.valueOf(35), MAX_EXP10 - 1)); // < 2^(2^31 + 1): Infinity
+    list.add(number("3.6e646456993",  false, BigInteger.valueOf(36), MAX_EXP10 - 1)); // >= 2^(2^31 + 1) (BUG-20)
+    list.add(number("-9.99e646456993", true, BigInteger.valueOf(999), MAX_EXP10 - 2));
     list.add(number("-1e646456994",  true,  ONE, MAX_EXP10 + 1));
     list.add(number("1e999999999",   false, ONE, 999_999_999));
     list.add(number("1e99999999999999999999",   false, ONE, Long.MAX_VALUE / 2));    // > 18 digits, no correction

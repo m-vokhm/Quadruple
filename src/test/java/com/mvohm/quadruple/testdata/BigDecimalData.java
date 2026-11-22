@@ -59,7 +59,7 @@ public class BigDecimalData {
   private static Stream<Arguments> allDecimals() {
     final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
     final List<Arguments> list = new ArrayList<>();
-    Stream.concat(StringParsingData.numbers(), StringParsingData.wrappedOverflows()).forEach(a -> {
+    StringParsingData.numbers().forEach(a -> {
       final String s = ((Named<?>)a.get()[0]).getPayload().toString();
       final ExactValue exact = (ExactValue)a.get()[1];
       final BigDecimal bd;

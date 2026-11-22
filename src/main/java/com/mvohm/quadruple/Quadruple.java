@@ -3518,9 +3518,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
         fillOwnerMantissaFrom(product);
       }
 
-      owner.exponent = (int)exp2;
-      if (owner.exponent == EXPONENT_OF_INFINITY) // Infinity
+      if (exp2 > EXPONENT_OF_MAX_VALUE) {     // Infinity (the exponent may be greater than that of Infinity,
+        owner.exponent = EXPONENT_OF_INFINITY; // for values up to 1e646456994, and would wrap around as int)
         owner.mantHi = owner.mantLo = 0;
+      } else
+        owner.exponent = (int)exp2;
     } // private static void findMant2(int exp10, long exp2, long[] mantissa) {
 
     /**

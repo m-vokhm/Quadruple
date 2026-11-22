@@ -485,7 +485,7 @@ are converted exactly, or rounded half-up if they have more than 129 significant
 
 ## BUG-20 — values from `2^(2^31 + 1)` (~3.52e646456993) up to `1e646456994` give wrong finite values instead of Infinity
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-20
 **Where:** `NumberParser.findBinaryMantissa()`: `owner.exponent = (int)exp2;`
 
@@ -501,11 +501,13 @@ before the computation (`exceedsAcceptableExponentRange()`). For the others, the
 as a `long` and then cast to `int`; only the exponent equal to `EXPONENT_OF_INFINITY` is recognized as infinity,
 greater ones wrap around.
 
-**Fix (proposed):** `if (exp2 >= EXPONENT_OF_INFINITY (as unsigned)) assign infinity`.
+**Fix:** `findBinaryMantissa()` assigns Infinity if the biased binary exponent (a `long`) is greater than
+`EXPONENT_OF_MAX_VALUE`, before casting it to `int`.
 
-**Tests:** `StringParsingTest.shouldGiveInfinityForValuesBelow1e646456994` (disabled; 44 cases, all fail).
-The criterion (`StringParsingData.isWrappedOverflow()`) selects exactly the failing cases, which are excluded
-from the data of `StringParsingTest.shouldParseNumbersWithDeclaredAccuracy`.
+**Tests:** `StringParsingTest.shouldParseNumbersWithDeclaredAccuracy` (all the data; the disabled test had 46 cases,
+44 of which failed before the fix; the other two, ±1.23456e2147483648 added later from the old tests, got into it
+because of an `int` overflow in the criterion, and were parsed correctly). The criterion is removed;
+"3.6e646456993" and "-9.99e646456993" are among the extreme exponents in `StringParsingData.numbers()`.
 
 ## BUG-21 — javadoc of `assign(String)` does not mention the separator `_` (documentation only)
 
@@ -584,7 +586,7 @@ resulting scales throw `ArithmeticException` (`Underflow` or `Overflow`). Values
 **Fix (proposed):** compute the exponent as `long`, and return Infinity if it exceeds the range of Quadruple
 before any BigDecimal arithmetic.
 
-**Tests:** `BigDecimalConversionTest.shouldConvertHugeBigDecimalToInfinity` (disabled; 56 cases, all fail).
+**Tests:** `BigDecimalConversionTest.shouldConvertHugeBigDecimalToInfinity` (disabled; 55 cases, all fail).
 The criterion (`BigDecimalData.isExponentBeyondInt()`) selects exactly the failing cases, which are excluded
 from the data of `BigDecimalConversionTest.shouldConvertBigDecimalWithDeclaredAccuracy`.
 

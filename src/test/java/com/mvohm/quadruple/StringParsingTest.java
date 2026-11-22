@@ -61,14 +61,6 @@ public class StringParsingTest {
     assertThatThrownBy(() -> new Quadruple(1).assign((String)null)).isInstanceOf(NullPointerException.class);
   }
 
-  @Disabled("BUG-20: values from 2^(2^31 + 1) (~3.52e646456993) up to 1e646456994 give wrong finite values"
-            + " instead of Infinity, since the binary exponent wraps around, see KNOWN_ISSUES.md")
-  @ParameterizedTest(name = "{0}")
-  @MethodSource(DATA + "wrappedOverflows")
-  void shouldGiveInfinityForValuesBelow1e646456994(String s, ExactValue exact) {
-    checkParsing(s, exact);
-  }
-
   @Disabled("BUG-18: a sign before a designation of a special value (except INFINITY) is not accepted,"
             + " e.g. \"-NaN\" (accepted by Double.parseDouble()) or \"-MAX_VALUE\", see KNOWN_ISSUES.md")
   @ParameterizedTest(name = "{0}")
