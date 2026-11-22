@@ -588,7 +588,7 @@ What the tests have confirmed (besides the bugs listed above), to be described w
 
 | Method | Accuracy (half-up, ties away from zero, unless stated otherwise) | Test |
 |---|---|---|
-| `add`, `subtract`, `multiply` (all forms) | correctly rounded (except BUG-11..14) | `AddSubTest`, `MultiplyTest` |
+| `add`, `subtract`, `multiply` (all forms) | correctly rounded (except BUG-11..14, BUG-27) | `AddSubTest`, `MultiplyTest` |
 | `divide` (all forms) | correctly rounded | `DivideTest` |
 | `sqrt` | correctly rounded, except roots above the midpoint by less than ~2^-31.5 ulp (BUG-15) | `SqrtTest` |
 | `Quadruple(String)`, `assign(String)` | below the midpoint by less than 1e-17 ulp: either (measured max 5.8e-18); the midpoint and above: up (already in the javadoc) | `StringParsingTest` |
@@ -599,3 +599,35 @@ What the tests have confirmed (besides the bugs listed above), to be described w
 
 Also fixed with it: the class description said that the class is not thread safe, even with different instances;
 it is conditionally thread safe (confirmed by `ThreadSafetyTest`), and the description says so now.
+
+---
+
+## BUG-27 — subtraction whose result is just below a power of 2 may be rounded up to the power of 2
+
+**Status:** fixed (2026-11-22)
+**Found:** 2026-11-22 (by a probe for BUG-11)
+**Where:** `Quadruple.subtractDifferentExp()` (called from `subtract()`, and from `add()` for operands of different signs)
+
+**Reproduction:**
+```java
+// a = 2^e + 1 ulp, b = 1.498 ulp(a): a - b = 2^e - 0.498 ulp(a), in the lower binade, where the ulp is a half as much
+Quadruple a = new Quadruple(false, 0x800A_227B, 0, 1);
+Quadruple b = new Quadruple(false, 0x800A_21FB, 0x7F85_A0CA_E001_3E42L, 0);
+Quadruple.subtract(a, b);
+// 2^e (exp = 0x800A_227B, mantissa 0), expected 2^e - ulp(a)/2 (exp = 0x800A_227A, mantissa 0xFFFF...FFFF)
+```
+
+**Cause:** when the integer part of the shifted subtrahend (in units of the LSB of the minuend) is subtracted
+and the mantissa becomes 0 without a borrow from the implicit unity, the result before the rounding is exactly
+the power of 2 at the lower bound of the binade, and the rest of the subtrahend `r` (the shifted-out bits) must
+still be subtracted. In the lower binade, the ulp is a half as much, so the result is `2^e - ulp/2` if
+`1/4 < r <= 1/2` LSB. The code handled only `r == 1/2` (`shiftedOutBits == HIGH_BIT`), so for `1/4 < r < 1/2`
+it gave `2^e`. (`r > 1/2` is handled by the borrow, `r <= 1/4` correctly gives `2^e`.)
+The same branch in `subtractSubnormalFromNormal()` has the correct condition.
+
+**Fix:** the same condition as in `subtractSubnormalFromNormal()`:
+`shiftedOutBits == HIGH_BIT || shiftedOutBits > 0x4000_0000_0000_0000L` (a signed comparison: `1/4 < r < 1/2`).
+
+**Tests:** `AddSubTest.shouldBeCorrectlyRounded`, with the new data `AddSubData.binadeBoundary()`
+(1000 pairs: shifts from 1 to 128, `r` random or equal or close to 1/4, 1/2, 3/4 of the LSB;
+482 cases failed before the fix). The former data never had the difference exactly at a power of 2 before the rounding.

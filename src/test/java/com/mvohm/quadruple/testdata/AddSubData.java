@@ -9,6 +9,7 @@ import static com.mvohm.quadruple.testdata.DataHelpers.randomNormal;
 import static com.mvohm.quadruple.testdata.DataHelpers.toQuadruple;
 import static com.mvohm.quadruple.testdata.DataHelpers.unbiasedExponent;
 import static com.mvohm.quadruple.Quadruple.*;
+import static java.math.BigInteger.ONE;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ import com.mvohm.quadruple.testutil.ExactValue;
  *   <li>exact ties: the second operand has the bits below the LSB of the first one equal to exactly a half of its ulp,
  *       and near-ties (the half plus or minus a small fraction of the ulp); the first operand is sometimes a power of 2,
  *       so that the subtraction drops the result to the lower binade, where the tie disappears or moves;</li>
+ *   <li>subtractions whose result, before the rounding, is exactly a power of 2 (the lower bound of the binade
+ *       of the greater operand) minus a fraction of its ulp: the exact result is in the lower binade (BUG-27);</li>
  *   <li>hand-made edge cases: exponent gaps around 128 bits, carries to the exponent, borrows from it, overflow,
  *       the boundary between subnormal and normal values, operands far below the ulp of the other one;</li>
  *   <li>massive cancellation: close values of the same sign (for subtraction) and of opposite signs (for addition),
@@ -51,6 +54,7 @@ public class AddSubData {
   private static final int WIDE_PAIR_COUNT     = scaled(500);
   private static final int TIE_COUNT           = scaled(1000);
   private static final int CANCELLATION_COUNT  = scaled(500);
+  private static final int BOUNDARY_COUNT      = scaled(1000);
   private static final int NUMBER_COUNT        = scaled(1000);   // doubles and longs
 
   private static final long HIGH_BIT = 0x8000_0000_0000_0000L;
@@ -131,6 +135,7 @@ public class AddSubData {
     for (int i = 0; i < CLOSE_PAIR_COUNT; i++)   pairs.add(closePair(random));
     for (int i = 0; i < TIE_COUNT; i++)          pairs.add(tie(random));
     for (int i = 0; i < CANCELLATION_COUNT; i++) pairs.add(cancellation(random));
+    for (int i = 0; i < BOUNDARY_COUNT; i++)     pairs.add(binadeBoundary(random));
     new RandomGenerator().quadruplePairs(WIDE_PAIR_COUNT)
       .filter(p -> !p[0].isZero() && !p[1].isZero())
       .forEach(p -> pairs.add(pair(p[0], p[1])));
@@ -267,6 +272,36 @@ public class AddSubData {
     final Quadruple b = new Quadruple(negative, exponent, mantHi, mantLo);
     return b.isZero() || (a.mantLo() == mantLo && a.mantHi() == mantHi && a.exponent() == exponent)?
         cancellation(random) : pair(a, b);
+  }
+
+  /**
+   * A difference at the boundary of a binade: {@code |b| = (k + r) * ulp(a)} with an integer {@code k} and {@code 0 <= r < 1},
+   * {@code |a| = 2^e + k * ulp(a)}, so that {@code |a| - |b| = 2^e - r * ulp(a)}, which is in the lower binade if {@code r > 0}.
+   * {@code b} is a normal value with a random 129-bit significand, shifted by 1 to 128 bits relative to {@code a};
+   * {@code r} is random, or equal or close to 1/4, 1/2, 3/4 (the thresholds of the rounding in the lower binade,
+   * where the ulp is a half as much). The signs are random: both operations are applied to each pair,
+   * so the magnitudes are subtracted in one of them.
+   */
+  private static Pair binadeBoundary(Random random) {
+    final int shift = 1 + random.nextInt(128);
+    final boolean small = random.nextInt(8) == 0;                     // b is near MIN_NORMAL
+    final long exponent = small? 1 - EXPONENT_BIAS + shift + random.nextInt(4) : random.nextInt(2001) - 1000;
+    final long lsbOfA = exponent - 128;
+    BigInteger significand = new BigInteger(128, random).setBit(128);   // of b, in units of ulp(b) = 2^(lsbOfA - shift)
+    final BigInteger k = significand.shiftRight(shift);
+    if (shift >= 2 && random.nextInt(4) != 0) {                       // r near 1/4, 1/2, 3/4
+      BigInteger f = BigInteger.valueOf(1 + random.nextInt(3)).shiftLeft(shift - 2);
+      final int nearness = random.nextInt(3);                         // 0: exactly, 1: above, 2: below
+      if (nearness != 0) {
+        final BigInteger delta = ONE.shiftLeft(random.nextInt(shift - 1));
+        f = nearness == 1? f.add(delta) : f.subtract(delta);
+      }
+      significand = k.shiftLeft(shift).or(f);
+    }
+    final ExactValue a = pow2(exponent).add(ExactValue.of(false, k, lsbOfA));
+    final ExactValue b = ExactValue.of(false, significand, lsbOfA - shift);
+    return pair("2^e + k ulp", random.nextBoolean()? a : a.negate(), "(k + r) ulp, shift " + shift,
+                random.nextBoolean()? b : b.negate());
   }
 
   /** A random normal value with an exponent within 70 of the given one */

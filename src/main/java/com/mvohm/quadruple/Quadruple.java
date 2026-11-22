@@ -4336,7 +4336,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
         normalizeShiftedByOneBit(shiftedOutBits);       // shiftedOutBits may be MIN_VALUE or 0
       else
         normalizeShiftedByAFewBits(shiftedOutBits);     // shift > 1, highest bit of mantHi is always 1. shift can't be o here
-    } else if ((mantHi | mantLo) == 0 && shiftedOutBits == HIGH_BIT) { // 1.0 - 2^129 = 1.FFFF_... * 2^-1
+    } else if ((mantHi | mantLo) == 0                  // 1.0 - 2^129 = 1.FFFF_... * 2^-1:
+        && (shiftedOutBits == HIGH_BIT || shiftedOutBits > 0x4000_0000_0000_0000L)) { // 1/4 LSB < subtrahend's rest <= 1/2 LSB
       exponent--; mantHi = mantLo = 0xFFFF_FFFF_FFFF_FFFFL;
     }
     return this;
