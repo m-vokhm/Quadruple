@@ -153,31 +153,6 @@ public class ConversionData {
    */
 
   /**
-   * Values for {@code toIeee754Longs()} and {@code toIeee754Bytes()} (see {@link #allValuesForIeee754Conversion()}),
-   * except those in the range {@code [MIN_VALUE / 2, MIN_VALUE)} of IEEE-754 (BUG-05, see KNOWN_ISSUES.md).
-   */
-  public static Stream<Named<Quadruple>> valuesForIeee754Conversion() {
-    return allValuesForIeee754Conversion().filter(v -> !isBelowIeee754MinValue(v.getPayload()));
-  }
-
-  /**
-   * The values from {@link #allValuesForIeee754Conversion()} that are less than the minimum IEEE-754 value
-   * by magnitude, but should be rounded to it, i.e. those in the range {@code [MIN_VALUE / 2, MIN_VALUE)} (BUG-05)
-   */
-  public static Stream<Named<Quadruple>> valuesBelowIeee754MinValue() {
-    return allValuesForIeee754Conversion().filter(v -> isBelowIeee754MinValue(v.getPayload()));
-  }
-
-  /** @return true if the value of {@code q} is less than the minimum IEEE-754 value, but is rounded to it */
-  private static boolean isBelowIeee754MinValue(Quadruple q) {
-    if (q.isNaN() || q.isInfinite()) return false;
-    final ExactValue.Rounding<Ieee754Bits> r = ExactValue.of(q).round(BinaryFormat.IEEE754_QUAD);
-    final long magnitudeMask = 0x7FFF_FFFF_FFFF_FFFFL;
-    return (r.truncated().hi() & magnitudeMask) == 0 && r.truncated().lo() == 0       // truncated to zero
-        && (r.rounded().hi() & magnitudeMask) == 0 && r.rounded().lo() == 1;           // rounded to MIN_VALUE
-  }
-
-  /**
    * All values for {@code toIeee754Longs()} and {@code toIeee754Bytes()}: both signs of
    * <ul>
    *   <li>values near the midpoints between adjacent IEEE-754 values (exactly at the midpoint,
@@ -188,7 +163,7 @@ public class ConversionData {
    *       (a bit beyond the range of IEEE-754 on both sides).</li>
    * </ul>
    */
-  private static Stream<Named<Quadruple>> allValuesForIeee754Conversion() {
+  public static Stream<Named<Quadruple>> valuesForIeee754Conversion() {
     final ExactValue minSubnormal = pow2(IEEE754_MIN_LSB_EXPONENT), minNormal = pow2(-16382);
     final ExactValue maxUlp = pow2(16383 - 112);
     final Stream<Labeled> edges = Stream.of(

@@ -108,7 +108,7 @@ also passes with `-Dtest.volume=20`.
 
 ## BUG-05 — `toIeee754Longs()`/`toIeee754Bytes()` give 0 for values in `[MIN_VALUE/2, MIN_VALUE)` of IEEE-754
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-19
 **Where:** `Quadruple.toIeee754Longs()` (and `toIeee754Bytes()`, which uses it):
 `unbiasedExponent < IEEE754_MIN_EXPONENT` (-16494) returns zero
@@ -127,11 +127,13 @@ without rounding. The javadoc describes this behavior ("the values whose magnitu
 (minimum positive value of IEEE-754 Quadruple) are converted to 0"), but it contradicts the beginning
 of the same javadoc ("the IEEE-754 quadruple precision number nearest to the value", "the rounding mode is half-up").
 
-**Fix (proposed):** return zero only for exponents less than -16495, let the subnormal branch round the values
-with the exponent -16495 (check that it handles the shift by 113 bits); fix the javadoc.
+**Fix:** zero is returned only for exponents less than -16495; the values with the exponent -16495 go to
+the subnormal branch, which handles the shift by 113 bits correctly (the highest shifted-out bit is the implicit unity,
+so the result is rounded up to the minimum subnormal). The javadoc of both methods says now that the values less than
+a half of the minimum IEEE-754 value become zero.
 
-**Tests:** `ConversionTest.shouldRoundValuesBelowIeee754MinValueToMinValue` (disabled; 8 cases, all fail).
-These values are excluded from the data of `ConversionTest.shouldConvertToIeee754Longs/Bytes`.
+**Tests:** `ConversionTest.shouldConvertToIeee754Longs/Bytes` (all the data, including the 8 cases that failed
+before the fix, and the values just below `MIN_VALUE / 2`, which give 0).
 
 ---
 

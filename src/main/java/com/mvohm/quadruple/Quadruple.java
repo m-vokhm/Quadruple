@@ -1093,9 +1093,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * are converted to {@code Infinity} or {@code -Infinity}, depending on the sign,
    * the values with magnitudes less than minimum normal IEEE-754 quadruple value
    * ({@code 3.36210314311209350626267781732175260 * 10^-4932})
-   * but greater or equal to {@code 6.4751751194380251109244389582276466 * 10^-4966}
-   * are converted to subnormal IEEE-754 values, and the values whose magnitude is less
-   * than {@code 6.4751751194380251109244389582276466 * 10^-4966} (minimum positive value of of IEEE-754 Quadruple)
+   * are rounded to subnormal IEEE-754 values, and the values whose magnitude is less
+   * than a half of the minimum positive value of IEEE-754 Quadruple
+   * ({@code 6.4751751194380251109244389582276466 * 10^-4966} / 2 =
+   * {@code 3.2375875597190125554622194791138233 * 10^-4966})
    * are converted to 0 or -0, depending on the sign of {@code this} instance.
    *
    * @return an array of two longs containing the 128 bits of the IEEE-745 Quadruple
@@ -1116,7 +1117,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       result[0] = negative ?  IEEE754_MINUS_INFINITY_LEAD :
                               IEEE754_INFINITY_LEAD;
       return result;
-    } else if (unbiasedExponent < IEEE754_MIN_EXPONENT) {
+    } else if (unbiasedExponent < IEEE754_MIN_EXPONENT - 1) {  // less than a half of the min subnormal: 0
       if (negative)
         result[0] = IEEE754_MINUS_ZERO_LEAD;
       return result;
@@ -1142,10 +1143,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * (namely, 1.18973149535723176508575932662800702 * 10^4932) plus half of its mantissa'a LSB
    * are converted to {@code Infinity} or {@code -Infinity}, depending on the sign,
    * the values with magnitudes less than {@code 3.36210314311209350626267781732175260 * 10^-4932}
-   * but greater or equal to {@code 6.4751751194380251109244389582276466 * 10^-4966}
-   * are converted to subnormal IEEE-754 values,
-   * and the values whose magnitude is less than {@code 6.4751751194380251109244389582276466 * 10^-4966}
-   * (minimum positive value of of IEEE-754 Quadruple)
+   * are rounded to subnormal IEEE-754 values,
+   * and the values whose magnitude is less than a half of the minimum positive value of IEEE-754 Quadruple
+   * ({@code 6.4751751194380251109244389582276466 * 10^-4966} / 2 =
+   * {@code 3.2375875597190125554622194791138233 * 10^-4966})
    * are converted to 0 or -0, depending on the sign of {@code this} instance.
    *
    * @return an array of bytes containing the value of {@code this} instance

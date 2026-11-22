@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.ByteBuffer;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -90,15 +89,6 @@ public class ConversionTest {
     final ByteBuffer buffer = ByteBuffer.wrap(bytes);                     // big-endian
     assertCorrectlyRounded(new Ieee754Bits(buffer.getLong(), buffer.getLong()), ExactValue.of(q),
                            BinaryFormat.IEEE754_QUAD, 0, "toIeee754Bytes() of " + fieldsOf(q));
-  }
-
-  @Disabled("BUG-05: toIeee754Longs()/toIeee754Bytes() give 0 for values in [MIN_VALUE/2, MIN_VALUE) of IEEE-754,"
-            + " see KNOWN_ISSUES.md")
-  @ParameterizedTest
-  @MethodSource(DATA + "valuesBelowIeee754MinValue")
-  void shouldRoundValuesBelowIeee754MinValueToMinValue(Quadruple q) {
-    shouldConvertToIeee754Longs(q);
-    shouldConvertToIeee754Bytes(q);
   }
 
   @Test
