@@ -4032,7 +4032,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     final int shift = exponent - 1;                     // How far should we shift subnormal mantissa
     int lz = Long.numberOfLeadingZeros(mantHi);         // Leading zeros in the subnormal value
     if (lz == 64) lz = 64 + Long.numberOfLeadingZeros(mantLo);
-    if (shift + lz > 128)  {                            // Subnormal is too small to affect the result
+    if (((shift & 0xFFFF_FF00) != 0) || (shift + lz > 128))  {  // Normal is too great or Subnormal is too small to affect the result
       mantHi = greaterHi; mantLo = greaterLo;
       return this;
     }

@@ -63,19 +63,11 @@ public class AddSubData {
 
   /**
    * {@code (operation, form, a, b)}: all the pairs (see the class description), for addition and subtraction,
-   * except the cases of BUG-12 and BUG-13 (see KNOWN_ISSUES.md)
+   * except the cases of BUG-13 (see KNOWN_ISSUES.md)
    */
   public static Stream<Arguments> operations() {
-    return allCases().filter(c -> !isSubnormalAddedToHugeValue(c) && !isSubnormalSubtractedWithShift129(c))
+    return allCases().filter(c -> !isSubnormalSubtractedWithShift129(c))
                      .map(Case::toArguments);
-  }
-
-  /**
-   * The cases of BUG-12: the effective operation is addition, one of the operands is subnormal,
-   * and the other one has the biased exponent {@code 0x8000_0001} or greater.
-   */
-  public static Stream<Arguments> subnormalsAddedToHugeValues() {
-    return allCases().filter(AddSubData::isSubnormalAddedToHugeValue).map(Case::toArguments);
   }
 
   /**
@@ -119,14 +111,6 @@ public class AddSubData {
     final int ea = c.qa().exponent(), eb = c.qb().exponent();
     return ea == 0 && c.qa().mantHi() < 0 && eb == 130
         || eb == 0 && c.qb().mantHi() < 0 && ea == 130;
-  }
-
-  private static boolean isSubnormalAddedToHugeValue(Case c) {
-    if (!c.isEffectiveAddition())
-      return false;
-    final int ea = c.qa().exponent(), eb = c.qb().exponent();
-    return ea == 0 && Integer.compareUnsigned(eb, 0x8000_0001) >= 0
-        || eb == 0 && Integer.compareUnsigned(ea, 0x8000_0001) >= 0;
   }
 
   private static List<Pair> allPairs() {
@@ -200,12 +184,13 @@ public class AddSubData {
       }
 
     // Subnormal operands with normal ones of small exponents (the shift of the subnormal mantissa about 64 and 128 bits)
-    // and of huge exponents (the shift >= 2^31)
+    // and of huge exponents (the shift near 2^31 and beyond, BUG-12)
     final Quadruple[] subnormals = { new Quadruple(false, 0, -1, -1), new Quadruple(false, 0, HIGH_BIT, 0),
                                      new Quadruple(false, 0, HIGH_BIT, 1), new Quadruple(false, 0, 0, 1),
                                      new Quadruple(false, 0, 1, HIGH_BIT) };
     for (final int exponent : new int[] { 2, 64, 65, 66, 127, 128, 129, 130, 131, 132,
-                                          0x7FFF_FFFF, 0x8000_0000, 0x8000_0001, (int)EXPONENT_OF_MAX_VALUE })
+                                          0x7FFF_FF7F, 0x7FFF_FF80, 0x7FFF_FFC0, 0x7FFF_FFFF, 0x8000_0000, 0x8000_0001,
+                                          (int)EXPONENT_OF_MAX_VALUE })
       for (final Quadruple subnormal : subnormals) {
         pairs.add(pair(new Quadruple(false, exponent, 0, 0), subnormal));
         pairs.add(pair(new Quadruple(false, exponent, 0x5555_5555_5555_5555L, 0xAAAA_AAAA_AAAA_AAAAL), subnormal));

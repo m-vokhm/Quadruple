@@ -292,7 +292,7 @@ the remaining failures are BUG-27.
 
 ## BUG-12 — adding a subnormal value to a value with the exponent >= `0x8000_0001` gives a wrong result
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-20
 **Where:** `Quadruple.addNormalAndSubnormal()`: `final int shift = exponent - 1;`
 
@@ -307,12 +307,13 @@ Quadruple.add(new Quadruple(4), Quadruple.minValue());   // 4 + 2^-128 ulp (mant
 of the subnormal value is shifted by a negative distance (that Java takes modulo 64).
 `subtractSubnormalFromNormal()` checks `(shift & 0xFFFF_FF00) != 0` and is not affected.
 
-**Fix (proposed):** compare the shift as unsigned (`Integer.compareUnsigned`) or check `(shift & 0xFFFF_FF00) != 0`,
-like in `subtractSubnormalFromNormal()`.
+**Fix:** the same check as in `subtractSubnormalFromNormal()`: `(shift & 0xFFFF_FF00) != 0 || shift + lz > 128`.
+It also prevents the overflow of `shift + lz` for exponents near `0x7FFF_FFFF`; that overflow did not affect
+the results (it requires more leading zeros than the shift taken modulo 64 leaves, so the shifted mantissa was 0),
+but the check did not work as intended.
 
-**Tests:** `AddSubTest.shouldAddSubnormalsToHugeValues` (disabled; 182 cases, 158 of them fail;
-the others are correct by coincidence: `MIN_VALUE` added to values with the exponent `0xFFFF_FFFE`,
-where the shift by -2 gives zero). These cases are excluded from the data of `AddSubTest.shouldBeCorrectlyRounded`.
+**Tests:** `AddSubTest.shouldBeCorrectlyRounded` (all the data, including 182 cases with exponents >= `0x8000_0001`,
+158 of which failed before the fix); the edge cases also include exponents `0x7FFF_FF7F`, `0x7FFF_FF80`, `0x7FFF_FFC0`.
 
 ---
 

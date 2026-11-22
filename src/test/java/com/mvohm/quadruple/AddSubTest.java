@@ -36,14 +36,6 @@ public class AddSubTest {
       assertCorrectlyRounded(actual, exact, 0, context);
   }
 
-  @Disabled("BUG-12: adding a subnormal value to a value with the exponent >= 0x8000_0001 gives a wrong result,"
-            + " see KNOWN_ISSUES.md")
-  @ParameterizedTest(name = "{0}: {1}, a = {2}, b = {3}")
-  @MethodSource(DATA + "subnormalsAddedToHugeValues")
-  void shouldAddSubnormalsToHugeValues(BinaryOperation op, CallForm form, Quadruple a, Quadruple b) {
-    shouldBeCorrectlyRounded(op, form, a, b);
-  }
-
   @Disabled("BUG-13: subtracting a subnormal value with the highest bit set from a value with the exponent 130"
             + " (a shift by 129 bits) gives a wrong result, see KNOWN_ISSUES.md")
   @ParameterizedTest(name = "{0}: {1}, a = {2}, b = {3}")
