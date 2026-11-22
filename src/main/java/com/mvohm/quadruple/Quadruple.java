@@ -836,12 +836,61 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /** Converts the value of this {@code Quadruple} to a {@code float} value in a way
    * similar to standard narrowing conversions (e.g., from {@code double} to {@code float}).
+   * The exact value is rounded directly to {@code float}, half-even, like the conversion of a {@code double}
+   * to {@code float} (not via {@code double}, which might give a different result in rare cases)
    * @return the value of this {@code Quadruple} instance converted to a {@code float}.
    * */
   @Override
   public float floatValue() {
-    return (float)doubleValue();
+    if (exponent == 0)                                  // All subnormal Quadruples are also converted into 0f
+      return negative? -0.0f : 0.0f;
+
+    if (exponent == EXPONENT_OF_INFINITY)
+      return (mantHi != 0 || mantLo != 0 )? Float.NaN :
+                                            negative ?
+                                              Float.NEGATIVE_INFINITY :
+                                              Float.POSITIVE_INFINITY;
+
+    final int expF = exponent - EXPONENT_BIAS;          // Unbiased, to range -0x8000_0000 ... 0x7FFF_FFFF
+    if (expF > EXP_0F)                                  // Out of range
+      return negative? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
+
+    if (expF < -(EXP_0F + 24))                          // below Float.MIN_VALUE / 2 -- return 0
+      return negative? -0.0f : 0.0f;
+
+    final int bits;
+    if (expF < -(EXP_0F - 1)) {                         // subnormal: shift 1..24, a carry gives Float.MIN_NORMAL
+      final long significand = (mantHi >>> 41) | FLOAT_IMPLIED_MSB;  // 24 bits with the implied higher bit
+      bits = (int)shiftAndRoundHalfEven(significand, -EXP_0F - expF + 1,
+                                        (mantHi & 0x1FF_FFFF_FFFFL) != 0 || mantLo != 0);  // the lower 41 bits
+    } else {                                            // normal: 23 bits after the implied unity, the 17 following
+      final long fMant = shiftAndRoundHalfEven(mantHi >>> 24, 17,                       // bits are shifted out
+                                               (mantHi & 0xFF_FFFFL) != 0 || mantLo != 0);  // the lower 24 bits
+      bits = (int)((((long)expF + EXP_0F) << 23) + fMant);  // a carry from the mantissa increments the exponent
+      if (bits >= FLOAT_EXP_MASK)                       // and may give infinity
+        return negative? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
+    }
+    return Float.intBitsToFloat(negative? bits | FLOAT_SIGN_MASK : bits);
   } // public float floatValue() {
+
+  /**
+   * Shifts the given value right and rounds it half-even.
+   * @param value the value to shift
+   * @param shift the distance to shift, from 1 to 63
+   * @param lowerBitsNonZero {@code true} if there are non-zero bits below the bits of the {@code value},
+   * which are also shifted out (they make the shifted-out part greater than a half, if it seems to be exactly a half)
+   * @return the shifted and rounded value
+   */
+  private static long shiftAndRoundHalfEven(long value, int shift, boolean lowerBitsNonZero) {
+    final long halfOfLsb = 1L << shift - 1;
+    long result = value >>> shift;
+    if ((value & halfOfLsb) != 0                        // The highest shifted-out bit is 1:
+        && (   (value & (halfOfLsb - 1)) != 0           // more than a half of the LSB,
+            || lowerBitsNonZero
+            || (result & 1) != 0))                      // or a tie and the result is odd
+      result++;
+    return result;
+  } // private static long shiftAndRoundHalfEven(long value, int shift, boolean lowerBitsNonZero) {
 
   /** Converts the value of this {@code Quadruple} to a {@code double} value in a way
    * similar to standard narrowing conversions (e.g., from {@code double} to {@code float}).
@@ -868,14 +917,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
     if (expD < -(EXP_0D - 1)) {                         // subnormal
       final long significand = (mantHi >>> 12) | DOUBLE_IMPLIED_MSB;  // 53 bits with the implied higher bit
-      final int shift = -EXP_0D - expD + 1;             // 1..53
-      final long halfOfLsb = 1L << shift - 1;
-      long lValue = significand >>> shift;
-      if ((significand & halfOfLsb) != 0                // The highest shifted-out bit is 1:
-          && (   (significand & (halfOfLsb - 1)) != 0   // more than a half of the LSB,
-              || (mantHi & 0xFFF) != 0 || mantLo != 0
-              || (lValue & 1) != 0))                    // or a tie and the result is odd (half-even)
-        lValue++;                                       // may become Double.MIN_NORMAL, that's correct
+      long lValue = shiftAndRoundHalfEven(significand, -EXP_0D - expD + 1, // shift 1..53, a carry gives
+                                          (mantHi & 0xFFF) != 0 || mantLo != 0); // Double.MIN_NORMAL, that's correct
       if (negative) lValue |= DOUBLE_SIGN_MASK;
       return Double.longBitsToDouble(lValue);
     }
@@ -1958,6 +2001,10 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
   /** double's exponent value corresponding to 2^0 = 1, shifted to lower bits */
   private static final int EXP_0D             = 0x0000_03FF;
+  private static final int EXP_0F             = 0x0000_007F;      // the exponent bias of float
+  private static final long FLOAT_IMPLIED_MSB = 0x0080_0000L;
+  private static final int FLOAT_EXP_MASK     = 0x7F80_0000;
+  private static final int FLOAT_SIGN_MASK    = 0x8000_0000;
 
   /** The highest bit of Quad's mantissa that doesn't fit in double's mantissa (is lower than the lowest) */
   private static final long HALF_DOUBLES_LSB              = 0x0000_0000_0000_0800L;

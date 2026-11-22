@@ -114,39 +114,13 @@ public class ConversionData {
    */
 
   /**
-   * Values for {@code floatValue()} (see {@link #allValuesForFloatConversion()}),
-   * except those that are rounded incorrectly by rounding to double first (BUG-04, see KNOWN_ISSUES.md).
-   */
-  public static Stream<Named<Quadruple>> valuesForFloatConversion() {
-    return allValuesForFloatConversion().filter(v -> !isFloatDoubleRoundingCase(v.getPayload()));
-  }
-
-  /** The values from {@link #allValuesForFloatConversion()} that are rounded incorrectly via double (BUG-04) */
-  public static Stream<Named<Quadruple>> floatDoubleRoundingCases() {
-    return allValuesForFloatConversion().filter(v -> isFloatDoubleRoundingCase(v.getPayload()));
-  }
-
-  /**
-   * @return true if rounding the value of {@code q} to double first, and then to float,
-   * gives a result different from rounding it to float directly (a double rounding error)
-   */
-  private static boolean isFloatDoubleRoundingCase(Quadruple q) {
-    if (q.isNaN() || q.isInfinite()) return false;
-    final ExactValue x = ExactValue.of(q);
-    final double d = x.round(BinaryFormat.DOUBLE).rounded();
-    if (Double.isInfinite(d)) return false;
-    return !BinaryFormat.FLOAT.same(x.round(BinaryFormat.FLOAT).rounded(),
-                                    ExactValue.of(d).round(BinaryFormat.FLOAT).rounded());
-  }
-
-  /**
    * All values for {@code floatValue()}: the same kinds as for {@code doubleValue()}, with respect to floats.
    * Besides, the values that are greater or less than the midpoint between adjacent floats by
    * less than a half of the ulp of double (2^-31 and 2^-40 of the ulp of float): converting them
    * to double first would give exactly the midpoint, so that the second rounding, to float,
-   * could go the wrong way (a "double rounding" error).
+   * could go the wrong way (a "double rounding" error, BUG-04).
    */
-  private static Stream<Named<Quadruple>> allValuesForFloatConversion() {
+  public static Stream<Named<Quadruple>> valuesForFloatConversion() {
     final Stream<Labeled> edges = Stream.of(
         nearFloatMidpoint("1",                 1.0f),
         nearFloatMidpoint("1 + ulp",           Math.nextUp(1.0f)),

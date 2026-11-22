@@ -83,7 +83,7 @@ A carry gives `Double.MIN_NORMAL`; `MIN_VALUE / 2` gives 0, like the standard co
 
 ## BUG-04 — `floatValue()` may be rounded incorrectly (double rounding)
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-19
 **Where:** `Quadruple.floatValue()`, implemented as `(float)doubleValue()`
 
@@ -97,12 +97,12 @@ q.floatValue();    // 1.0, expected 1.0000001 (1 + 2^-23): the value is above th
 between two adjacent floats (closer to it than a half ulp of double, i.e. 2^-30 ulp of float),
 the first rounding gives exactly the midpoint, and the second one (half-even) may go the wrong way.
 
-**Fix (proposed):** round the mantissa directly to 24 bits (half-even, taking into account all the bits),
-the same way as `doubleValue()` does it for 53 bits; or round to double with "round to odd" (sticky) before
-the conversion to float.
+**Fix:** `floatValue()` rounds the mantissa directly to 24 bits (to fewer bits for subnormal floats), half-even,
+taking into account all the lower bits, the same way as `doubleValue()` does it for 53 bits; the common step is
+`shiftAndRoundHalfEven()`, which `doubleValue()` uses now as well.
 
-**Tests:** `ConversionTest.shouldConvertToFloatWithoutDoubleRounding` (disabled; 5780 cases, all fail).
-These values are excluded from the data of `ConversionTest.shouldConvertToFloat`.
+**Tests:** `ConversionTest.shouldConvertToFloat` (all the data, including 5780 cases that failed before the fix);
+also passes with `-Dtest.volume=20`.
 
 ---
 

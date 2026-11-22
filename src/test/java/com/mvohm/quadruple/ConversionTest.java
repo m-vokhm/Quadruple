@@ -69,13 +69,6 @@ public class ConversionTest {
     assertCorrectlyRounded(q.floatValue(), ExactValue.of(q), BinaryFormat.FLOAT, 0, "floatValue() of " + fieldsOf(q));
   }
 
-  @Disabled("BUG-04: floatValue() rounds the value twice, to double and then to float, see KNOWN_ISSUES.md")
-  @ParameterizedTest
-  @MethodSource(DATA + "floatDoubleRoundingCases")
-  void shouldConvertToFloatWithoutDoubleRounding(Quadruple q) {
-    shouldConvertToFloat(q);
-  }
-
   /* ************************************************************************
    * IEEE-754 quadruple precision
    */
