@@ -161,7 +161,7 @@ before the fix, all of them failed).
 
 ## BUG-07 — `min()` and `assignMin()` ignore a NaN operand
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-19
 **Where:** `Quadruple.min(Quadruple, Quadruple)`, `Quadruple.assignMin(Quadruple)`
 
@@ -179,9 +179,8 @@ if any of the operands is NaN. `max()` and `assignMax()` give NaN anyway, since 
 
 **Fix (proposed):** return (assign) NaN if any of the operands is NaN; mention it in the javadoc.
 
-**Tests:** `ComparisonTest.shouldGiveNaNAsMinIfAnyOperandIsNaN` (disabled; 450 pairs with exactly one NaN,
-for both `min()` and `assignMin()`, all fail). These pairs are excluded from the data of
-`ComparisonTest.shouldFindMin` and `ComparisonTest.shouldAssignMin`.
+**Tests:** `ComparisonTest.shouldFindMin`, `ComparisonTest.shouldAssignMin` (all pairs, including 900 pairs
+with exactly one NaN; before the fix, all of them failed).
 
 ---
 

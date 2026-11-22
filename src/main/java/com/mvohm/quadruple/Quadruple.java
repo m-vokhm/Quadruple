@@ -1291,7 +1291,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    *      equal to the value of the lesser of the operands.
    */
   public static Quadruple min(Quadruple q1, Quadruple q2) {
-    if (q1.compareTo(q2) < 0)
+    if (q1.isNaN() || !q2.isNaN() && q1.compareTo(q2) < 0)  // NaN, if any; compareTo() considers NaN the greatest
       return new Quadruple(q1);
     else
       return new Quadruple(q2);
@@ -1322,7 +1322,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    *      to the value of the lesser of {@code this} and the operand.
    */
   public Quadruple assignMin(Quadruple other) {
-    if (compareTo(other) > 0)
+    if (!isNaN() && (other.isNaN() || compareTo(other) > 0))  // NaN, if any; compareTo() considers NaN the greatest
       assign(other);
     return this;
   }

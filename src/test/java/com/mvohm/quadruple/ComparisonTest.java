@@ -127,7 +127,7 @@ public class ComparisonTest {
   }
 
   @ParameterizedTest
-  @MethodSource(DATA + "pairsForMin")
+  @MethodSource(DATA + "pairs")
   void shouldFindMin(Quadruple a, Quadruple b) {
     final Quadruple a0 = new Quadruple(a), b0 = new Quadruple(b);
     final Quadruple result = Quadruple.min(a, b);
@@ -146,20 +146,12 @@ public class ComparisonTest {
   }
 
   @ParameterizedTest
-  @MethodSource(DATA + "pairsForMin")
+  @MethodSource(DATA + "pairs")
   void shouldAssignMin(Quadruple a, Quadruple b) {
     final Quadruple a0 = new Quadruple(a), b0 = new Quadruple(b);
     assertThat(a.assignMin(b)).as("assignMin must return this").isSameAs(a);
     checkResult(a, expectedMin(a0, b0), "assignMin " + pair(a0, b0));
     assertSameFields(b, b0, "the argument after assignMin " + pair(a0, b0));
-  }
-
-  @Disabled("BUG-07: min() and assignMin() ignore a NaN operand, unlike Math.min(), see KNOWN_ISSUES.md")
-  @ParameterizedTest
-  @MethodSource(DATA + "pairsWithOneNaN")
-  void shouldGiveNaNAsMinIfAnyOperandIsNaN(Quadruple a, Quadruple b) {
-    shouldFindMin(new Quadruple(a), new Quadruple(b));
-    shouldAssignMin(a, b);
   }
 
   /** Math.max(): NaN if any is NaN, otherwise the greater one (-0 < +0) */

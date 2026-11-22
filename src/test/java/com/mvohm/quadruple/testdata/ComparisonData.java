@@ -127,16 +127,6 @@ public class ComparisonData {
     return allPairs().map(Pair::toArguments);
   }
 
-  /** Pairs for {@code min()} and {@code assignMin()}: all pairs except those with exactly one NaN (BUG-07) */
-  public static Stream<Arguments> pairsForMin() {
-    return allPairs().filter(p -> !p.oneNaN()).map(Pair::toArguments);
-  }
-
-  /** Pairs with exactly one NaN, BUG-07 */
-  public static Stream<Arguments> pairsWithOneNaN() {
-    return allPairs().filter(Pair::oneNaN).map(Pair::toArguments);
-  }
-
   private static Stream<Pair> allPairs() {
     final List<Named<Quadruple>> ladder = ladder(), nans = nans();
     final List<Pair> pairs = new ArrayList<>();
@@ -174,7 +164,6 @@ public class ComparisonData {
       a = copy(a);
       b = copy(b);
     }
-    boolean oneNaN()  { return a.getPayload().isNaN() != b.getPayload().isNaN(); }
     Arguments toArguments() { return Arguments.of(a, b); }
   }
 
