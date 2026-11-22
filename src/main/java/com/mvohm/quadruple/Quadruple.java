@@ -3322,12 +3322,14 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
 
       /**
        * Parses a String containing an unsigned long number.
-       * For values greater than   999_999_999_999_999_999 (1e18-1) returns Long.MAX_VALUE.
+       * For values greater than   999_999_999_999_999_999 (1e18-1) returns {@code Long.MAX_VALUE / 2},
+       * which is far beyond the range of exponents, and still can't overflow when the correction
+       * for the position of the decimal point (an {@code int}) is added to it.
        * @param longString string representation of a number
        * @return a long value represented by the longString
        */
       private static long parseLong(String longString) {
-        if (longString.length() > 18) return Long.MAX_VALUE;
+        if (longString.length() > 18) return Long.MAX_VALUE / 2;
         return Long.parseLong(longString);
       }
 

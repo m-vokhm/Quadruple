@@ -409,7 +409,7 @@ than 2^-31 ulp, 1635 of which failed before the fix); also passes with `-Dtest.v
 
 ## BUG-16 — an exponent of more than 18 digits may overflow and give 0 instead of Infinity, or vice versa
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-20
 **Where:** `NumberParser.NumberParts.parseLong()` and `NumberParser.buildQuadruple()`: `exp10 += exp10Corr`
 
@@ -424,9 +424,12 @@ new Quadruple("0.01e-99999999999999999999");    // Infinity, expected 0.0
 and then the correction for the position of the decimal point is added to it (+2 for "123e...", -2 for "0.01e..."),
 which overflows `long`. Strings with the correction 0 (e.g. "1e999...") or -1 (e.g. "0.1e-999...") are not affected.
 
-**Fix (proposed):** saturate the sum (or limit the replacement value to e.g. `Long.MAX_VALUE / 2`).
+**Fix:** `parseLong()` replaces an exponent of more than 18 digits with `Long.MAX_VALUE / 2` (with the sign,
+`-Long.MAX_VALUE / 2`), which is still far beyond the range of exponents and can't overflow when the correction
+(an `int`) is added to it. A minimal fix, since the parser is to be rewritten (task 3).
 
-**Tests:** `StringParsingTest.shouldHandleHugeExponents` (disabled; 7 cases, all fail).
+**Tests:** `StringParsingTest.shouldParseNumbersWithDeclaredAccuracy` (the 7 cases that failed before the fix
+are now among the extreme exponents in `StringParsingData.numbers()`).
 
 ## BUG-17 — javadoc of `toString()` does not match its output (documentation only)
 

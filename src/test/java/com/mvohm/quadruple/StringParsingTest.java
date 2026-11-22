@@ -61,15 +61,6 @@ public class StringParsingTest {
     assertThatThrownBy(() -> new Quadruple(1).assign((String)null)).isInstanceOf(NullPointerException.class);
   }
 
-  @Disabled("BUG-16: an exponent of more than 18 digits combined with the correction for the position"
-            + " of the decimal point overflows, so that huge values give 0 and tiny ones give Infinity,"
-            + " see KNOWN_ISSUES.md")
-  @ParameterizedTest(name = "{0}")
-  @MethodSource(DATA + "exponentOverflow")
-  void shouldHandleHugeExponents(String s, ExactValue exact) {
-    checkParsing(s, exact);
-  }
-
   @Disabled("BUG-20: values from 2^(2^31 + 1) (~3.52e646456993) up to 1e646456994 give wrong finite values"
             + " instead of Infinity, since the binary exponent wraps around, see KNOWN_ISSUES.md")
   @ParameterizedTest(name = "{0}")

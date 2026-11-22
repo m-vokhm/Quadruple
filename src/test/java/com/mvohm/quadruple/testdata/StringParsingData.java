@@ -147,6 +147,14 @@ public class StringParsingData {
     list.add(number("1e99999999999999999999",   false, ONE, Long.MAX_VALUE / 2));    // > 18 digits, no correction
     list.add(number("-1e-99999999999999999999", true,  ONE, Long.MIN_VALUE / 2));
     list.add(number("0.1e-99999999999999999999", false, ONE, Long.MIN_VALUE / 2));   // the correction -1
+    // > 18 digits with the correction for the position of the point (BUG-16)
+    list.add(number("10e9223372036854775807",        false, TEN, Long.MAX_VALUE / 2));   // Infinity
+    list.add(number("123e999999999999999999999",     false, BigInteger.valueOf(123), Long.MAX_VALUE / 2));
+    list.add(number("-10e+99999999999999999999",     true,  TEN, Long.MAX_VALUE / 2));
+    list.add(number("1234.5e99999999999999999999",   false, BigInteger.valueOf(12345), Long.MAX_VALUE / 2));
+    list.add(number("0.01e-99999999999999999999",    false, ONE, Long.MIN_VALUE / 2));   // 0
+    list.add(number("-0.001e-99999999999999999999",  true,  ONE, Long.MIN_VALUE / 2));
+    list.add(number("0.0000123e-99999999999999999999", false, BigInteger.valueOf(123), Long.MIN_VALUE / 2));
     list.add(number("1e-646457032",  false, ONE, MIN_EXP10));                        // < MIN_VALUE / 2: 0
     list.add(number("4e-646457032",  false, BigInteger.valueOf(4), MIN_EXP10));      // MIN_VALUE
     list.add(number("3.4e-646457032", false, BigInteger.valueOf(34), MIN_EXP10 - 1)); // > MIN_VALUE / 2: MIN_VALUE
@@ -317,18 +325,6 @@ public class StringParsingData {
   /* ************************************************************************
    * Cases of known bugs
    */
-
-  /** BUG-16: an exponent of more than 18 digits with the correction for the position of the point */
-  public static Stream<Arguments> exponentOverflow() {
-    return Stream.of(
-        number("10e9223372036854775807",        false, TEN, Long.MAX_VALUE / 2),   // Infinity
-        number("123e999999999999999999999",     false, BigInteger.valueOf(123), Long.MAX_VALUE / 2),
-        number("-10e+99999999999999999999",     true,  TEN, Long.MAX_VALUE / 2),
-        number("1234.5e99999999999999999999",   false, BigInteger.valueOf(12345), Long.MAX_VALUE / 2),
-        number("0.01e-99999999999999999999",    false, ONE, Long.MIN_VALUE / 2),   // 0
-        number("-0.001e-99999999999999999999",  true,  ONE, Long.MIN_VALUE / 2),
-        number("0.0000123e-99999999999999999999", false, BigInteger.valueOf(123), Long.MIN_VALUE / 2));
-  }
 
   /** BUG-18: a sign before any designation of a special value: {String, Quadruple} */
   public static Stream<Arguments> signedNames() {
