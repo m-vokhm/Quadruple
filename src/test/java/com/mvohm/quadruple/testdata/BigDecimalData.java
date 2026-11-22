@@ -30,7 +30,8 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  *       not by BigDecimal);</li>
  *   <li>the same values with other representations: with trailing zeros of the unscaled value
  *       ({@code setScale(scale + n)}), and without them ({@code stripTrailingZeros()}, often with negative scales);</li>
- *   <li>scales near the limits of int, as long as the decimal exponent of the value fits in int (beyond that, BUG-25).</li>
+ *   <li>scales near the limits of int, including those for which the decimal exponent of the value does not fit
+ *       in int (values not less than {@code 10^(2^31)}, BUG-25).</li>
  * </ul>
  * Quadruple -> BigDecimal: finite values, including values equal or close to the midpoints between 100-digit decimals
  * ({@link DecimalMidpoints}), random values over the whole range and with moderate exponents, extreme values;
@@ -46,17 +47,8 @@ public class BigDecimalData {
    * BigDecimal -> Quadruple
    */
 
-  /** BigDecimal values with their exact values (see the class description), except the cases of BUG-25 */
+  /** BigDecimal values with their exact values (see the class description) */
   public static Stream<Arguments> decimals() {
-    return allDecimals().filter(a -> !isExponentBeyondInt(bigDecimalOf(a)));
-  }
-
-  /** BUG-25: the values of {@link #allDecimals()} not less than {@code 10^(2^31)}, whose decimal exponent does not fit in int */
-  public static Stream<Arguments> exponentBeyondInt() {
-    return allDecimals().filter(a -> isExponentBeyondInt(bigDecimalOf(a)));
-  }
-
-  private static Stream<Arguments> allDecimals() {
     final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
     final List<Arguments> list = new ArrayList<>();
     StringParsingData.numbers().forEach(a -> {
@@ -76,15 +68,6 @@ public class BigDecimalData {
     });
     edgeScales().forEach(list::add);
     return list.stream();
-  }
-
-  private static BigDecimal bigDecimalOf(Arguments a) {
-    return (BigDecimal)((Named<?>)a.get()[0]).getPayload();
-  }
-
-  /** The criterion of BUG-25: the exponent of the leading digit, {@code precision - scale - 1}, does not fit in int */
-  public static boolean isExponentBeyondInt(BigDecimal bd) {
-    return bd.signum() != 0 && (long)bd.precision() - bd.scale() - 1 > Integer.MAX_VALUE;
   }
 
   /** Scales near the limits of int, with unscaled values of various lengths, with and without trailing zeros */

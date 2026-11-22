@@ -569,7 +569,7 @@ and taken modulo 64, so a wrong number of bits is filled, and the free bits of `
 
 ## BUG-25 — `assign(BigDecimal)` throws `ArithmeticException` for values not less than `10^(2^31)`
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-21
 **Where:** `Quadruple.assign(BigDecimal)`: `findBinaryExponent()`: `int exp10 = value.precision() - value.scale() - 1`,
 `raise10toPower(exp10)`; also `value.stripTrailingZeros()` for scales near `Integer.MIN_VALUE`
@@ -585,12 +585,12 @@ if it is not less than 2^31 (the scale is close to `Integer.MIN_VALUE`); then Bi
 resulting scales throw `ArithmeticException` (`Underflow` or `Overflow`). Values with smaller exponents
 (e.g. 1e2147483647) correctly give Infinity, tiny values (scales near `Integer.MAX_VALUE`) correctly give 0.
 
-**Fix (proposed):** compute the exponent as `long`, and return Infinity if it exceeds the range of Quadruple
-before any BigDecimal arithmetic.
+**Fix:** before `stripTrailingZeros()` and any BigDecimal arithmetic, `assign(BigDecimal)` computes the exponent
+of the leading digit as `long`; if it exceeds `MAX_EXP10` (646456993), the value is not less than 1e646456994,
+which is greater than `MAX_VALUE`, and Infinity with the sign of the value is assigned.
 
-**Tests:** `BigDecimalConversionTest.shouldConvertHugeBigDecimalToInfinity` (disabled; 55 cases, all fail).
-The criterion (`BigDecimalData.isExponentBeyondInt()`) selects exactly the failing cases, which are excluded
-from the data of `BigDecimalConversionTest.shouldConvertBigDecimalWithDeclaredAccuracy`.
+**Tests:** `BigDecimalConversionTest.shouldConvertBigDecimalWithDeclaredAccuracy` (all the data, including the 55 cases
+that failed before the fix).
 
 ## BUG-26 — javadoc should state the accuracy of operations and conversions, as confirmed by the tests (documentation only)
 

@@ -9,7 +9,6 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -63,14 +62,6 @@ public class BigDecimalConversionTest {
   @ParameterizedTest(name = "{0}")
   @MethodSource(DATA + "decimals")
   void shouldConvertBigDecimalWithDeclaredAccuracy(BigDecimal bd, ExactValue exact) {
-    checkConversion(bd, exact);
-  }
-
-  @Disabled("BUG-25: BigDecimal values not less than 10^(2^31) (with scales close to Integer.MIN_VALUE) cause"
-            + " ArithmeticException instead of giving Infinity, see KNOWN_ISSUES.md")
-  @ParameterizedTest(name = "{0}")
-  @MethodSource(DATA + "exponentBeyondInt")
-  void shouldConvertHugeBigDecimalToInfinity(BigDecimal bd, ExactValue exact) {
     checkConversion(bd, exact);
   }
 

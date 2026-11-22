@@ -573,9 +573,11 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   public Quadruple assign(BigDecimal value) {
 
     if (value.signum() == 0) return assignZero();
+    negative = value.signum() < 0;
+    if ((long)value.precision() - value.scale() - 1 > MAX_EXP10)  // The exponent of the leading digit (may not fit in int):
+      return assignInfinity(false);                     // the value >= 1e646456994 > MAX_VALUE
 
     value = value.stripTrailingZeros();                 // Eliminates extra work and thus speeds up in some cases
-    negative = value.signum() < 0;
     if (negative) value = value.negate();
 
     long exp2 = findBinaryExponent(value);              // Binary exponent, unbiased, = floor(log2(value))
