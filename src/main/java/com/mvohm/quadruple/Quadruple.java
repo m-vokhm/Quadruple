@@ -19,6 +19,7 @@
 package com.mvohm.quadruple;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
@@ -138,8 +139,8 @@ import java.util.regex.Pattern;
  * <ul>
  * <li>{@code add()}, {@code subtract()}, {@code multiply()}, {@code divide()}, all forms: the exact result
  *   is correctly rounded. An exact zero sum or difference of two finite values is {@code +0}.
- * <li>{@code sqrt()}: the exact root is correctly rounded, except that roots exceeding the midpoint between
- *   two adjacent values by less than {@code 2^-31} LSB may be rounded down.
+ * <li>{@code sqrt()}: the exact root is correctly rounded, like by {@link Math#sqrt(double)}
+ *   (it can't be exactly in the middle between two adjacent values).
  * <li>{@code Quadruple(String)}, {@code assign(String)}: values below the midpoint by less than {@code 1e-17} LSB
  *   may be rounded either way, see {@link #assign(String)}.
  * <li>{@code Quadruple(BigDecimal)}, {@code assign(BigDecimal)}: values below the midpoint by less than
@@ -1790,8 +1791,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
   /**
    * Computes a square root of the value of this {@code Quadruple}
    * and replaces the old value of this instance with the newly-computed value.
-   * The exact root is rounded to the nearest {@code Quadruple} value, except that roots exceeding the midpoint
-   * between two adjacent values by less than {@code 2^-31} LSB may be rounded down (see <a href="#accuracy">Accuracy</a>).
+   * The exact root is correctly rounded to the nearest {@code Quadruple} value (see <a href="#accuracy">Accuracy</a>).
    * Like {@link Math#sqrt(double)}, the square root of a negative value or NaN is NaN,
    * the square root of {@code -0} is {@code -0}, and the square root of {@code Infinity} is {@code Infinity}.
    * @return the reference to this instance, which holds a new value that equals
@@ -1806,6 +1806,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     if (exponent == 0)                                  // subnormal
       absExp  -= normalizeMantissa();                   // It returns 0 for MIN_NORMAL / 2, 1 for MIN_NORMAL / 4... no additional correction is needed
     exponent = (int)(absExp / 2 + EXPONENT_BIAS);       // the exponent of the root
+    final long argMantHi = mantHi, argMantLo = mantLo;  // the normalized mantissa of the argument, for the exact rounding
 
     long thirdWord = sqrtMant();                        // puts 128 bit of the root into mantHi, mantLo
                                                         // and returns additional 64 bits of the root
@@ -1816,7 +1817,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       if (absExp < 0) exponent--;                       // for negative odd powers of two, exp = floor(exp / 2), e.g sqrt(0.64) = 0.8, sqrt(0.36) = 0.6
     }
 
-    if ((thirdWord & HIGH_BIT) != 0)                    // The rest of the root >= a half of the lowest bit, round up
+    if (rootRoundsUp(thirdWord, argMantHi, argMantLo, absExp % 2 != 0)) // The rest of the root > a half of the lowest bit
       if (++mantLo == 0)
         if (++mantHi == 0)
           exponent++;        // 21.01.08 18:04:02: Actually, this branch can never be executed,
@@ -1835,8 +1836,7 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
    * Computes a square root of the value of the given {@code Quadruple},
    * creates and returns a new instance of Quadruple containing the value of the square root.
    * The parameter remains unchanged.
-   * The exact root is rounded to the nearest {@code Quadruple} value, except that roots exceeding the midpoint
-   * between two adjacent values by less than {@code 2^-31} LSB may be rounded down (see <a href="#accuracy">Accuracy</a>).
+   * The exact root is correctly rounded to the nearest {@code Quadruple} value (see <a href="#accuracy">Accuracy</a>).
    * Like {@link Math#sqrt(double)}, the square root of a negative value or NaN is NaN,
    * the square root of {@code -0} is {@code -0}, and the square root of {@code Infinity} is {@code Infinity}.
    * @param square the value to find the square root of
@@ -5388,6 +5388,51 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     mantLo = root[1];
     return root[2];
   } // private long sqrtMant() {
+
+  /**
+   * The half-width of the zone around the midpoint, in units of 2^-64 of the LSB, where the rounding of the root
+   * is decided exactly; it's 2^-24 of the LSB. {@link #sqrtMant()} truncates the root to 160 bits
+   * (an error less than 2^-32 of the LSB), and for odd exponents it's multiplied by sqrt(2), which gives
+   * an error less than ~2^-31.5 of the LSB (the measured one is between 2^-32 and 2^-31).
+   */
+  private static final long SQRT_ROUNDING_WINDOW = 1L << 40;
+
+  /**
+   * Decides whether the root, whose 128 bits are in the mantissa of this instance and the following 64 bits
+   * are in {@code thirdWord}, should be rounded up. The computed root may be inexact by a tiny fraction of the LSB,
+   * so if it is close to the midpoint between two adjacent values (within {@link #SQRT_ROUNDING_WINDOW}),
+   * the decision is made exactly: the root is above the midpoint {@code m} if {@code m^2} is less than the argument
+   * ({@code m^2} can't be equal to it, since {@code m} has 129 significant bits).
+   * @param thirdWord the bits of the root following its 128 bits
+   * @param argMantHi the higher 64 bits of the normalized mantissa of the argument
+   * @param argMantLo the lower 64 bits of the normalized mantissa of the argument
+   * @param oddExponent {@code true} if the unbiased exponent of the argument is odd
+   * (then the root is {@code sqrt(2 * mantissa)})
+   * @return {@code true} if the root should be rounded up
+   */
+  private boolean rootRoundsUp(long thirdWord, long argMantHi, long argMantLo, boolean oddExponent) {
+    final long distance = thirdWord - HIGH_BIT;               // from the midpoint, in units of 2^-64 of the LSB
+    if (distance >= SQRT_ROUNDING_WINDOW || distance <= -SQRT_ROUNDING_WINDOW)
+      return (thirdWord & HIGH_BIT) != 0;
+    final BigInteger midpoint = significandOf(mantHi, mantLo).shiftLeft(1).setBit(0);   // in units of 2^-129
+    final BigInteger argument = significandOf(argMantHi, argMantLo).shiftLeft(oddExponent? 131 : 130); // 2^-258
+    return midpoint.multiply(midpoint).compareTo(argument) < 0;
+  } // private boolean rootRoundsUp(long thirdWord, long argMantHi, long argMantLo, boolean oddExponent) {
+
+  /**
+   * @param mantHi the higher 64 bits of the mantissa
+   * @param mantLo the lower 64 bits of the mantissa
+   * @return the 129-bit significand {@code 2^128 + mantissa} as a BigInteger
+   */
+  private static BigInteger significandOf(long mantHi, long mantLo) {
+    final byte[] bytes = new byte[17];
+    bytes[0] = 1;                                             // the implicit unity
+    for (int i = 0; i < 8; i++) {
+      bytes[8 - i]  = (byte)(mantHi >>> 8 * i);
+      bytes[16 - i] = (byte)(mantLo >>> 8 * i);
+    }
+    return new BigInteger(bytes);
+  } // private static BigInteger significandOf(long mantHi, long mantLo) {
 
   /**
    * Finds the first byte of the root, using a table that maps

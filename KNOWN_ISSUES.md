@@ -379,7 +379,7 @@ also passes with `-Dtest.volume=20` (426 290 cases).
 
 ## BUG-15 — square roots slightly above the midpoint may be rounded down
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-20
 **Where:** `Quadruple.sqrt()`: `sqrtMant()` (and `multBySqrt2()` for odd exponents), rounding by the highest bit of `thirdWord`
 
@@ -397,13 +397,15 @@ So if the exact root is above the midpoint by less than ~2^-31.5 ulp, the result
 The error is always in this direction; roots farther from the midpoint are always rounded correctly.
 `Math.sqrt()` is correctly rounded (IEEE-754), and so is `Quadruple.divide()`.
 
-**Fix (proposed):** if the computed root is close to the midpoint (the extra bits are within ~2^-30 ulp of `0x8000...`),
-decide the rounding exactly: compare the square of the midpoint with the argument (one 256-bit multiplication).
+**Fix:** `rootRoundsUp()`: if the extra bits are within 2^40 of `0x8000...` (2^-24 ulp from the midpoint),
+the rounding is decided exactly: `(2R + 1)^2` is compared with the argument's significand shifted by 130 bits
+(131 for odd exponents), `R` being the 129-bit truncated root (on `BigInteger`; such roots are rare, ~2^-23
+of random arguments). The root computed by `sqrtMant()` is truncated to 160 bits (an error < 2^-32 ulp,
+times sqrt(2) for odd exponents); the tests fail with the zone narrowed to 2^32 (2^-32 ulp) and pass with 2^33,
+so 2^40 gives a margin of 2^7. The javadoc says now that the root is correctly rounded.
 
-**Tests:** `SqrtTest.shouldRoundRootsNearMidpointCorrectly` (disabled; 4234 cases closer to the midpoint
-than 2^-31 ulp, 1635 of them fail). There's no exact criterion of failing (it depends on the internal error
-of `sqrtMant()`), so all the values closer to the midpoint than 2^-31 ulp (`SqrtData.isNearMidpoint()`)
-are excluded from the data of `SqrtTest.shouldBeCorrectlyRounded`, which requires correct rounding (ε = 0).
+**Tests:** `SqrtTest.shouldBeCorrectlyRounded` (all the data, including 4234 cases closer to the midpoint
+than 2^-31 ulp, 1635 of which failed before the fix); also passes with `-Dtest.volume=20` (180 024 cases).
 
 ## BUG-16 — an exponent of more than 18 digits may overflow and give 0 instead of Infinity, or vice versa
 

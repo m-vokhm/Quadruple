@@ -30,7 +30,8 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  * (a square root modulo 2^131, by Hensel lifting), so that {@code a = (m^2 + e) / 2^131} is an integer of 128 or 129 bits;
  * then {@code sqrt(a * 2^131) = m + e / (2m) + ...}, i.e. the root is the midpoint plus about {@code e / (4m)} ulp.
  * The magnitude of {@code e} varies, so that the distance from the midpoint varies from ~2^-128 to ~2^-3 ulp;
- * many of them are in the zone ~2^-36..2^-29 ulp above the midpoint, where the library's error is the greatest.
+ * many of them are in the zone ~2^-36..2^-29 ulp above the midpoint, where the error of the root computed by the library
+ * before the rounding is the greatest (it is then rounded exactly, see BUG-15 in KNOWN_ISSUES.md).
  * <p>
  * The data:
  * <ul>
@@ -40,46 +41,22 @@ import com.mvohm.quadruple.testutil.QuadAssert;
  *   <li>random values: with moderate exponents, over the whole range, subnormal.</li>
  * </ul>
  * <p>
- * The library's square root is not always correctly rounded (BUG-15, see KNOWN_ISSUES.md): if the exact root
- * is slightly above the midpoint (up to ~2^-31.5 ulp), the result may be rounded down. So the values whose roots are
- * closer to the midpoint than {@link #NEAR_MIDPOINT_ZONE} = 2^-31 ulp are given separately, by
- * {@link #nearMidpointValues()}; about a half of them fail. {@link #values()} gives all the others.
- * <p>
  * Special values and negative values are tested by {@code SpecialValuesTest}.
  */
 public class SqrtData {
 
   private static final int NEAR_MIDPOINT_COUNT = scaled(2000);
-  /** Near-midpoint roots slightly above the midpoint, at ~2^-36..2^-29 ulp, where the library's error is the greatest */
+  /** Near-midpoint roots slightly above the midpoint, at ~2^-36..2^-29 ulp, where the library's internal error is the greatest */
   private static final int CRITICAL_ZONE_COUNT = scaled(3000);
   private static final int EXACT_COUNT         = scaled(500);
   private static final int RANDOM_COUNT        = scaled(2000);
-
-  /** The distance from the midpoint, in ulps, within which the library's root may be rounded wrongly (BUG-15) */
-  private static final double NEAR_MIDPOINT_ZONE = Math.scalb(1.0, -31);
 
   private static final BigInteger EIGHT = BigInteger.valueOf(8);
   /** The binary exponent of the LSB of subnormal values */
   private static final long MIN_LSB_EXPONENT = 1L - EXPONENT_BIAS - 128;
 
-  /** Positive values whose square roots are not closer to the midpoint than {@link #NEAR_MIDPOINT_ZONE} */
-  public static Stream<Named<Quadruple>> values() {
-    return allValues().filter(v -> !isNearMidpoint(v.getPayload()));
-  }
-
-  /** Positive values whose square roots are closer to the midpoint than {@link #NEAR_MIDPOINT_ZONE} (BUG-15) */
-  public static Stream<Named<Quadruple>> nearMidpointValues() {
-    return allValues().filter(v -> isNearMidpoint(v.getPayload()));
-  }
-
-  /** @return true if the exact square root of {@code q} is closer to the midpoint than {@link #NEAR_MIDPOINT_ZONE} */
-  public static boolean isNearMidpoint(Quadruple q) {
-    final ExactValue.Rounding<Quadruple> r = ExactValue.of(q).sqrt().round();
-    return !r.exact() && Math.abs(r.offsetFromMidpoint()) < NEAR_MIDPOINT_ZONE;
-  }
-
   /** All the data (see the class description) */
-  private static Stream<Named<Quadruple>> allValues() {
+  public static Stream<Named<Quadruple>> values() {
     final List<Named<Quadruple>> values = new ArrayList<>(edgeCases());
     final Random random = new Random(RandomGenerator.DEFAULT_RANDOM_SEED);
     for (int i = 0; i < NEAR_MIDPOINT_COUNT; i++) values.add(nearMidpoint(random, 1 + random.nextInt(126), true));
