@@ -867,8 +867,15 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
       return negative? -0.0d : 0.0d;
 
     if (expD < -(EXP_0D - 1)) {                         // subnormal
-      long lValue = (mantHi >>> 12) | 0x0010_0000_0000_0000L; // implied higher bit;
-      lValue = lValue + (1L << -EXP_0D - expD) >>> -EXP_0D - expD + 1;
+      final long significand = (mantHi >>> 12) | DOUBLE_IMPLIED_MSB;  // 53 bits with the implied higher bit
+      final int shift = -EXP_0D - expD + 1;             // 1..53
+      final long halfOfLsb = 1L << shift - 1;
+      long lValue = significand >>> shift;
+      if ((significand & halfOfLsb) != 0                // The highest shifted-out bit is 1:
+          && (   (significand & (halfOfLsb - 1)) != 0   // more than a half of the LSB,
+              || (mantHi & 0xFFF) != 0 || mantLo != 0
+              || (lValue & 1) != 0))                    // or a tie and the result is odd (half-even)
+        lValue++;                                       // may become Double.MIN_NORMAL, that's correct
       if (negative) lValue |= DOUBLE_SIGN_MASK;
       return Double.longBitsToDouble(lValue);
     }

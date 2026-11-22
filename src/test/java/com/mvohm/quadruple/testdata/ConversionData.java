@@ -71,26 +71,6 @@ public class ConversionData {
    */
 
   /**
-   * Values for {@code doubleValue()} (see {@link #allValuesForDoubleConversion()}),
-   * except the ties in the subnormal range of double (BUG-03, see KNOWN_ISSUES.md).
-   */
-  public static Stream<Named<Quadruple>> valuesForDoubleConversion() {
-    return allValuesForDoubleConversion().filter(v -> !isSubnormalDoubleTie(v.getPayload()));
-  }
-
-  /** The ties in the subnormal range of double from {@link #allValuesForDoubleConversion()} (BUG-03) */
-  public static Stream<Named<Quadruple>> subnormalDoubleTies() {
-    return allValuesForDoubleConversion().filter(v -> isSubnormalDoubleTie(v.getPayload()));
-  }
-
-  /** @return true if the value of {@code q} is exactly the midpoint between two adjacent subnormal doubles */
-  private static boolean isSubnormalDoubleTie(Quadruple q) {
-    if (q.isNaN() || q.isInfinite()) return false;
-    final ExactValue.Rounding<Double> r = ExactValue.of(q).round(BinaryFormat.DOUBLE);
-    return !r.exact() && r.offsetFromMidpoint() == 0 && Math.abs(r.truncated()) < Double.MIN_NORMAL;
-  }
-
-  /**
    * All values for {@code doubleValue()}: both signs of
    * <ul>
    *   <li>ties of different kinds: 1 + 2^-53 (rounded down to even), 1 + 3 * 2^-53 (up to even),
@@ -100,7 +80,7 @@ public class ConversionData {
    *   <li>extreme Quadruple values, random values with exponents from -1100 to 1050.</li>
    * </ul>
    */
-  private static Stream<Named<Quadruple>> allValuesForDoubleConversion() {
+  public static Stream<Named<Quadruple>> valuesForDoubleConversion() {
     final Stream<Labeled> edges = Stream.of(
         nearMidpoint("1",                    1.0),
         nearMidpoint("1 + ulp",              Math.nextUp(1.0)),

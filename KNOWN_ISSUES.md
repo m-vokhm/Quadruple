@@ -57,7 +57,7 @@ since a new instance has `mantHi == 0`.
 
 ## BUG-03 — `doubleValue()` rounds ties half-up in the subnormal range of `double`
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-19
 **Where:** `Quadruple.doubleValue()`, the branch for subnormal results (`expD < -(EXP_0D - 1)`)
 
@@ -72,12 +72,12 @@ Quadruple.multiply(min, 2.5).doubleValue();     // 1.5E-323 (3 * MIN_VALUE), exp
 ("like `BigDecimal.doubleValue()`"), but the subnormal branch adds a half of the LSB and shifts,
 which rounds exact ties up (away from zero). Only exact ties are affected.
 
-**Fix (proposed):** round half-even in the subnormal branch too (round a tie up only if the result is odd,
-taking into account all the shifted-out bits, including `mantLo`).
+**Fix:** the subnormal branch rounds half-even: it rounds up if the highest shifted-out bit is 1 and either any
+of the lower bits (of the 53-bit significand, the lower 12 bits of `mantHi`, `mantLo`) is 1, or the result is odd.
+A carry gives `Double.MIN_NORMAL`; `MIN_VALUE / 2` gives 0, like the standard conversions.
 
-**Tests:** `ConversionTest.shouldConvertSubnormalDoubleTiesToEven` (disabled; 1006 ties, 498 of them fail —
-the others are rounded up to even anyway).
-The ties are excluded from the data of `ConversionTest.shouldConvertToDouble`.
+**Tests:** `ConversionTest.shouldConvertToDouble` (all the data, including 1006 ties in the subnormal range,
+498 of which failed before the fix).
 
 ---
 
