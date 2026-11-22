@@ -137,7 +137,7 @@ These values are excluded from the data of `ConversionTest.shouldConvertToIeee75
 
 ## BUG-06 — `equals()` returns `false` for two different instances of NaN
 
-**Status:** open
+**Status:** fixed (2026-11-22)
 **Found:** 2026-11-19
 **Where:** `Quadruple.equals(Object)`: `if (isNaN() && other.isNaN()) return false;`
 
@@ -154,8 +154,8 @@ As a result, `equals()` is inconsistent with `compareTo()`, and e.g. a `HashSet`
 
 **Fix (proposed):** return `true` if both are NaN (regardless of the sign and the mantissa bits).
 
-**Tests:** `ComparisonTest.shouldConsiderAllNaNsEqual` (disabled; 25 pairs of NaNs, including NaNs
-with different bit patterns, all fail). These pairs are excluded from the data of `ComparisonTest.shouldTestEquality`.
+**Tests:** `ComparisonTest.shouldTestEquality` (all pairs, including 25 pairs of NaNs with different bit patterns;
+before the fix, all of them failed).
 
 ---
 

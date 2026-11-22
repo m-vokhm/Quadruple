@@ -1181,8 +1181,8 @@ public class Quadruple extends Number implements Comparable<Quadruple> {
     if (this == obj) return true;
     if (!(obj instanceof Quadruple)) return false;
     final Quadruple other = (Quadruple)obj;
-    if (isNaN() && other.isNaN())                       // NaNs are all different
-      return false;
+    if (isNaN() || other.isNaN())                       // Like Double.equals(), all NaNs are equal
+      return isNaN() && other.isNaN();
     return
        negative == other.negative                       // For Doubles, -0 != 0. Do it the same way
        && exponent == other.exponent

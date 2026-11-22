@@ -94,20 +94,13 @@ public class ComparisonTest {
    */
 
   @ParameterizedTest
-  @MethodSource(DATA + "pairsForEquals")
+  @MethodSource(DATA + "pairs")
   void shouldTestEquality(Quadruple a, Quadruple b) {
     final boolean expected = expectedCompare(a, b) == 0;
     assertThat(a.equals(b)).as("equals " + pair(a, b)).isEqualTo(expected);
     assertThat(b.equals(a)).as("equals " + pair(b, a)).isEqualTo(expected);
     if (expected)
       assertThat(a.hashCode()).as("hashCode of equal values " + pair(a, b)).isEqualTo(b.hashCode());
-  }
-
-  @Disabled("BUG-06: equals() returns false for different instances of NaN, unlike Double.equals(), see KNOWN_ISSUES.md")
-  @ParameterizedTest
-  @MethodSource(DATA + "pairsOfNaNs")
-  void shouldConsiderAllNaNsEqual(Quadruple a, Quadruple b) {
-    shouldTestEquality(a, b);
   }
 
   @Test

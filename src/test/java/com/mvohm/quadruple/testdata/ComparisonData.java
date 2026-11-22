@@ -127,16 +127,6 @@ public class ComparisonData {
     return allPairs().map(Pair::toArguments);
   }
 
-  /** Pairs for {@code equals()}: all pairs except those of two NaNs (BUG-06) */
-  public static Stream<Arguments> pairsForEquals() {
-    return allPairs().filter(p -> !p.bothNaN()).map(Pair::toArguments);
-  }
-
-  /** Pairs of two NaNs (different instances, also with different bit patterns), BUG-06 */
-  public static Stream<Arguments> pairsOfNaNs() {
-    return allPairs().filter(Pair::bothNaN).map(Pair::toArguments);
-  }
-
   /** Pairs for {@code min()} and {@code assignMin()}: all pairs except those with exactly one NaN (BUG-07) */
   public static Stream<Arguments> pairsForMin() {
     return allPairs().filter(p -> !p.oneNaN()).map(Pair::toArguments);
@@ -184,7 +174,6 @@ public class ComparisonData {
       a = copy(a);
       b = copy(b);
     }
-    boolean bothNaN() { return a.getPayload().isNaN() && b.getPayload().isNaN(); }
     boolean oneNaN()  { return a.getPayload().isNaN() != b.getPayload().isNaN(); }
     Arguments toArguments() { return Arguments.of(a, b); }
   }
