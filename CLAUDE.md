@@ -5,7 +5,7 @@
 **Quadruple** — Java-библиотека для вычислений с плавающей точкой четверной точности
 (128-битная мантисса, 32-битная экспонента; чуть точнее стандартного IEEE-754 quadruple).
 
-- Maven, groupId `com.mvohm.quadruple`, artifactId `Quadruple`, версия 1.2.0, Java 17.
+- Maven, groupId `com.mvohm.quadruple`, artifactId `Quadruple`, версия 1.2.1, Java 17.
 - Основной класс: `com.mvohm.quadruple.Quadruple` (`src/main/java/com/mvohm/quadruple/`).
 - Экземпляры **мутабельны**: `q1.add(q2)` меняет `q1`; есть и статические варианты (`Quadruple.add(q1, q2)`).
 - Класс условно потокобезопасен: модифицирующие операции над одним экземпляром из разных потоков небезопасны.
