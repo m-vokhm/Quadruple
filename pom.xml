@@ -19,29 +19,9 @@
     <maven.compiler.target>17</maven.compiler.target>
     <!-- JUnit tags excluded by default; run slow tests with -Dtest.excludedGroups=none -Dgroups=slow -->
     <test.excludedGroups>slow</test.excludedGroups>
-    
-    <!-- For benchmarking, added 21.06.06 -->
-    <jmh.version>1.29</jmh.version>
-    <!-- <uberjar.name>benchmarks</uberjar.name - left aside till the next approach -->
-    
   </properties>
   
   <dependencies>
-    <!-- For benchmarking, added 21.06.06 --> 
-    <dependency>
-      <groupId>org.openjdk.jmh</groupId>
-      <artifactId>jmh-core</artifactId>
-      <version>${jmh.version}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.openjdk.jmh</groupId>
-      <artifactId>jmh-generator-annprocess</artifactId>
-      <version>${jmh.version}</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- JUnit 5 aggregate: jupiter-api, jupiter-params, jupiter-engine -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -96,15 +76,9 @@
 
            <!-- <skipTests>true</skipTests>  TODO to speed up build process, for testing it  -->
 
-          <!-- New tests: com.mvohm.quadruple.*Test;
-               old tests: run via their JUnit wrapper QuadJUnitTest only -->
           <includes>
             <include>**/*Test.java</include>
           </includes>
-
-          <excludes>
-            <exclude>**/QuadTest.java</exclude>   <!-- old tests, main()-based, not JUnit -->
-          </excludes>
 
           <excludedGroups>${test.excludedGroups}</excludedGroups>
 
@@ -183,30 +157,6 @@
         </executions>
       </plugin>
               
-      <plugin>  
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>test-jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-            
-            <configuration>
-              <archive>
-                <manifest>
-                  <addClasspath>true</addClasspath>
-                  <mainClass>
-                    com.mvohm.quadruple.test.QuadTest
-                  </mainClass>
-                </manifest>
-              </archive>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>      
-      
     </plugins>
     
     <pluginManagement>

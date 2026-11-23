@@ -14,16 +14,16 @@
 
 ## Задачи проекта
 
-1. **Переписать тесты** (текущий фокус — на другие задачи пока не отвлекаемся).
-   - Старые тесты в `src/test/java/com/mvohm/quadruple/test` работают и, видимо, покрывают все случаи.
-     Пока их не анализируем; позже будем брать оттуда наборы тестовых данных.
-   - Новые тесты — в `src/test/java/com/mvohm/quadruple/` (тот же пакет, что у тестируемого класса).
+1. **Переписать тесты** — выполнено. Новые тесты — в `src/test/java/com/mvohm/quadruple/` (тот же пакет,
+   что у тестируемого класса). Старые (`com.mvohm.quadruple.test`, `QuadTest`) удалены перед релизом 1.2.1,
+   при необходимости их можно достать из истории git.
 2. **Рефакторинг `Quadruple`.** Сейчас API и вся функциональность в одном классе. Выделить package-private классы
    с реализацией, отделив её от API. Эту же реализацию использовать в immutable-варианте класса
    (сейчас он в другом проекте и представляет собой просто обёртку над `Quadruple`).
 3. **Ускорить парсинг строк** (`Quadruple(String s)`). Сейчас реализация на уровне quick-and-dirty POC;
    переписать, цель — ускорение примерно в 4 раза.
 4. **Сообщения пользователей об ошибках** — проверить и исправить подтвердившиеся.
+   Для 1.2.1 исправлено всё запланированное; на следующий релиз отложены BUG-08, 18, 19, 22 (см. `KNOWN_ISSUES.md`).
 
 ## План работы над тестами (задача 1)
 
@@ -72,17 +72,16 @@ src/test/java/com/mvohm/quadruple/
   а не равномерное по диапазону. Объём — множитель `-Dtest.volume=N` (по умолчанию 1; `DataHelpers.scaled(n)`
   для всех счётчиков случайных данных `*_COUNT`; ручные и построенные краевые случаи не масштабируются).
 - Падающие тесты не подгонять: `@Disabled("BUG-xx ...")` + запись в `KNOWN_ISSUES.md` (в корне, коммитится; вход для задачи 4).
-- Порядок: перенос → генераторы → Creation → AssignTest → testutil (ExactValue) →
-  Conversion → Comparison → SpecialValues → Arithmetic → Sqrt → StringParsing/ToString.
 
 ## Структура
 
 - `src/main/java` — код библиотеки.
-- `src/test/java/com/mvohm/quadruple/test` — старая подсистема тестирования.
-- `src/test/java/com/mvohm/quadruple/*Test.java`, `testdata/` — новые JUnit-тесты.
+- `src/test/java/com/mvohm/quadruple/*Test.java`, `testdata/`, `testutil/` — JUnit-тесты.
 - `KNOWN_ISSUES.md` — подтверждённые баги (BUG-xx).
-- Ветка `newTests` — разработка новой подсистемы тестирования на замену старой.
-- Зависимости тестов: JUnit 5, AssertJ; бенчмарки — JMH.
+- Релизы: аннотированный тег `vX.Y.Z` на `master` (fast-forward из рабочей ветки) и GitHub Release с jar-файлами
+  (основной, `-sources`, `-javadoc`); в Maven Central не публикуется. github.io отдаёт `src/main/javadoc` из `master`.
+  Изменения по версиям — `CHANGES.md`.
+- Зависимости тестов: JUnit 5, AssertJ. Бенчмарки (JMH) — в отдельном проекте со своим pom.
 - Медленные тесты (`@Tag("slow")`, сейчас `ThreadSafetyTest`) по умолчанию исключены (`test.excludedGroups` в pom);
   запуск: `mvn test -Dtest.excludedGroups=none -Dgroups=slow` (только они) или `-Dtest.excludedGroups=none` (все).
 
